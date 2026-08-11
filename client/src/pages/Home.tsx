@@ -206,7 +206,7 @@ export default function Home() {
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  });
+  }, [activeIndex, reduced]);
 
   const visibleRepos = useMemo(() => allGalleryRepos.filter((repo) => filter === "all" || filter === "public" && !repo.private || filter === "private" && repo.private || filter === "TypeScript" && repo.language === "TypeScript"), [filter]);
   const activeSkill = skillGroups.find((group) => group.id === selectedSkill) ?? skillGroups[0];
