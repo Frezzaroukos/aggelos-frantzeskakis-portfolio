@@ -1,250 +1,282 @@
-import { Button } from "@/components/ui/button";
-import { useEffect, useRef, useState } from "react";
+import { AnimatePresence, motion, useScroll, useSpring, useTransform } from "framer-motion";
+import {
+  ArrowDownRight,
+  ArrowUpRight,
+  Check,
+  Code2,
+  ExternalLink,
+  Github,
+  Globe2,
+  Layers3,
+  Menu,
+  X,
+  Zap,
+} from "lucide-react";
+import { useMemo, useState, type ReactNode } from "react";
+import { getGitHubData, type GitHubRepository } from "@/data/loader";
 
 /**
- * Pegasus Portfolio - Minimalist Elegance with Motion
- * 
- * Design Philosophy: Ethereal Motion
- * - Negative space as design principle
- * - Smooth animations guide attention
- * - Refined typography with serif/sans-serif pairing
- * - Monochromatic elegance with soft gold accents
+ * Pegasus Portfolio — Ethereal Motion direction.
+ * This page uses generous white space, an editorial asymmetry, charcoal copy,
+ * a restrained gold accent, the Pegasus as a signature visual, and purposeful motion.
  */
 
-export default function Home() {
-  const [scrollY, setScrollY] = useState(0);
-  const pegasusRef = useRef<HTMLDivElement>(null);
-  const heroTextRef = useRef<HTMLDivElement>(null);
+const github = getGitHubData();
+const publicRepos = github.repositories.filter((repo) => !repo.private && !repo.fork);
+const featuredNames = ["anabasis", "thermidor", "anafora", "Frezzaroukos"];
+const featuredRepos = featuredNames
+  .map((name) => publicRepos.find((repo) => repo.name === name))
+  .filter((repo): repo is GitHubRepository => Boolean(repo));
+const languageFilters = ["All", "TypeScript", "HTML", "Other"];
 
-  useEffect(() => {
-    const handleScroll = () => {
-      setScrollY(window.scrollY);
-    };
+const capabilityItems = [
+  {
+    index: "01",
+    icon: Layers3,
+    title: "Product systems",
+    text: "Interfaces that feel considered, legible, and ready for real use — from first click to daily habit.",
+    detail: "Product thinking · UX/UI · Responsive web",
+  },
+  {
+    index: "02",
+    icon: Code2,
+    title: "Offline-first craft",
+    text: "Reliable experiences that keep working when the network does not. Local data, strict TypeScript, calm states.",
+    detail: "PWA · IndexedDB · TypeScript",
+  },
+  {
+    index: "03",
+    icon: Zap,
+    title: "AI-native tools",
+    text: "Focused automation and intelligent workflows that make complex work feel lighter, not noisier.",
+    detail: "Local AI · Automation · Orchestration",
+  },
+];
 
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
+const processItems = [
+  { number: "01", label: "Clarify", text: "Find the essential problem beneath the brief." },
+  { number: "02", label: "Shape", text: "Turn structure into an interface people can trust." },
+  { number: "03", label: "Ship", text: "Polish the details, then make it feel alive." },
+];
 
+const easeOut = [0.22, 1, 0.36, 1] as const;
+
+function Reveal({ children, className = "", delay = 0 }: { children: ReactNode; className?: string; delay?: number }) {
   return (
-    <div className="min-h-screen bg-white text-foreground">
-      {/* Navigation */}
-      <nav className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-md border-b border-border">
-        <div className="container flex items-center justify-between h-16">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-full bg-accent flex items-center justify-center">
-              <span className="text-accent-foreground font-bold text-sm">P</span>
-            </div>
-            <span className="font-serif font-semibold text-lg">Pegasus</span>
-          </div>
-          <div className="flex items-center gap-6">
-            <a href="#work" className="text-sm hover:text-accent transition-colors duration-200">
-              Work
-            </a>
-            <a href="#about" className="text-sm hover:text-accent transition-colors duration-200">
-              About
-            </a>
-            <a href="#contact" className="text-sm hover:text-accent transition-colors duration-200">
-              Contact
-            </a>
-          </div>
-        </div>
-      </nav>
+    <motion.div
+      className={className}
+      initial={{ opacity: 0, y: 28 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, amount: 0.16 }}
+      transition={{ duration: 0.72, delay, ease: easeOut }}
+    >
+      {children}
+    </motion.div>
+  );
+}
 
-      {/* Hero Section */}
-      <section className="relative pt-32 pb-20 overflow-hidden">
-        <div className="container">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center min-h-[calc(100vh-8rem)]">
-            {/* Text Content */}
-            <div
-              ref={heroTextRef}
-              className="space-y-8 opacity-0 animate-in fade-in duration-1000"
-              style={{
-                transform: `translateY(${scrollY * 0.2}px)`,
-              }}
-            >
-              <div className="space-y-4">
-                <h1 className="text-6xl lg:text-7xl font-serif font-bold leading-tight">
-                  Where Creativity
-                  <span className="block text-accent">Takes Flight</span>
-                </h1>
-                <p className="text-lg text-muted-foreground max-w-lg leading-relaxed">
-                  Crafted with precision, animated with purpose. Discover a digital sanctuary where elegance meets motion.
-                </p>
-              </div>
-
-              <div className="flex gap-4 pt-4">
-                <Button
-                  size="lg"
-                  className="bg-accent hover:bg-accent/90 text-accent-foreground transition-all duration-300 hover:shadow-lg hover:scale-105"
-                >
-                  Explore My Work
-                </Button>
-                <Button
-                  variant="outline"
-                  size="lg"
-                  className="border-foreground/20 hover:border-accent hover:text-accent transition-all duration-300"
-                >
-                  Let's Create
-                </Button>
-              </div>
-            </div>
-
-            {/* Pegasus Image */}
-            <div
-              ref={pegasusRef}
-              className="relative h-96 lg:h-full flex items-center justify-center"
-              style={{
-                transform: `translateY(${scrollY * 0.15}px) rotateZ(${scrollY * 0.02}deg)`,
-              }}
-            >
-              <div className="absolute inset-0 bg-gradient-to-br from-accent/5 to-transparent rounded-full blur-3xl" />
-              <img
-                src="/manus-storage/pegasus_4e36f0f3.png"
-                alt="Pegasus"
-                className="w-full h-full object-contain drop-shadow-2xl animate-in fade-in duration-1000 delay-300"
-                style={{
-                  animation: "float 6s ease-in-out infinite",
-                }}
-              />
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Divider */}
-      <svg
-        className="w-full h-auto"
-        viewBox="0 0 1200 120"
-        preserveAspectRatio="none"
-      >
-        <path
-          d="M0,50 Q300,10 600,50 T1200,50 L1200,120 L0,120 Z"
-          fill="oklch(0.95 0.002 0)"
-        />
-      </svg>
-
-      {/* Featured Work Section */}
-      <section id="work" className="py-20 bg-secondary/30">
-        <div className="container">
-          <div className="text-center mb-16 space-y-4 opacity-0 animate-in fade-in duration-1000" style={{ animationDelay: "200ms" }}>
-            <h2 className="text-5xl font-serif font-bold">Featured Work</h2>
-            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              A selection of projects that showcase the intersection of design, motion, and functionality.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {[1, 2, 3].map((i) => (
-              <div
-                key={i}
-                className="group relative overflow-hidden rounded-lg bg-white border border-border hover:border-accent transition-all duration-300 hover:shadow-xl opacity-0 animate-in fade-in duration-1000"
-                style={{ animationDelay: `${200 + i * 100}ms` }}
-              >
-                <div className="aspect-video bg-gradient-to-br from-accent/10 to-accent/5 flex items-center justify-center">
-                  <div className="text-center">
-                    <div className="w-12 h-12 rounded-full bg-accent/20 mx-auto mb-4 flex items-center justify-center">
-                      <span className="text-accent font-bold">{i}</span>
-                    </div>
-                    <p className="text-sm text-muted-foreground">Project {i}</p>
-                  </div>
-                </div>
-                <div className="p-6 space-y-3">
-                  <h3 className="font-serif font-semibold text-lg group-hover:text-accent transition-colors">
-                    Project Title
-                  </h3>
-                  <p className="text-sm text-muted-foreground">
-                    A brief description of this amazing project and the value it delivered.
-                  </p>
-                  <div className="pt-4">
-                    <a href="#" className="text-sm font-medium text-accent hover:underline">
-                      View Project →
-                    </a>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* About Section */}
-      <section id="about" className="py-20">
-        <div className="container">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-            <div className="space-y-6 opacity-0 animate-in fade-in duration-1000">
-              <h2 className="text-5xl font-serif font-bold">About Me</h2>
-              <div className="space-y-4 text-lg text-muted-foreground leading-relaxed">
-                <p>
-                  I'm a creative professional passionate about crafting digital experiences that inspire and engage.
-                </p>
-                <p>
-                  With a focus on minimalist design and smooth animations, I bring ideas to life through thoughtful design and precise execution.
-                </p>
-                <p>
-                  Every project is an opportunity to create something meaningful and beautiful.
-                </p>
-              </div>
-              <Button
-                variant="outline"
-                className="border-foreground/20 hover:border-accent hover:text-accent transition-all duration-300"
-              >
-                Download CV
-              </Button>
-            </div>
-
-            <div className="relative h-96 opacity-0 animate-in fade-in duration-1000 delay-300">
-              <div className="absolute inset-0 bg-gradient-to-br from-accent/10 to-accent/5 rounded-2xl" />
-              <div className="absolute inset-0 flex items-center justify-center text-muted-foreground">
-                <p className="text-center">Profile Image</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* CTA Section */}
-      <section id="contact" className="py-20 bg-foreground text-background">
-        <div className="container text-center space-y-8">
-          <div className="space-y-4">
-            <h2 className="text-5xl font-serif font-bold">Let's Work Together</h2>
-            <p className="text-lg text-background/80 max-w-2xl mx-auto">
-              Have a project in mind? I'd love to hear about it. Get in touch and let's create something amazing.
-            </p>
-          </div>
-          <Button
-            size="lg"
-            className="bg-accent hover:bg-accent/90 text-accent-foreground transition-all duration-300 hover:shadow-lg hover:scale-105"
-          >
-            Get In Touch
-          </Button>
-        </div>
-      </section>
-
-      {/* Footer */}
-      <footer className="border-t border-border py-12 bg-secondary/30">
-        <div className="container text-center text-sm text-muted-foreground">
-          <p>© 2026 Pegasus Portfolio. Crafted with precision and animated with purpose.</p>
-        </div>
-      </footer>
-
-      {/* Animation Styles */}
-      <style>{`
-        @keyframes float {
-          0%, 100% {
-            transform: translateY(0px);
-          }
-          50% {
-            transform: translateY(-20px);
-          }
-        }
-
-        @media (prefers-reduced-motion: reduce) {
-          * {
-            animation: none !important;
-            transition: none !important;
-          }
-        }
-      `}</style>
+function SectionLabel({ children, number }: { children: ReactNode; number: string }) {
+  return (
+    <div className="section-label">
+      <span>{number}</span>
+      <span>{children}</span>
     </div>
   );
 }
+
+function RepoCard({ repo, index, featured = false }: { repo: GitHubRepository; index: number; featured?: boolean }) {
+  const topics = repo.topics?.slice(0, 3) ?? [];
+  const accent = repo.language === "TypeScript" ? "#d4a54a" : repo.language === "HTML" ? "#8ca58d" : "#a9a4b8";
+
+  return (
+    <motion.article
+      layout
+      initial={{ opacity: 0, y: 22 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -14 }}
+      transition={{ duration: 0.42, delay: index * 0.045, ease: easeOut }}
+      className={`repo-card ${featured ? "repo-card--featured" : ""}`}
+    >
+      <div className="repo-card__topline">
+        <span className="repo-card__number">0{index + 1}</span>
+        <span className="repo-card__language">
+          <i style={{ backgroundColor: accent }} />
+          {repo.language ?? "Open source"}
+        </span>
+      </div>
+      <div className="repo-card__body">
+        <div className="repo-card__heading">
+          <h3>{repo.name}</h3>
+          <a href={repo.html_url} target="_blank" rel="noreferrer" aria-label={`Open ${repo.name} on GitHub`}>
+            <ArrowUpRight size={18} strokeWidth={1.6} />
+          </a>
+        </div>
+        <p>{repo.description || "A work in progress shaped through code, curiosity, and iteration."}</p>
+        <div className="repo-card__meta">
+          <span>{repo.stars} stars</span>
+          <span>{repo.forks} forks</span>
+          {repo.homepage && (
+            <a href={repo.homepage} target="_blank" rel="noreferrer" className="repo-card__live">
+              Live <ExternalLink size={12} />
+            </a>
+          )}
+        </div>
+      </div>
+      <div className="repo-card__tags">
+        {(topics.length ? topics : [repo.language ?? "Build", "Explore"]).map((topic) => (
+          <span key={topic}>{topic}</span>
+        ))}
+      </div>
+    </motion.article>
+  );
+}
+
+export default function Home() {
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [activeFilter, setActiveFilter] = useState("All");
+  const { scrollYProgress } = useScroll();
+  const smoothProgress = useSpring(scrollYProgress, { stiffness: 120, damping: 28, mass: 0.22 });
+  const heroY = useTransform(smoothProgress, [0, 0.42], [0, 110]);
+  const heroRotate = useTransform(smoothProgress, [0, 0.45], [0, 3]);
+  const heroOpacity = useTransform(smoothProgress, [0, 0.28], [1, 0.32]);
+
+  const filteredRepos = useMemo(() => {
+    if (activeFilter === "All") return publicRepos;
+    if (activeFilter === "Other") return publicRepos.filter((repo) => !["TypeScript", "HTML"].includes(repo.language ?? ""));
+    return publicRepos.filter((repo) => repo.language === activeFilter);
+  }, [activeFilter]);
+
+  const scrollTo = (id: string) => {
+    document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
+    setMenuOpen(false);
+  };
+
+  return (
+    <main className="site-shell">
+      <motion.div className="scroll-progress" style={{ scaleX: smoothProgress }} aria-hidden="true" />
+      <div className="grain" aria-hidden="true" />
+
+      <header className="site-nav">
+        <a className="brand-mark" href="#top" aria-label="Pegasus home">
+          <span className="brand-mark__glyph">P</span>
+          <span className="brand-mark__word">Pegasus<span>.</span></span>
+        </a>
+        <nav className={`nav-links ${menuOpen ? "is-open" : ""}`} aria-label="Primary navigation">
+          <button onClick={() => scrollTo("work")} type="button">Selected work</button>
+          <button onClick={() => scrollTo("capabilities")} type="button">Capabilities</button>
+          <button onClick={() => scrollTo("about")} type="button">About</button>
+          <button onClick={() => scrollTo("contact")} type="button">Contact</button>
+        </nav>
+        <a className="nav-github" href={github.profile.html_url} target="_blank" rel="noreferrer">
+          <Github size={16} />
+          <span>GitHub</span>
+          <ArrowUpRight size={14} />
+        </a>
+        <button className="menu-toggle" type="button" onClick={() => setMenuOpen((open) => !open)} aria-label={menuOpen ? "Close menu" : "Open menu"} aria-expanded={menuOpen}>
+          {menuOpen ? <X size={21} /> : <Menu size={21} />}
+        </button>
+      </header>
+
+      <section id="top" className="hero-section">
+        <div className="hero-section__eyebrow"><span className="status-dot" />Independent builder · product-minded by default</div>
+        <div className="hero-layout">
+          <div className="hero-copy">
+            <Reveal>
+              <h1>I build digital <em>systems</em> with clarity.</h1>
+            </Reveal>
+            <Reveal delay={0.1}>
+              <p className="hero-copy__lead">A portfolio by <strong>Frezzaroukos</strong> — shipping offline-first products, local AI tools, and thoughtful web experiences.</p>
+            </Reveal>
+            <Reveal delay={0.18} className="hero-copy__actions">
+              <button className="button button--dark" type="button" onClick={() => scrollTo("work")}>Explore the work <ArrowDownRight size={16} /></button>
+              <a className="text-link" href={github.profile.html_url} target="_blank" rel="noreferrer">View GitHub profile <ArrowUpRight size={15} /></a>
+            </Reveal>
+          </div>
+          <motion.div className="hero-visual" style={{ y: heroY, rotate: heroRotate, opacity: heroOpacity }}>
+            <div className="hero-visual__halo" aria-hidden="true" />
+            <div className="hero-visual__caption"><span>Signature study</span><span>01 / Pegasus</span></div>
+            <img src="/manus-storage/pegasus_4e36f0f3.png" alt="Watercolor Pegasus facing right" />
+            <div className="hero-visual__note"><span>Designed for</span><strong>motion, meaning<br />and memorable detail.</strong></div>
+          </motion.div>
+        </div>
+        <div className="hero-footnote"><span>Scroll to explore</span><span className="hero-footnote__line" /><span>2026</span></div>
+      </section>
+
+      <section className="signal-strip" aria-label="Portfolio signals">
+        <div><strong>{publicRepos.length}</strong><span>public repositories</span></div>
+        <div><strong>TS</strong><span>primary language</span></div>
+        <div><strong>AI</strong><span>systems & automation</span></div>
+        <div><strong>PWA</strong><span>offline-first mindset</span></div>
+      </section>
+
+      <section id="capabilities" className="section-block capabilities-section">
+        <div className="section-intro">
+          <SectionLabel number="01">What I bring</SectionLabel>
+          <Reveal><h2>Useful by nature.<br /><em>Distinct by design.</em></h2></Reveal>
+          <Reveal delay={0.08}><p>I care about the quiet decisions that make a product feel trustworthy: clear hierarchy, resilient states, and motion that earns its place.</p></Reveal>
+        </div>
+        <div className="capability-list">
+          {capabilityItems.map(({ index, icon: Icon, title, text, detail }, itemIndex) => (
+            <Reveal key={title} delay={itemIndex * 0.08} className="capability-item">
+              <span className="capability-item__index">{index}</span>
+              <Icon className="capability-item__icon" size={27} strokeWidth={1.35} />
+              <div><h3>{title}</h3><p>{text}</p><span>{detail}</span></div>
+              <ArrowUpRight className="capability-item__arrow" size={19} strokeWidth={1.5} />
+            </Reveal>
+          ))}
+        </div>
+      </section>
+
+      <section id="work" className="section-block work-section">
+        <div className="work-heading">
+          <div><SectionLabel number="02">Selected work</SectionLabel><Reveal><h2>Built in public.<br /><em>Shaped by use.</em></h2></Reveal></div>
+          <Reveal delay={0.12} className="work-heading__aside"><p>Real repositories from my GitHub profile — a living record of experiments, products, and the systems behind them.</p><a className="text-link" href={`${github.profile.html_url}?tab=repositories`} target="_blank" rel="noreferrer">See all on GitHub <ArrowUpRight size={15} /></a></Reveal>
+        </div>
+        <div className="featured-grid">
+          {featuredRepos.map((repo, index) => <RepoCard key={repo.name} repo={repo} index={index} featured />)}
+        </div>
+      </section>
+
+      <section className="manifesto-section">
+        <div className="manifesto-section__mark">“</div>
+        <Reveal><p>Good digital work should feel like an open door: <em>clear enough to enter, considered enough to stay.</em></p></Reveal>
+        <span className="manifesto-section__credit">A working principle, not a slogan.</span>
+      </section>
+
+      <section className="section-block library-section">
+        <div className="library-heading"><div><SectionLabel number="03">Repository library</SectionLabel><Reveal><h2>The lab<br /><em>is open.</em></h2></Reveal></div><Reveal delay={0.1}><p>{publicRepos.length} public builds, with the newest work at the top. Filter by language and follow the thread.</p></Reveal></div>
+        <div className="filter-row" role="tablist" aria-label="Filter repositories by language">
+          {languageFilters.map((filter) => <button key={filter} type="button" role="tab" aria-selected={activeFilter === filter} className={activeFilter === filter ? "is-active" : ""} onClick={() => setActiveFilter(filter)}>{filter}</button>)}
+        </div>
+        <motion.div layout className="repo-library">
+          <AnimatePresence mode="popLayout" initial={false}>
+            {filteredRepos.map((repo, index) => <RepoCard key={repo.name} repo={repo} index={index} />)}
+          </AnimatePresence>
+        </motion.div>
+      </section>
+
+      <section className="section-block process-section">
+        <div className="process-heading"><SectionLabel number="04">How I work</SectionLabel><Reveal><h2>From a loose idea<br /><em>to a living thing.</em></h2></Reveal></div>
+        <div className="process-list">
+          {processItems.map(({ number, label, text }, index) => <Reveal key={number} delay={index * 0.08} className="process-item"><span>{number}</span><div><h3>{label}</h3><p>{text}</p></div><Check size={18} strokeWidth={1.7} /></Reveal>)}
+        </div>
+      </section>
+
+      <section id="about" className="about-section">
+        <div className="about-section__portrait"><img src={github.profile.avatar_url} alt="GitHub avatar of Frezzaroukos" /><span>GitHub<br />profile</span></div>
+        <div className="about-section__copy"><SectionLabel number="05">The person behind the work</SectionLabel><Reveal><h2>Hi, I’m<br /><em>Frezzaroukos.</em></h2></Reveal><Reveal delay={0.08}><p>I’m building a practice around useful software: products that respect attention, make complexity legible, and keep a little room for wonder.</p></Reveal><Reveal delay={0.15}><div className="about-links"><a className="button button--outline" href={github.profile.html_url} target="_blank" rel="noreferrer"><Github size={16} /> Open GitHub <ArrowUpRight size={15} /></a><span><Globe2 size={15} /> Public work, updated regularly</span></div></Reveal></div>
+      </section>
+
+      <section id="contact" className="contact-section">
+        <div className="contact-section__top"><SectionLabel number="06">Start a conversation</SectionLabel><span>Have a good problem?</span></div>
+        <Reveal><h2>Let’s make<br /><em>something clear.</em></h2></Reveal>
+        <a className="contact-cta" href={github.profile.html_url} target="_blank" rel="noreferrer"><span>Open the GitHub profile</span><ArrowUpRight size={22} /></a>
+        <div className="contact-section__footer"><span>Available for thoughtful collaborations</span><a href={github.profile.html_url} target="_blank" rel="noreferrer">github.com/{github.profile.login}</a></div>
+      </section>
+
+      <footer className="site-footer"><span>© 2026 Pegasus / Frezzaroukos</span><span>Crafted with precision, animated with purpose.</span><a href="#top">Back to top ↑</a></footer>
+    </main>
+  );
+}
+
+export { publicRepos };
