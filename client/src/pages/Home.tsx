@@ -1,4 +1,4 @@
-import { motion } from "framer-motion";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import {
   ArrowLeft,
   ArrowRight,
@@ -50,13 +50,14 @@ const processItems = [
 const easeOut = [0.22, 1, 0.36, 1] as const;
 
 function Reveal({ children, className = "", delay = 0 }: { children: ReactNode; className?: string; delay?: number }) {
+  const reducedMotion = useReducedMotion();
   return (
     <motion.div
       className={className}
-      initial={{ opacity: 0, y: 22 }}
-      whileInView={{ opacity: 1, y: 0 }}
+      initial={reducedMotion ? false : { opacity: 0, y: 22 }}
+      whileInView={reducedMotion ? undefined : { opacity: 1, y: 0 }}
       viewport={{ once: true, amount: 0.2 }}
-      transition={{ duration: 0.62, delay, ease: easeOut }}
+      transition={reducedMotion ? { duration: 0 } : { duration: 0.62, delay, ease: easeOut }}
     >
       {children}
     </motion.div>
@@ -68,10 +69,11 @@ function SectionLabel({ children, number }: { children: ReactNode; number: strin
 }
 
 function RepoCard({ repo, index, featured = false }: { repo: GitHubRepository; index: number; featured?: boolean }) {
+  const reducedMotion = useReducedMotion();
   const topics = repo.topics?.slice(0, 3) ?? [];
   const accent = repo.name.toLowerCase() === "axon" ? "var(--accent)" : repo.language === "TypeScript" ? "var(--ink)" : "var(--muted-ink)";
   return (
-    <motion.article layout className={`repo-card ${featured ? "repo-card--featured" : ""}`} initial={{ opacity: 0, x: 24 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true, amount: 0.16 }} transition={{ duration: 0.55, delay: index * 0.05, ease: easeOut }}>
+    <motion.article layout className={`repo-card ${featured ? "repo-card--featured" : ""}`} initial={reducedMotion ? false : { opacity: 0, x: 24 }} whileInView={reducedMotion ? undefined : { opacity: 1, x: 0 }} viewport={{ once: true, amount: 0.16 }} transition={reducedMotion ? { duration: 0 } : { duration: 0.55, delay: index * 0.05, ease: easeOut }}>
       <div className="repo-card__topline"><span>0{index + 1}</span><span className="repo-card__status"><i style={{ backgroundColor: accent }} />{repo.private ? "Private build" : repo.language ?? "Repository"}</span></div>
       <div className="repo-card__body">
         <div className="repo-card__heading"><h3>{repo.name}</h3><a href={repo.html_url} target="_blank" rel="noreferrer" aria-label={`Open ${repo.name} on GitHub`}><ArrowUpRight size={18} strokeWidth={1.5} /></a></div>
@@ -89,6 +91,10 @@ export default function Home() {
   const [darkMode, setDarkMode] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [isDesktop, setIsDesktop] = useState(false);
+  const reducedMotion = useReducedMotion();
+  const targetScrollRef = useRef(0);
+  const scrollFrameRef = useRef<number | null>(null);
+  const [transitionDirection, setTransitionDirection] = useState(1);
 
   useEffect(() => {
     const storedTheme = window.localStorage.getItem("pegasus-theme");
@@ -106,22 +112,55 @@ export default function Home() {
   useEffect(() => {
     const viewport = viewportRef.current;
     if (!viewport) return;
+    targetScrollRef.current = viewport.scrollLeft;
     const handleScroll = () => {
       if (window.innerWidth <= 900) return;
-      const next = Math.round(viewport.scrollLeft / Math.max(viewport.clientWidth, 1));
-      setActivePanel(Math.max(0, Math.min(panelIds.length - 1, next)));
+      const next = Math.max(0, Math.min(panelIds.length - 1, Math.round(viewport.scrollLeft / Math.max(viewport.clientWidth, 1))));
+      if (next !== activePanel) {
+        setTransitionDirection(next > activePanel ? 1 : -1);
+        setActivePanel(next);
+      }
     };
     viewport.addEventListener("scroll", handleScroll, { passive: true });
     return () => viewport.removeEventListener("scroll", handleScroll);
-  }, []);
+  }, [activePanel]);
+
+  const animateHorizontalScroll = (target: number, duration = 720) => {
+    const viewport = viewportRef.current;
+    if (!viewport) return;
+    const maxScroll = Math.max(0, viewport.scrollWidth - viewport.clientWidth);
+    const nextTarget = Math.max(0, Math.min(maxScroll, target));
+    targetScrollRef.current = nextTarget;
+    if (scrollFrameRef.current !== null) cancelAnimationFrame(scrollFrameRef.current);
+    if (reducedMotion) {
+      viewport.scrollLeft = nextTarget;
+      return;
+    }
+    const start = viewport.scrollLeft;
+    const distance = nextTarget - start;
+    const startedAt = performance.now();
+    const tick = (now: number) => {
+      const progress = Math.min(1, (now - startedAt) / duration);
+      const eased = 1 - Math.pow(1 - progress, 4);
+      viewport.scrollLeft = start + distance * eased;
+      if (progress < 1) {
+        scrollFrameRef.current = requestAnimationFrame(tick);
+      } else {
+        scrollFrameRef.current = null;
+        viewport.scrollLeft = nextTarget;
+      }
+    };
+    scrollFrameRef.current = requestAnimationFrame(tick);
+  };
 
   const scrollToPanel = (index: number) => {
     const boundedIndex = Math.max(0, Math.min(panelIds.length - 1, index));
     const element = document.getElementById(panelIds[boundedIndex]);
+    setTransitionDirection(boundedIndex >= activePanel ? 1 : -1);
     if (isDesktop && viewportRef.current) {
-      viewportRef.current.scrollTo({ left: boundedIndex * viewportRef.current.clientWidth, behavior: "smooth" });
+      animateHorizontalScroll(boundedIndex * viewportRef.current.clientWidth, 820);
     } else {
-      element?.scrollIntoView({ behavior: "smooth", block: "start" });
+      element?.scrollIntoView({ behavior: reducedMotion ? "auto" : "smooth", block: "start" });
     }
     setActivePanel(boundedIndex);
     setMenuOpen(false);
@@ -130,7 +169,9 @@ export default function Home() {
   const handleWheel = (event: WheelEvent<HTMLDivElement>) => {
     if (!isDesktop || !viewportRef.current || Math.abs(event.deltaY) <= Math.abs(event.deltaX)) return;
     event.preventDefault();
-    viewportRef.current.scrollLeft += event.deltaY;
+    const viewport = viewportRef.current;
+    const currentTarget = Math.abs(targetScrollRef.current - viewport.scrollLeft) > 3 ? targetScrollRef.current : viewport.scrollLeft;
+    animateHorizontalScroll(currentTarget + event.deltaY * 1.15, 520);
   };
 
   const handleKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
@@ -160,9 +201,22 @@ export default function Home() {
         <button className="menu-toggle" type="button" onClick={() => setMenuOpen((open) => !open)} aria-label={menuOpen ? "Close menu" : "Open menu"} aria-expanded={menuOpen}>{menuOpen ? <X size={21} /> : <Menu size={21} />}</button>
       </header>
 
+      <AnimatePresence initial={false} mode="sync">
+        {!reducedMotion && (
+          <motion.div
+            key={activePanel}
+            className="panel-transition"
+            initial={{ opacity: 0, x: transitionDirection > 0 ? "-100%" : "100%" }}
+            animate={{ opacity: [0, 0.24, 0], x: "0%" }}
+            transition={{ duration: 0.86, times: [0, 0.18, 1], ease: easeOut }}
+            aria-hidden="true"
+          />
+        )}
+      </AnimatePresence>
+
       <div className="horizontal-viewport" ref={viewportRef} onWheel={handleWheel} onKeyDown={handleKeyDown} tabIndex={0} aria-label="Horizontal portfolio gallery">
         <div className="horizontal-track">
-          <section id="top" className="h-panel h-panel--hero"><div className="panel-inner hero-layout"><div className="hero-copy"><div className="hero-section__eyebrow"><span className="status-dot" />Independent builder · systems in motion</div><Reveal><h1>I make digital systems where <em>clarity</em> takes flight.</h1></Reveal><Reveal delay={0.1}><p className="hero-copy__lead">A portfolio by <strong>Frezzaroukos</strong> — shaping offline-first products, local AI tools, and thoughtful web experiences that move with purpose.</p></Reveal><Reveal delay={0.16} className="hero-copy__actions"><button className="button button--dark" type="button" onClick={() => scrollToPanel(2)}>Explore the work <ArrowRight size={16} /></button><a className="text-link" href={github.profile.html_url} target="_blank" rel="noreferrer">View GitHub profile <ArrowUpRight size={15} /></a></Reveal></div><motion.div className="hero-visual" animate={{ y: [0, -10, 0], rotate: [-1, 1, -1] }} transition={{ duration: 7, repeat: Infinity, ease: "easeInOut" }}><div className="hero-visual__halo" aria-hidden="true" /><div className="hero-visual__caption"><span>Signature study</span><span>01 / Pegasus</span></div><img src="/manus-storage/pegasus_4e36f0f3.png" alt="Watercolor Pegasus facing right" /><div className="hero-visual__note"><span>Designed for</span><strong>motion, meaning<br />and memorable detail.</strong></div></motion.div></div><div className="panel-footnote"><span>Editorial gallery flight · scroll right</span><span className="panel-footnote__line" /><span>2026</span></div></section>
+          <section id="top" className="h-panel h-panel--hero"><div className="panel-inner hero-layout"><div className="hero-copy"><div className="hero-section__eyebrow"><span className="status-dot" />Independent builder · systems in motion</div><Reveal><h1>I make digital systems where <em>clarity</em> takes flight.</h1></Reveal><Reveal delay={0.1}><p className="hero-copy__lead">A portfolio by <strong>Frezzaroukos</strong> — shaping offline-first products, local AI tools, and thoughtful web experiences that move with purpose.</p></Reveal><Reveal delay={0.16} className="hero-copy__actions"><button className="button button--dark" type="button" onClick={() => scrollToPanel(2)}>Explore the work <ArrowRight size={16} /></button><a className="text-link" href={github.profile.html_url} target="_blank" rel="noreferrer">View GitHub profile <ArrowUpRight size={15} /></a></Reveal></div><motion.div className="hero-visual" animate={reducedMotion ? undefined : { y: [0, -10, 0], rotate: [-1, 1, -1] }} transition={reducedMotion ? undefined : { duration: 7, repeat: Infinity, ease: "easeInOut" }}><div className="hero-visual__halo" aria-hidden="true" /><div className="hero-visual__caption"><span>Signature study</span><span>01 / Pegasus</span></div><img src="/manus-storage/pegasus_4e36f0f3.png" alt="Watercolor Pegasus facing right" /><div className="hero-visual__note"><span>Designed for</span><strong>motion, meaning<br />and memorable detail.</strong></div></motion.div></div><div className="panel-footnote"><span>Editorial gallery flight · scroll right</span><span className="panel-footnote__line" /><span>2026</span></div></section>
 
           <section id="capabilities" className="h-panel"><div className="panel-inner split-panel"><div className="section-intro"><SectionLabel number="01">What I bring</SectionLabel><Reveal><h2>Useful by nature.<br /><em>Distinct by design.</em></h2></Reveal><Reveal delay={0.08}><p>I care about the quiet decisions that make a product feel trustworthy: clear hierarchy, resilient states, and motion that earns its place.</p></Reveal></div><div className="capability-list">{capabilityItems.map(({ index, icon: Icon, title, text, detail }, itemIndex) => <Reveal key={title} delay={itemIndex * 0.08} className="capability-item"><span className="capability-item__index">{index}</span><Icon className="capability-item__icon" size={27} strokeWidth={1.35} /><div><h3>{title}</h3><p>{text}</p><span>{detail}</span></div><ArrowUpRight className="capability-item__arrow" size={19} strokeWidth={1.5} /></Reveal>)}</div></div></section>
 
