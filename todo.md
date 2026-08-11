@@ -1,17 +1,21 @@
-# Pegasus Portfolio Motion Upgrade TODO
+# Angelos Frantzeskakis Vertical Cinematic Upgrade TODO
 
-- [x] Audit current panel navigation, scroll snapping, wheel conversion, and active-panel state.
-- [x] Define a restrained cinematic transition language for panel entry and exit.
-- [x] Add smooth horizontal scroll easing and richer navigation transitions.
-- [x] Add panel-aware parallax for backgrounds, typography, Pegasus/visual layers, and cards.
-- [x] Add active-panel progress and directional transition states without layout jank.
-- [x] Preserve a readable mobile vertical fallback and respect prefers-reduced-motion.
-- [x] Verify desktop transitions, keyboard navigation, theme compatibility, mobile fallback, TypeScript, and production build.
-- [ ] Save a new checkpoint after visual verification.
+- [x] Re-sync the GitHub profile and repository snapshot; do not change repository visibility.
+- [x] Convert the primary desktop experience from horizontal gallery to intentional vertical scroll storytelling.
+- [x] Build a stronger AF / Angelos Frantzeskakis brand mark and replace the current generic circular treatment if the new mark is clearer.
+- [x] Create a cinematic hero with layered Pegasus movement, cursor/scroll response, and graceful fallbacks.
+- [x] Add scroll-linked panel transitions, chapter progress, reveal choreography, and section wayfinding.
+- [x] Add interactive project deep-dives for AXON, Anabasis, Anafora, and Thermidor using GitHub facts and README content.
+- [x] Add repository filtering, expandable details, source links, public/private labels, and empty states.
+- [x] Add thoughtful device features: desktop pointer motion, tablet touch behavior, mobile menu, keyboard navigation, theme persistence, and reduced-motion support.
+- [x] Add a polished profile/contact experience with copyable GitHub handle and professional CTA.
+- [x] Verify mobile, tablet, desktop, light/dark themes, accessibility, performance, TypeScript, and production build.
+- [ ] Save a new checkpoint after visual verification; keep portfolio visibility unchanged until the user explicitly approves a private transition.
 
-## Motion guardrails
+## Direction
 
-- Motion should feel like an editorial gallery flight: calm, weighted, and directional rather than flashy.
-- Use transform and opacity for performance; avoid animating layout dimensions.
-- Keep controls responsive and keyboard navigation immediate enough to remain usable.
-- Do not add distracting perpetual effects or motion that competes with the Pegasus artwork.
+The vertical version should feel like a cinematic short film about making useful software: a quiet opening, a clear signal, projects revealed as scenes, a systems interlude for AXON, and a warm human ending. Keep the monochrome editorial base and use Soft Gold #D4AF37 only for meaningful emphasis. The AF mark should combine a wing/trajectory gesture with the initials A and F without placing the full name inside a default circle.
+
+## Content rules
+
+Use only the current GitHub profile, repository metadata, and available README facts. Do not fabricate metrics, reviews, testimonials, adoption, or outcomes. AXON remains a private concept view if its repository is private. Do not modify visibility of any GitHub repository.
