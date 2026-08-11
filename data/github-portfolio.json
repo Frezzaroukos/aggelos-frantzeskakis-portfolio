@@ -8,7 +8,7 @@
     "blog": "",
     "avatar_url": "https://avatars.githubusercontent.com/u/172664109?v=4",
     "html_url": "https://github.com/Frezzaroukos",
-    "public_repos": 5,
+    "public_repos": 4,
     "followers": 0,
     "following": 5,
     "created_at": "2024-06-13T21:20:32Z"
@@ -21,9 +21,9 @@
       "html_url": "https://github.com/Frezzaroukos/axon",
       "homepage": null,
       "language": "TypeScript",
-      "stargazers_count": 0,
+      "stargazers_count": 1,
       "forks_count": 0,
-      "watchers_count": 0,
+      "watchers_count": 1,
       "open_issues_count": 0,
       "topics": [],
       "pushed_at": "2026-08-10T19:35:24Z",
@@ -206,23 +206,6 @@
       "fork": false
     },
     {
-      "name": "morphos-app",
-      "full_name": "Frezzaroukos/morphos-app",
-      "description": "Morphos – A fitness tracking app for progress monitoring and workout optimization.",
-      "html_url": "https://github.com/Frezzaroukos/morphos-app",
-      "homepage": null,
-      "language": null,
-      "stargazers_count": 0,
-      "forks_count": 0,
-      "watchers_count": 0,
-      "open_issues_count": 0,
-      "topics": [],
-      "pushed_at": "2025-03-03T10:40:26Z",
-      "created_at": "2025-03-03T10:40:25Z",
-      "private": false,
-      "fork": false
-    },
-    {
       "name": "strength-atlas",
       "full_name": "Frezzaroukos/strength-atlas",
       "description": null,
@@ -359,5 +342,5 @@
       "fork": false
     }
   ],
-  "fetchedAt": "2026-08-11T14:43:02Z"
+  "fetchedAt": "2026-08-11T15:25:55Z"
 }

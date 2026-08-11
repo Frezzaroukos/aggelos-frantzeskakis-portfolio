@@ -1,37 +1,30 @@
-# Pegasus Portfolio Upgrade TODO
+# Pegasus Portfolio Horizontal Upgrade TODO
 
-- [x] Fetch and normalize the GitHub profile and repository data for Frezzaroukos.
-- [x] Add a GitHub profile section with avatar, bio, metrics, and profile link.
-- [x] Add a real repository showcase with language, stars, forks, topics, and links.
-- [x] Replace placeholder portfolio copy with stronger personal-brand content and editable project data.
-- [x] Add skills, capabilities, workflow, and services sections.
-- [x] Add premium motion interactions, scroll reveal behavior, cursor/hover details, and reduced-motion fallbacks.
-- [x] Improve responsive navigation, accessibility, metadata, and visual hierarchy.
-- [x] Verify the site in desktop and mobile viewports, run type checking/build checks, and save a new checkpoint.
+- [x] Re-fetch GitHub profile and repositories after the Morfos deletion.
+- [x] Ensure the deleted Morfos repository is absent and the AXON OS repository is represented accurately.
+- [x] Rework the site into a left-to-right horizontal presentation on desktop with clear section snap points.
+- [x] Add horizontal progress/navigation controls, keyboard support, and a visible scroll affordance.
+- [x] Add a user-controlled light/dark mode with white/light-gray/black light theme and inverted dark theme.
+- [x] Update borders, text, cards, controls, and Pegasus treatment for both themes.
+- [x] Improve project taxonomy and repository cards using the latest GitHub facts.
+- [x] Add additional useful portfolio structure without fabricated testimonials or reviews.
+- [x] Provide a readable vertical responsive fallback on narrow/mobile screens.
+- [x] Verify desktop horizontal behavior, mobile fallback, theme toggle, GitHub links, TypeScript, build, and checkpoint.
 
 ## Style guardrails
 
-- Keep the Ethereal Motion direction: generous white space, refined serif display typography, Poppins body text, charcoal text, restrained soft-gold accent, and fluid but purposeful motion.
-- Avoid generic cards, excessive rounded corners, purple gradients, and fabricated testimonials or reviews.
-- Keep all media outside the project directory and reference uploaded assets through webdev storage paths.
-
-## Editable content notes
-
-- Replace placeholder project entries with the user's real work when supplied.
-- Keep GitHub-derived repository facts visibly sourced from the user's GitHub profile/repositories.
-- Keep contact links and social links editable in one data section.
+- Keep the Ethereal Motion identity, but evolve it into a monochrome editorial gallery: white and pale gray in light mode, near-black and graphite in dark mode, with hard black/white outline logic and restrained gold only where it clarifies focus.
+- The primary reading direction is left-to-right on desktop. Avoid vertical page stacking there; use horizontal panels, snap points, and deliberate navigation.
+- Do not fabricate reviews, ratings, testimonials, or project outcomes. Use only GitHub-derived facts and clearly labeled portfolio positioning.
+- Keep all project media outside the project directory and reference uploaded assets through webdev storage paths.
 
 ## Verification checklist
 
-- [x] GitHub data loads or falls back gracefully when unavailable.
-- [x] All navigation anchors work.
-- [x] Focus states and reduced-motion behavior are present.
-- [x] Mobile layout remains readable and usable.
-- [x] No build or TypeScript errors remain.
+- [ ] Morfos is absent from all rendered content.
+- [ ] AXON OS appears with accurate repository description and GitHub link.
+- [ ] Desktop scroll progresses horizontally from left to right.
+- [ ] Keyboard navigation and reduced-motion behavior work.
+- [ ] Light and dark themes remain readable and visually inverted.
+- [ ] Mobile uses a usable vertical fallback.
+- [ ] No build or TypeScript errors remain.
 - [ ] New checkpoint is created after final verification.
-
-## Style Decisions
-
-- Use a calm, gallery-like composition with asymmetric hero balance and a subtle editorial grid only where it improves scanability.
-- Use the Pegasus as a signature visual rather than repeating it across every section.
-- Treat GitHub repositories as evidence of craft: concise, factual, and visually secondary to the personal brand.
