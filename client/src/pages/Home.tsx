@@ -1,4 +1,4 @@
-import { AnimatePresence, motion, useReducedMotion, useScroll, useTransform } from "framer-motion";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import {
   ArrowDown,
   ArrowLeft,
@@ -8,285 +8,244 @@ import {
   ChevronRight,
   Clipboard,
   Code2,
-  Command,
   ExternalLink,
   Github,
+  Instagram,
   Layers3,
+  Mail,
   Menu,
   Moon,
   MousePointer2,
-  Orbit,
-  PanelTop,
-  Search,
+  Send,
   Sparkles,
   Sun,
   X,
   Zap,
 } from "lucide-react";
-import { useEffect, useMemo, useRef, useState, type PointerEvent as ReactPointerEvent, type ReactNode } from "react";
+import { useEffect, useMemo, useRef, useState, type FormEvent, type ReactNode } from "react";
 import { getGitHubData, type GitHubRepository } from "@/data/loader";
 
 /**
- * Angelos Frantzeskakis — vertical cinematic portfolio.
- * This page treats the scroll as a story: arrival, signal, work, system,
- * method, profile, and conversation. Motion is expressive but optional.
+ * Aggelos Frantzeskakis / AF — horizontal cinematic portfolio.
+ * The desktop experience behaves as a left-to-right gallery; narrow screens
+ * intentionally fall back to vertical flow for touch comfort and readability.
  */
 
 const github = getGitHubData();
-const profileName = "Angelos Frantzeskakis";
 const profileHandle = github.profile.login;
 const profileUrl = github.profile.html_url;
-const handleUrl = `github.com/${profileHandle}`;
+const email = "aggelosf2016@gmail.com";
+const instagramUrl = "https://www.instagram.com/aggelosfrantzeskakiss?igsh=c2Zldmh3ZW1zNXEy&utm_source=qr";
+const instagramHandle = "@aggelosfrantzeskakiss";
+const assetUrls = {
+  pegasus: "/manus-storage/pegasus_cleaned_541401ab.png",
+  mark: "/manus-storage/af-brand-mark_0341fe3d.png",
+};
+
+const repositories = github.repositories.filter((repo) => !repo.name.toLowerCase().includes("morfos") && !repo.fork);
+const curatedNames = ["axon", "anabasis", "thermidor", "anafora"];
+const curatedRepos = curatedNames.map((name) => repositories.find((repo) => repo.name.toLowerCase() === name)).filter((repo): repo is GitHubRepository => Boolean(repo));
+const remainingRepos = repositories.filter((repo) => !curatedNames.includes(repo.name.toLowerCase()));
+const allGalleryRepos = [...curatedRepos, ...remainingRepos];
 const accent = "#D4AF37";
+const ease = [0.22, 1, 0.36, 1] as const;
+
 const chapters = [
   { id: "home", label: "Arrival" },
-  { id: "signal", label: "Signal" },
-  { id: "work", label: "Selected work" },
-  { id: "axon", label: "AXON OS" },
-  { id: "method", label: "Method" },
+  { id: "work", label: "Work" },
+  { id: "skills", label: "Skills" },
+  { id: "stack", label: "Stack" },
   { id: "about", label: "Profile" },
   { id: "contact", label: "Contact" },
 ];
-const curatedNames = ["axon", "anabasis", "thermidor", "anafora"];
-const repositories = github.repositories.filter((repo) => !repo.name.toLowerCase().includes("morfos") && !repo.fork);
-const curatedRepos = curatedNames.map((name) => repositories.find((repo) => repo.name.toLowerCase() === name)).filter((repo): repo is GitHubRepository => Boolean(repo));
-const publicRepos = repositories.filter((repo) => !repo.private);
-const axonRepo = repositories.find((repo) => repo.name.toLowerCase() === "axon");
-const ease = [0.22, 1, 0.36, 1] as const;
 
-type RepositoryFilter = "all" | "public" | "private" | "TypeScript";
+type Filter = "all" | "public" | "private" | "TypeScript";
 
-type ProjectStory = {
-  eyebrow: string;
-  title: string;
-  summary: string;
-  detail: string;
-  facts: string[];
-};
-
-const projectStories: Record<string, ProjectStory> = {
+type Story = { kicker: string; title: string; summary: string; detail: string; facts: string[] };
+const stories: Record<string, Story> = {
   axon: {
-    eyebrow: "Private concept · systems room",
+    kicker: "Private concept / systems room",
     title: "A cockpit for intelligence.",
-    summary: "The repository description positions AXON OSS as a local-first AI Operating System with a multi-provider router, RAG, cost optimization, and a 25-panel cockpit.",
-    detail: "AXON is the systems thread of the practice: an attempt to make orchestration visible, composable, and calm. The portfolio shows only the stated direction because the repository itself is private.",
+    summary: "AXON OSS is described as a local-first AI Operating System with multi-provider routing, RAG, cost optimization, and a 25-panel cockpit.",
+    detail: "The portfolio keeps this project honest: the repository is private, so the presentation shows the stated direction rather than pretending to reveal a public case study.",
     facts: ["Local-first AI", "Multi-provider router", "RAG", "25-panel cockpit"],
   },
   anabasis: {
-    eyebrow: "Public · offline-first PWA",
+    kicker: "Public / offline-first PWA",
     title: "Progress as a living map.",
-    summary: "A weighted calisthenics and skill-progression tracker built around prerequisite chains, hold-times, technical milestones, and bilingual use.",
-    detail: "Anabasis uses IndexedDB/Dexie, strict TypeScript, PWA tooling, local metrics, and a skill tree so training progress feels like a map rather than a single number. It is publicly available and links to anabasis.axonos.dev.",
-    facts: ["IndexedDB / Dexie", "Bilingual EN / EL", "Skill tree", "PWA"],
+    summary: "A weighted calisthenics and skill-progression tracker built around prerequisites, milestones, bilingual use, and installable PWA behavior.",
+    detail: "The current repository description grounds this study in TypeScript and an offline-first product idea. Its public homepage is anabasis.axonos.dev.",
+    facts: ["TypeScript", "Offline-first", "Bilingual", "PWA"],
   },
   thermidor: {
-    eyebrow: "Public · AI-augmented PWA",
+    kicker: "Public / AI-augmented PWA",
     title: "Everyday data, less friction.",
-    summary: "An offline-first calorie tracker with charts, modular features, and an AI assistant that can work across multiple providers.",
-    detail: "Thermidor keeps the daily task approachable while leaving room for a richer provider layer: local use, installable PWA behavior, charts, and a modular AI workflow are all named in the repository documentation.",
-    facts: ["Offline-first", "Multi-provider AI", "Charts", "Installable PWA"],
+    summary: "An AI-augmented calorie tracker with offline-first behavior, modular opt-in features, charts, and multi-provider AI chat.",
+    detail: "Thermidor is presented as a practical experiment in making a daily tool approachable while keeping room for optional intelligence and resilient use.",
+    facts: ["TypeScript", "Offline-first", "Charts", "Multi-provider AI"],
   },
   anafora: {
-    eyebrow: "Public · local AI document tool",
+    kicker: "Public / local AI document flow",
     title: "From rough notes to form.",
-    summary: "A focused path from unstructured notes to a formal document, using local AI with Ollama/Krikri and no server by default.",
-    detail: "Anafora explores the quieter side of AI tooling: keep source material close, make the transformation legible, and let a useful document emerge without making the workflow feel heavy.",
-    facts: ["Ollama / Krikri", "No server", "Local data", "Document flow"],
+    summary: "A focused route from unstructured notes to a formal document, using local AI through Ollama/Krikri with no server by default.",
+    detail: "Anafora explores a quiet AI workflow: keep the source material close, make the transformation understandable, and let a useful document emerge without unnecessary infrastructure.",
+    facts: ["TypeScript", "Ollama / Krikri", "Local data", "No server"],
   },
 };
 
-const capabilities = [
-  { icon: Layers3, index: "01", title: "Shape the system", text: "Structure complex ideas into interfaces people can enter without a manual.", detail: "Product thinking · UX / UI · Responsive web" },
-  { icon: Orbit, index: "02", title: "Keep it close", text: "Design for local data, resilient states, and the moments when a network disappears.", detail: "PWA · IndexedDB · Offline-first" },
-  { icon: Sparkles, index: "03", title: "Give AI a place", text: "Use AI as a material in the workflow — orchestrated, visible, and grounded in purpose.", detail: "Local AI · RAG · Provider systems" },
+const skillGroups = [
+  { id: "systems", label: "Systems", icon: Layers3, title: "Make complexity feel enterable.", text: "I shape product systems, information hierarchies, and responsive flows so useful tools remain legible as they grow.", tags: ["Product thinking", "UX / UI", "Architecture", "Responsive web"] },
+  { id: "resilient", label: "Resilient", icon: Zap, title: "Keep the work close.", text: "I care about local-first behavior, graceful states, and experiences that keep their dignity when the network disappears.", tags: ["PWA", "Offline-first", "IndexedDB", "Local data"] },
+  { id: "intelligence", label: "Intelligence", icon: Sparkles, title: "Give AI a useful place.", text: "I explore local AI, RAG, provider routing, and human-readable orchestration without hiding the system behind magic.", tags: ["Local AI", "RAG", "Provider systems", "AI workflows"] },
 ];
 
-const methodSteps = [
-  { number: "01", title: "Listen for the signal", text: "Find the human need beneath the requested feature." },
-  { number: "02", title: "Build the shape", text: "Make the system legible before making it impressive." },
-  { number: "03", title: "Let it breathe", text: "Polish motion, hierarchy, and detail until the work feels inevitable." },
+const stackGroups = [
+  { label: "Languages", items: ["TypeScript", "Python", "JavaScript", "HTML", "Shell"] },
+  { label: "Product patterns", items: ["PWA", "Offline-first", "Local-first", "Bilingual UX", "Responsive UI"] },
+  { label: "AI direction", items: ["Ollama", "Krikri", "RAG", "Multi-provider routing", "Cost-aware systems"] },
 ];
 
-function AFMark({ compact = false }: { compact?: boolean }) {
-  return (
-    <span className={`af-mark ${compact ? "af-mark--compact" : ""}`} aria-hidden="true">
-      <svg viewBox="0 0 72 42" role="presentation">
-        <path className="af-mark__flight" d="M3 30C18 18 22 6 29 5c7-1 8 10 16 12 8 2 12-4 24-8-7 7-11 14-22 17-14 4-24-2-44 4Z" />
-        <path className="af-mark__wing" d="M29 5c3 9 4 17 1 25M38 13c-3 7-4 13-3 18M47 17c-3 5-4 9-4 14" />
-        <path className="af-mark__letter" d="M9 32 15 15l7 17m-10-8h8M52 31V16c0-4 4-5 8-3 5 3 2 8-4 9 6 0 8 4 5 8-3 3-7 2-9 1" />
-      </svg>
-    </span>
-  );
-}
-
-function Reveal({ children, className = "", delay = 0, y = 28 }: { children: ReactNode; className?: string; delay?: number; y?: number }) {
+function Reveal({ children, className = "", delay = 0 }: { children: ReactNode; className?: string; delay?: number }) {
   const reduced = useReducedMotion();
-  return (
-    <motion.div
-      className={className}
-      initial={reduced ? false : { opacity: 0, y }}
-      whileInView={reduced ? undefined : { opacity: 1, y: 0 }}
-      viewport={{ once: true, amount: 0.16 }}
-      transition={reduced ? { duration: 0 } : { duration: 0.68, delay, ease }}
-    >
-      {children}
-    </motion.div>
-  );
+  return <motion.div className={className} initial={reduced ? false : { opacity: 0, y: 22 }} whileInView={reduced ? undefined : { opacity: 1, y: 0 }} viewport={{ once: true, amount: 0.2 }} transition={reduced ? { duration: 0 } : { duration: .62, delay, ease }}>{children}</motion.div>;
 }
 
-function SectionKicker({ index, children }: { index: string; children: ReactNode }) {
-  return <div className="section-kicker"><span>{index}</span><i />{children}</div>;
+function SectionLabel({ index, children }: { index: string; children: ReactNode }) {
+  return <div className="section-label"><span>{index}</span><i />{children}</div>;
+}
+
+function BrandMark({ compact = false }: { compact?: boolean }) {
+  if (compact) return <span className="brand-mini-mark" aria-label="AF brand mark">AF</span>;
+  return <img className="brand-mark" src={assetUrls.mark} alt="AF brand mark" />;
 }
 
 function ProjectCard({ repo, index, onOpen }: { repo: GitHubRepository; index: number; onOpen: (repo: GitHubRepository) => void }) {
-  const story = projectStories[repo.name.toLowerCase()];
+  const story = stories[repo.name.toLowerCase()];
   const reduced = useReducedMotion();
-  return (
-    <motion.article className={`project-card ${repo.name.toLowerCase() === "axon" ? "project-card--axon" : ""}`} initial={reduced ? false : { opacity: 0, y: 28 }} whileInView={reduced ? undefined : { opacity: 1, y: 0 }} viewport={{ once: true, amount: 0.15 }} transition={reduced ? { duration: 0 } : { duration: 0.65, delay: index * 0.07, ease }} whileHover={reduced ? undefined : { y: -9 }}>
-      <div className="project-card__top"><span>0{index + 1}</span><span className="project-card__status"><b />{story?.eyebrow ?? (repo.private ? "Private build" : "Public project")}</span></div>
-      <button type="button" className="project-card__body" onClick={() => onOpen(repo)} aria-label={`Read more about ${repo.name}`}>
-        <span className="project-card__name">{repo.name}</span>
-        <span className="project-card__summary">{story?.summary ?? repo.description ?? "A work in progress shaped through code, curiosity, and iteration."}</span>
-        <span className="project-card__open">Open study <ArrowUpRight size={15} /></span>
-      </button>
-      <div className="project-card__bottom"><span>{repo.language ?? "Mixed stack"}</span><span>{repo.private ? "Private" : "Public"}</span><span>{repo.stars} stars</span></div>
-    </motion.article>
-  );
+  return <motion.article className={`project-card ${repo.private ? "is-private" : ""}`} initial={reduced ? false : { opacity: 0, y: 20 }} whileInView={reduced ? undefined : { opacity: 1, y: 0 }} viewport={{ once: true, amount: .16 }} transition={reduced ? { duration: 0 } : { duration: .55, delay: index * .05, ease }} whileHover={reduced ? undefined : { y: -8 }}>
+    <div className="project-card__top"><span>0{String(index + 1).padStart(1, "0")}</span><span className="project-status"><b />{repo.private ? "Private" : "Public"}</span></div>
+    <button type="button" className="project-card__body" onClick={() => onOpen(repo)} aria-label={`Open details for ${repo.name}`}>
+      <span className="project-card__name">{repo.name}</span>
+      <span className="project-card__description">{story?.summary ?? repo.description ?? "A repository shaped through curiosity and iteration."}</span>
+      <span className="project-card__open">Open details <ArrowUpRight size={15} /></span>
+    </button>
+    <div className="project-card__footer"><span>{repo.language ?? "Mixed"}</span><span>{repo.stars} stars</span><span>{repo.forks} forks</span></div>
+  </motion.article>;
 }
 
 function ProjectDialog({ repo, onClose }: { repo: GitHubRepository | null; onClose: () => void }) {
   const reduced = useReducedMotion();
   if (!repo) return null;
-  const story = projectStories[repo.name.toLowerCase()];
-  return (
-    <AnimatePresence>
-      <motion.div className="project-dialog__backdrop" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={onClose}>
-        <motion.section className="project-dialog" role="dialog" aria-modal="true" aria-labelledby="project-dialog-title" initial={reduced ? false : { opacity: 0, y: 24, scale: .97 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={reduced ? undefined : { opacity: 0, y: 16, scale: .98 }} transition={{ duration: .42, ease }} onClick={(event) => event.stopPropagation()}>
-          <div className="project-dialog__header"><span>{story?.eyebrow ?? (repo.private ? "Private build" : "Public project")}</span><button type="button" onClick={onClose} aria-label="Close project study"><X size={18} /></button></div>
-          <div className="project-dialog__grid"><div><p className="project-dialog__number">Project study / {repo.name}</p><h2 id="project-dialog-title">{story?.title ?? repo.name}</h2><p className="project-dialog__summary">{story?.summary ?? repo.description}</p></div><div className="project-dialog__detail"><p>{story?.detail ?? "This repository is part of the current GitHub snapshot."}</p><div className="project-dialog__facts">{(story?.facts ?? [repo.language ?? "Mixed stack", repo.private ? "Private repository" : "Public repository"]).map((fact) => <span key={fact}><Check size={13} />{fact}</span>)}</div></div></div>
-          <div className="project-dialog__footer"><span>{repo.private ? "The source is private" : "Source available on GitHub"}</span><a href={repo.html_url} target="_blank" rel="noreferrer">Open repository <ExternalLink size={14} /></a></div>
-        </motion.section>
-      </motion.div>
-    </AnimatePresence>
-  );
+  const story = stories[repo.name.toLowerCase()];
+  return <AnimatePresence><motion.div className="modal-backdrop" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={onClose}><motion.section className="project-dialog" role="dialog" aria-modal="true" aria-labelledby="project-title" initial={reduced ? false : { opacity: 0, y: 20, scale: .98 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: 12, scale: .98 }} transition={{ duration: .36, ease }} onClick={(event) => event.stopPropagation()}>
+    <div className="dialog-head"><span>{story?.kicker ?? (repo.private ? "Private build" : "Public project")}</span><button type="button" onClick={onClose} aria-label="Close details"><X size={18} /></button></div>
+    <div className="dialog-grid"><div><p className="dialog-code">Project study / {repo.name}</p><h2 id="project-title">{story?.title ?? repo.name}</h2><p className="dialog-summary">{story?.summary ?? repo.description}</p></div><div className="dialog-detail"><p>{story?.detail ?? "This study is generated from the current GitHub snapshot."}</p><div className="fact-list">{(story?.facts ?? [repo.language ?? "Mixed stack", repo.private ? "Private repository" : "Public repository"]).map((fact) => <span key={fact}><Check size={13} />{fact}</span>)}</div></div></div>
+    <div className="dialog-foot"><span>{repo.private ? "Source boundary: private" : "Source available on GitHub"}</span><a href={repo.html_url} target="_blank" rel="noreferrer">Open repository <ExternalLink size={14} /></a></div>
+  </motion.section></motion.div></AnimatePresence>;
 }
 
-function NavigationGuide({ onClose, onStart }: { onClose: () => void; onStart: () => void }) {
-  const reduced = useReducedMotion();
-  return (
-    <AnimatePresence>
-      <motion.div className="guide-backdrop" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={onClose}>
-        <motion.aside className="guide-card" role="dialog" aria-modal="true" aria-labelledby="guide-title" initial={reduced ? false : { opacity: 0, y: 18, scale: .98 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: 12, scale: .98 }} transition={{ duration: .38, ease }} onClick={(event) => event.stopPropagation()}>
-          <div className="guide-card__top"><span>How to move</span><button type="button" onClick={onClose} aria-label="Close navigation guide"><X size={18} /></button></div>
-          <h2 id="guide-title">Take the long way.</h2><p>The page is a vertical study in useful software. Scroll naturally, use the index, or open a project study when something catches your eye.</p>
-          <div className="guide-card__rows"><div><MousePointer2 size={18} /><span><strong>Scroll</strong><small>Let the sections reveal themselves</small></span></div><div><Command size={18} /><span><strong>Command / Ctrl + K</strong><small>Open the quick chapter index</small></span></div><div><PanelTop size={18} /><span><strong>Project cards</strong><small>Open a focused study without leaving the page</small></span></div></div>
-          <button className="button button--dark" type="button" onClick={onStart}>Start the story <ArrowDown size={16} /></button>
-        </motion.aside>
-      </motion.div>
-    </AnimatePresence>
-  );
+function ContactForm() {
+  const [status, setStatus] = useState<"idle" | "sent">("idle");
+  const submit = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const data = new FormData(event.currentTarget);
+    const subject = String(data.get("subject") || "Portfolio collaboration");
+    const message = String(data.get("message") || "");
+    window.location.href = `mailto:${email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(message)}`;
+    setStatus("sent");
+  };
+  return <form className="contact-form" onSubmit={submit}><label><span>Your name</span><input name="name" required placeholder="Name" /></label><label><span>Subject</span><input name="subject" required placeholder="A good problem" /></label><label className="contact-form__wide"><span>Message</span><textarea name="message" required rows={4} placeholder="Tell me what you are shaping..." /></label><div className="contact-form__submit"><span>{status === "sent" ? "Your mail client should open now." : "This opens your email client — no data is stored here."}</span><button className="button button--dark" type="submit">Compose email <Send size={15} /></button></div></form>;
 }
 
 export default function Home() {
-  const heroRef = useRef<HTMLElement>(null);
-  const [activeChapter, setActiveChapter] = useState("home");
+  const galleryRef = useRef<HTMLDivElement>(null);
+  const [theme, setTheme] = useState<"light" | "dark">("light");
+  const [activeIndex, setActiveIndex] = useState(0);
+  const [filter, setFilter] = useState<Filter>("all");
+  const [selectedRepo, setSelectedRepo] = useState<GitHubRepository | null>(null);
+  const [selectedSkill, setSelectedSkill] = useState("systems");
   const [menuOpen, setMenuOpen] = useState(false);
-  const [guideOpen, setGuideOpen] = useState(false);
-  const [commandOpen, setCommandOpen] = useState(false);
-  const [selectedProject, setSelectedProject] = useState<GitHubRepository | null>(null);
-  const [filter, setFilter] = useState<RepositoryFilter>("all");
-  const [darkMode, setDarkMode] = useState(false);
   const [copied, setCopied] = useState(false);
-  const [pointer, setPointer] = useState({ x: 0, y: 0 });
   const reduced = useReducedMotion();
-  const { scrollYProgress } = useScroll();
-  const { scrollYProgress: heroProgress } = useScroll({ target: heroRef, offset: ["start start", "end start"] });
-  const heroY = useTransform(heroProgress, [0, 1], [0, 115]);
-  const heroScale = useTransform(heroProgress, [0, 1], [1, .91]);
 
   useEffect(() => {
-    const stored = window.localStorage.getItem("angelos-portfolio-theme");
-    setDarkMode(stored === "dark");
-    const observer = new IntersectionObserver((entries) => {
-      const visible = entries.filter((entry) => entry.isIntersecting).sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
-      if (visible) setActiveChapter(visible.target.id);
-    }, { rootMargin: "-25% 0px -55% 0px", threshold: [0.08, 0.24, 0.55] });
-    chapters.forEach(({ id }) => { const element = document.getElementById(id); if (element) observer.observe(element); });
-    return () => observer.disconnect();
+    const stored = window.localStorage.getItem("aggelos-portfolio-theme");
+    if (stored === "dark") setTheme("dark");
   }, []);
+  useEffect(() => { window.localStorage.setItem("aggelos-portfolio-theme", theme); }, [theme]);
 
   useEffect(() => {
-    window.localStorage.setItem("angelos-portfolio-theme", darkMode ? "dark" : "light");
-  }, [darkMode]);
-
-  useEffect(() => {
-    const onKeyDown = (event: KeyboardEvent) => {
-      if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "k") { event.preventDefault(); setCommandOpen((value) => !value); }
-      if (event.key === "Escape") { setCommandOpen(false); setGuideOpen(false); setMenuOpen(false); setSelectedProject(null); }
+    const gallery = galleryRef.current;
+    if (!gallery) return;
+    let locked = false;
+    const onWheel = (event: WheelEvent) => {
+      if (window.innerWidth <= 760 || Math.abs(event.deltaY) < Math.abs(event.deltaX)) return;
+      event.preventDefault();
+      if (locked) return;
+      locked = true;
+      gallery.scrollBy({ left: event.deltaY * 1.08, behavior: reduced ? "auto" : "smooth" });
+      window.setTimeout(() => { locked = false; }, reduced ? 0 : 380);
     };
-    window.addEventListener("keydown", onKeyDown);
-    return () => window.removeEventListener("keydown", onKeyDown);
+    gallery.addEventListener("wheel", onWheel, { passive: false });
+    return () => gallery.removeEventListener("wheel", onWheel);
+  }, [reduced]);
+
+  useEffect(() => {
+    const gallery = galleryRef.current;
+    if (!gallery) return;
+    const onScroll = () => setActiveIndex(Math.min(chapters.length - 1, Math.max(0, Math.round(gallery.scrollLeft / Math.max(1, gallery.clientWidth)))));
+    gallery.addEventListener("scroll", onScroll, { passive: true });
+    onScroll();
+    return () => gallery.removeEventListener("scroll", onScroll);
   }, []);
 
-  const visibleRepos = useMemo(() => repositories.filter((repo) => {
-    if (filter === "public") return !repo.private;
-    if (filter === "private") return Boolean(repo.private);
-    if (filter === "TypeScript") return repo.language === "TypeScript";
-    return true;
-  }), [filter]);
+  useEffect(() => {
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === "Escape") { setSelectedRepo(null); setMenuOpen(false); }
+      if (window.innerWidth > 760 && (event.key === "ArrowRight" || event.key === "ArrowLeft")) { event.preventDefault(); goTo(activeIndex + (event.key === "ArrowRight" ? 1 : -1)); }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  });
 
-  const libraryRepos = visibleRepos.filter((repo) => !curatedNames.includes(repo.name.toLowerCase())).slice(0, 10);
-  const activeIndex = Math.max(0, chapters.findIndex((chapter) => chapter.id === activeChapter));
+  const visibleRepos = useMemo(() => allGalleryRepos.filter((repo) => filter === "all" || filter === "public" && !repo.private || filter === "private" && repo.private || filter === "TypeScript" && repo.language === "TypeScript"), [filter]);
+  const activeSkill = skillGroups.find((group) => group.id === selectedSkill) ?? skillGroups[0];
 
-  const scrollToChapter = (id: string) => {
-    document.getElementById(id)?.scrollIntoView({ behavior: reduced ? "auto" : "smooth", block: "start" });
-    setMenuOpen(false); setCommandOpen(false);
-  };
+  function goTo(index: number) {
+    const next = Math.max(0, Math.min(chapters.length - 1, index));
+    const gallery = galleryRef.current;
+    if (gallery) gallery.scrollTo({ left: next * gallery.clientWidth, behavior: reduced ? "auto" : "smooth" });
+    setMenuOpen(false);
+  }
 
-  const copyHandle = async () => {
-    try { await navigator.clipboard.writeText(handleUrl); setCopied(true); window.setTimeout(() => setCopied(false), 1800); } catch { setCopied(false); }
-  };
+  async function copyHandle() {
+    try { await navigator.clipboard.writeText(`github.com/${profileHandle}`); setCopied(true); window.setTimeout(() => setCopied(false), 1800); } catch { setCopied(false); }
+  }
 
-  const handlePointerMove = (event: ReactPointerEvent<HTMLElement>) => {
-    if (reduced || window.innerWidth < 900) return;
-    const rect = event.currentTarget.getBoundingClientRect();
-    setPointer({ x: ((event.clientX - rect.left) / rect.width - .5) * 24, y: ((event.clientY - rect.top) / rect.height - .5) * 18 });
-  };
+  return <main className={`app-shell theme-${theme}`}>
+    <div className="grain" aria-hidden="true" />
+    <header className="topbar"><a className="brand" href="#home" onClick={(event) => { event.preventDefault(); goTo(0); }} aria-label="Aggelos Frantzeskakis home"><BrandMark compact /><span><strong>Aggelos</strong><small>Frantzeskakis / AF</small></span></a><div className="topbar__motto"><span />Independent digital craft</div><nav className={`desktop-nav ${menuOpen ? "is-open" : ""}`} aria-label="Gallery navigation">{chapters.slice(1).map((chapter, index) => <button type="button" className={activeIndex === index + 1 ? "is-active" : ""} key={chapter.id} onClick={() => goTo(index + 1)}>{chapter.label}</button>)}</nav><div className="topbar__actions"><button type="button" className="theme-button" onClick={() => setTheme((value) => value === "light" ? "dark" : "light")} aria-label="Toggle color theme">{theme === "light" ? <Moon size={15} /> : <Sun size={15} />}<span>{theme === "light" ? "Dark" : "Light"}</span></button><a className="github-link" href={profileUrl} target="_blank" rel="noreferrer"><Github size={15} /><span>GitHub</span><ArrowUpRight size={12} /></a><button type="button" className="menu-button" onClick={() => setMenuOpen((value) => !value)} aria-expanded={menuOpen} aria-label={menuOpen ? "Close navigation" : "Open navigation"}>{menuOpen ? <X size={18} /> : <Menu size={18} />}</button></div></header>
 
-  return (
-    <main className={`site-shell ${darkMode ? "theme-dark" : "theme-light"}`} onPointerMove={handlePointerMove} onPointerLeave={() => setPointer({ x: 0, y: 0 })}>
-      <div className="grain" aria-hidden="true" />
-      <motion.div className="scroll-progress" style={{ scaleX: scrollYProgress, transformOrigin: "0% 50%" }} aria-hidden="true" />
-      <header className="site-nav">
-        <a className="brand-lockup" href="#home" onClick={(event) => { event.preventDefault(); scrollToChapter("home"); }} aria-label={`${profileName} home`}><AFMark compact /><span><strong>Angelos</strong><small>Frantzeskakis / AF</small></span></a>
-        <div className="nav-center"><span>Independent digital craft</span><i /></div>
-        <nav className={`nav-links ${menuOpen ? "is-open" : ""}`} aria-label="Primary navigation">{chapters.slice(1, 5).map((chapter) => <button type="button" key={chapter.id} className={activeChapter === chapter.id ? "is-active" : ""} onClick={() => scrollToChapter(chapter.id)}>{chapter.label}</button>)}</nav>
-        <div className="nav-actions"><button type="button" className="theme-toggle" onClick={() => setDarkMode((value) => !value)} aria-label={darkMode ? "Switch to light mode" : "Switch to dark mode"}>{darkMode ? <Sun size={15} /> : <Moon size={15} />}<span>{darkMode ? "Light" : "Dark"}</span></button><a href={profileUrl} target="_blank" rel="noreferrer" className="nav-github"><Github size={15} /><span>GitHub</span><ArrowUpRight size={12} /></a><button type="button" className="command-trigger" onClick={() => setCommandOpen(true)} aria-label="Open quick navigation"><Command size={14} /></button><button type="button" className="menu-toggle" onClick={() => setMenuOpen((value) => !value)} aria-label={menuOpen ? "Close menu" : "Open menu"} aria-expanded={menuOpen}>{menuOpen ? <X size={19} /> : <Menu size={19} />}</button></div>
-      </header>
+    <aside className="gallery-rail" aria-label="Gallery progress"><div className="gallery-rail__track"><span style={{ height: `${((activeIndex + 1) / chapters.length) * 100}%` }} /></div>{chapters.map((chapter, index) => <button type="button" key={chapter.id} className={activeIndex === index ? "is-active" : ""} onClick={() => goTo(index)}><span>0{index + 1}</span><small>{chapter.label}</small></button>)}</aside>
+    <div className="gallery-hint"><ArrowLeft size={13} /><span>Wheel / drag / arrows</span><ArrowRight size={13} /></div>
+    <div className="gallery-progress"><span style={{ width: `${((activeIndex + 1) / chapters.length) * 100}%` }} /></div>
 
-      <aside className="chapter-index" aria-label="Page chapters"><div className="chapter-index__rail"><span style={{ height: `${((activeIndex + 1) / chapters.length) * 100}%` }} /></div>{chapters.map((chapter, index) => <button type="button" key={chapter.id} className={activeChapter === chapter.id ? "is-active" : ""} onClick={() => scrollToChapter(chapter.id)}><span>0{index + 1}</span><small>{chapter.label}</small></button>)}</aside>
+    <div ref={galleryRef} className="gallery" tabIndex={0} aria-label="Horizontal portfolio gallery">
+      <section id="home" className="panel panel--hero"><div className="panel-grid" aria-hidden="true" /><div className="panel-inner hero-panel"><div className="hero-panel__copy"><Reveal><div className="eyebrow"><span className="pulse" />Aggelos Frantzeskakis / ideas in motion</div></Reveal><Reveal delay={.08}><h1>Make the complex<br /><em>feel alive.</em></h1></Reveal><Reveal delay={.16}><p>I build useful digital experiences around offline-first products, local AI, and interfaces that give ambitious ideas a clearer way to move.</p></Reveal><Reveal delay={.22} className="hero-actions"><button type="button" className="button button--dark" onClick={() => goTo(1)}>Explore the work <ArrowRight size={16} /></button><button type="button" className="text-button" onClick={() => goTo(2)}>See the skills <ChevronRight size={15} /></button></Reveal><div className="hero-signature"><span>Now exploring</span><strong>resilient products · local intelligence</strong></div></div><motion.div className="hero-visual" animate={reduced ? undefined : { y: [0, -9, 0] }} transition={reduced ? undefined : { duration: 6, repeat: Infinity, ease: "easeInOut" }}><div className="hero-visual__orbit" aria-hidden="true" /><div className="hero-visual__trace" aria-hidden="true" /><img src={assetUrls.pegasus} alt="Clean watercolor Pegasus looking toward the right" /><div className="hero-visual__label">Signature study <span>01 / flight path</span></div><div className="hero-visual__brand"><BrandMark /></div></motion.div></div><div className="panel-footer"><span>Scroll right to enter</span><i /><span>AF / 2026</span></div></section>
 
-      <section id="home" ref={heroRef} className="hero-section page-section"><div className="hero-section__grid" aria-hidden="true" /><div className="section-wrap hero-layout"><div className="hero-copy"><Reveal><div className="eyebrow"><span className="live-dot" />{profileName} / ideas in motion</div></Reveal><Reveal delay={.08}><h1>Make the complex<br /><em>feel alive.</em></h1></Reveal><Reveal delay={.16}><p className="hero-lead">I build useful digital experiences around offline-first products, local AI, and interfaces that give ambitious ideas a clearer way to move.</p></Reveal><Reveal delay={.22} className="hero-actions"><button type="button" className="button button--dark" onClick={() => scrollToChapter("work")}>Explore the work <ArrowRight size={16} /></button><button type="button" className="text-link" onClick={() => setGuideOpen(true)}>How this moves <MousePointer2 size={15} /></button></Reveal><div className="hero-signature"><span>Now exploring</span><strong>private AI systems · resilient products</strong></div></div><motion.div className="hero-art" style={reduced ? undefined : { x: pointer.x * 0.45, y: heroY, scale: heroScale }}><motion.div className="hero-art__orb" animate={reduced ? undefined : { rotate: 360 }} transition={reduced ? undefined : { duration: 38, repeat: Infinity, ease: "linear" }} /><div className="hero-art__rings" aria-hidden="true" /><motion.img src="/manus-storage/pegasus_4e36f0f3.png" alt="Watercolor Pegasus facing right" animate={reduced ? undefined : { y: [0, -12, 0], rotate: [-1, 1, -1] }} transition={reduced ? undefined : { duration: 7, repeat: Infinity, ease: "easeInOut" }} /><div className="hero-art__top">Signature study <span>01 / flight path</span></div><div className="hero-art__bottom"><span>Built for</span><strong>motion, meaning<br />and memorable detail.</strong></div><motion.div className="hero-art__mark" style={reduced ? undefined : { x: pointer.x * 0.7, y: pointer.y * 0.7 }}><AFMark /></motion.div></motion.div></div><div className="hero-footer"><span>Scroll to enter the work</span><span className="hero-footer__line" /><span>AF / 2026</span></div></section>
+      <section id="work" className="panel panel--work"><div className="panel-inner"><div className="panel-heading"><div><SectionLabel index="01">Selected work</SectionLabel><Reveal><h2>Projects with<br /><em>a point of view.</em></h2></Reveal></div><Reveal delay={.1} className="panel-heading__aside"><p>A live selection from the current GitHub snapshot. Click a card for a focused study; private work stays clearly marked.</p><span>Use the wheel, drag, or arrow keys to move between scenes.</span></Reveal></div><div className="project-grid">{curatedRepos.map((repo, index) => <ProjectCard key={repo.name} repo={repo} index={index} onOpen={setSelectedRepo} />)}</div><div className="panel-footer"><span>02 / work</span><i /><span>Open a project card</span></div></div></section>
 
-      <section id="signal" className="page-section signal-section"><div className="section-wrap signal-layout"><div className="section-copy"><SectionKicker index="01">The signal</SectionKicker><Reveal><h2>A quieter kind<br />of <em>ambition.</em></h2></Reveal><Reveal delay={.08}><p>My GitHub profile is intentionally simple: no inflated biography, no performance theatre. The repositories carry the signal — from local-first training tools to AI systems and document workflows that stay close to the person using them.</p></Reveal><div className="profile-stats"><div><strong>{github.profile.public_repos}</strong><span>public repos</span></div><div><strong>{github.profile.following}</strong><span>following</span></div><div><strong>{repositories.length}</strong><span>owner repos synced</span></div></div></div><div className="capability-stack">{capabilities.map(({ icon: Icon, index, title, text, detail }, itemIndex) => <Reveal key={title} delay={itemIndex * .1} className="capability-row"><span className="capability-row__number">{index}</span><Icon size={29} strokeWidth={1.25} className="capability-row__icon" /><div><h3>{title}</h3><p>{text}</p><span>{detail}</span></div><ArrowUpRight size={17} className="capability-row__arrow" /></Reveal>)}</div></div></section>
+      <section id="skills" className="panel panel--skills"><div className="panel-inner"><div className="skills-layout"><div className="skills-intro"><SectionLabel index="02">Skills / current practice</SectionLabel><Reveal><h2>Build the shape<br /><em>around the signal.</em></h2></Reveal><Reveal delay={.1}><p>These are the working directions visible in the current projects. They are a base, not a final limit — you can expand them later as your practice evolves.</p></Reveal><div className="skill-tabs" role="tablist" aria-label="Skill groups">{skillGroups.map((group) => <button type="button" role="tab" aria-selected={selectedSkill === group.id} className={selectedSkill === group.id ? "is-active" : ""} key={group.id} onClick={() => setSelectedSkill(group.id)}><group.icon size={17} />{group.label}</button>)}</div></div><AnimatePresence mode="wait"><motion.div className="skill-feature" key={activeSkill.id} initial={reduced ? false : { opacity: 0, x: 28 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -18 }} transition={{ duration: .38, ease }}><span className="skill-feature__number">{activeSkill.id === "systems" ? "01" : activeSkill.id === "resilient" ? "02" : "03"}</span><activeSkill.icon size={41} strokeWidth={1.15} /><h3>{activeSkill.title}</h3><p>{activeSkill.text}</p><div className="skill-tags">{activeSkill.tags.map((tag) => <span key={tag}>{tag}</span>)}</div></motion.div></AnimatePresence></div><div className="panel-footer"><span>03 / skills</span><i /><span>Choose a direction</span></div></div></section>
 
-      <section id="work" className="page-section work-section"><div className="section-wrap"><div className="section-heading"><div><SectionKicker index="02">Selected work</SectionKicker><Reveal><h2>Projects with<br /><em>a point of view.</em></h2></Reveal></div><Reveal delay={.12} className="section-heading__aside"><p>A live selection from the current GitHub snapshot. Open a study to see the idea, the stated stack, and the boundary between what is public and what is still private.</p><button type="button" className="text-link" onClick={() => scrollToChapter("axon")}>Enter the systems room <ChevronRight size={15} /></button></Reveal></div><div className="project-grid">{curatedRepos.map((repo, index) => <ProjectCard key={repo.name} repo={repo} index={index} onOpen={setSelectedProject} />)}</div></div></section>
+      <section id="stack" className="panel panel--stack"><div className="panel-inner"><div className="panel-heading"><div><SectionLabel index="03">Tech stack</SectionLabel><Reveal><h2>Tools for a<br /><em>living system.</em></h2></Reveal></div><Reveal delay={.1} className="panel-heading__aside"><p>Based on the languages, patterns, and AI directions represented in the current GitHub snapshot. The stack is intentionally expandable.</p><span>Current evidence, future room.</span></Reveal></div><div className="stack-grid">{stackGroups.map((group, index) => <Reveal key={group.label} delay={index * .08} className="stack-card"><span className="stack-card__index">0{index + 1}</span><h3>{group.label}</h3><div>{group.items.map((item) => <span key={item}><i />{item}</span>)}</div></Reveal>)}</div><div className="stack-note"><Code2 size={18} /><span>Stack details can grow with the portfolio — this layer is ready for deeper case studies, tools, and links.</span></div><div className="panel-footer"><span>04 / stack</span><i /><span>Built with curiosity</span></div></div></section>
 
-      <section id="axon" className="page-section axon-section"><div className="axon-section__backdrop" aria-hidden="true"><div className="axon-section__grid" /><div className="axon-section__orbit axon-section__orbit--one" /><div className="axon-section__orbit axon-section__orbit--two" /></div><div className="section-wrap axon-layout"><div className="axon-visual"><span className="axon-visual__code">AXON / SYSTEMS ROOM / PRIVATE CONCEPT</span><div className="axon-visual__letters">AX<span>•</span></div><span className="axon-visual__coordinate">Local-first intelligence<br />multi-provider routing</span></div><div className="axon-copy"><SectionKicker index="03">AXON OS</SectionKicker><Reveal><h2>Where the threads<br /><em>converge.</em></h2></Reveal><Reveal delay={.1}><p>{projectStories.axon.detail}</p></Reveal><div className="axon-facts">{projectStories.axon.facts.map((fact) => <span key={fact}><i />{fact}</span>)}</div><div className="private-label"><span />Private repository · concept shown with care</div>{axonRepo && <a className="button button--outline" href={axonRepo.html_url} target="_blank" rel="noreferrer">View source boundary <ExternalLink size={14} /></a>}</div></div></section>
+      <section id="about" className="panel panel--about"><div className="panel-inner about-layout"><div className="about-visual"><img src={github.profile.avatar_url} alt={`GitHub avatar for ${profileHandle}`} /><div className="about-visual__line" /><span>github.com/{profileHandle}</span></div><div className="about-copy"><SectionLabel index="04">The person behind the work</SectionLabel><Reveal><h2>Aggelos<br /><em>Frantzeskakis.</em></h2></Reveal><Reveal delay={.1}><p>I’m building a practice around useful software: products that respect attention, make complexity legible, and leave a little room for wonder. The public GitHub profile stays quiet; the repositories show how I think.</p></Reveal><div className="about-actions"><a className="button button--dark" href={profileUrl} target="_blank" rel="noreferrer"><Github size={16} /> Open GitHub <ArrowUpRight size={14} /></a><button type="button" className="button button--ghost" onClick={copyHandle}>{copied ? <Check size={15} /> : <Clipboard size={15} />}{copied ? "Copied" : "Copy handle"}</button><span>{github.profile.public_repos} public repositories</span></div></div><div className="panel-footer"><span>05 / profile</span><i /><span>Keep moving</span></div></div></section>
 
-      <section id="method" className="page-section method-section"><div className="section-wrap method-layout"><div className="method-quote"><SectionKicker index="04">The method</SectionKicker><Reveal><p>Good digital work should feel like an open door: <em>clear enough to enter, considered enough to stay.</em></p></Reveal><span className="method-quote__note">A working principle for systems, interfaces, and the space between them.</span></div><div className="method-steps">{methodSteps.map(({ number, title, text }, index) => <Reveal key={number} delay={index * .09} className="method-step"><span>{number}</span><div><h3>{title}</h3><p>{text}</p></div><Check size={17} /></Reveal>)}</div></div></section>
+      <section id="contact" className="panel panel--contact"><div className="panel-inner contact-layout"><div className="contact-heading"><SectionLabel index="05">Start a conversation</SectionLabel><span>Have a good problem?</span></div><div className="contact-grid"><div><Reveal><h2>Let’s make<br /><em>something memorable.</em></h2></Reveal><p>Tell me what you are shaping. The form opens your email client so the conversation stays direct.</p><div className="social-links"><a href={`mailto:${email}`}><Mail size={15} />{email}</a><a href={instagramUrl} target="_blank" rel="noreferrer"><Instagram size={15} />{instagramHandle}</a></div></div><ContactForm /></div><div className="contact-footer"><span>© 2026 Aggelos Frantzeskakis</span><span>AF / horizontal study in motion</span><button type="button" onClick={() => goTo(0)}>Back to start <ArrowUpRight size={13} /></button></div></div></section>
+    </div>
 
-      <section id="library" className="page-section library-section"><div className="section-wrap"><div className="section-heading"><div><SectionKicker index="05">Repository library</SectionKicker><Reveal><h2>Follow<br /><em>the trail.</em></h2></Reveal></div><Reveal delay={.1} className="section-heading__aside"><p>Filter the current owner snapshot by access and stack. Facts are sourced from GitHub; private work is labeled, not dressed up as a public case study.</p></Reveal></div><div className="library-toolbar"><div className="filter-group" role="group" aria-label="Repository filters">{(["all", "public", "private", "TypeScript"] as RepositoryFilter[]).map((option) => <button type="button" key={option} className={filter === option ? "is-active" : ""} onClick={() => setFilter(option)}>{option === "all" ? "All" : option}</button>)}</div><span>{visibleRepos.length} visible / {repositories.length} synced</span></div><div className="library-grid">{libraryRepos.map((repo, index) => <ProjectCard key={repo.name} repo={repo} index={index} onOpen={setSelectedProject} />)}{libraryRepos.length === 0 && <div className="empty-state">No repository matches this filter. <button type="button" onClick={() => setFilter("all")}>Reset view <ArrowRight size={14} /></button></div>}</div></div></section>
-
-      <section id="about" className="page-section about-section"><div className="section-wrap about-layout"><div className="about-portrait"><div className="about-portrait__line" /><img src={github.profile.avatar_url} alt={`GitHub avatar for ${profileHandle}`} /><span>GitHub profile / {profileHandle}</span><b>AF / 01</b></div><div className="about-copy"><SectionKicker index="06">The person behind the work</SectionKicker><Reveal><h2>Angelos<br /><em>Frantzeskakis.</em></h2></Reveal><Reveal delay={.1}><p>I’m building a practice around useful software: products that respect attention, make complexity legible, and leave a little room for wonder. The public profile stays quiet; the repositories show how I think.</p></Reveal><div className="about-actions"><a className="button button--dark" href={profileUrl} target="_blank" rel="noreferrer"><Github size={16} /> Open GitHub <ArrowUpRight size={15} /></a><button type="button" className="button button--ghost" onClick={copyHandle}>{copied ? <Check size={15} /> : <Clipboard size={15} />}{copied ? "Copied" : "Copy handle"}</button><span>{publicRepos.length} public repositories</span></div></div></div></section>
-
-      <section id="contact" className="page-section contact-section"><div className="section-wrap contact-layout"><div className="contact-top"><SectionKicker index="07">Start a conversation</SectionKicker><span>Have a good problem?</span></div><Reveal><h2>Let’s make<br /><em>something memorable.</em></h2></Reveal><a href={profileUrl} target="_blank" rel="noreferrer" className="contact-link"><span>Open the GitHub profile</span><ArrowUpRight size={23} /></a><div className="contact-footer"><span>Available for thoughtful collaborations</span><a href={profileUrl} target="_blank" rel="noreferrer">{handleUrl}</a></div></div></section>
-
-      <footer className="site-footer"><span>© 2026 {profileName}</span><span>AF / vertical study in motion</span><button type="button" onClick={() => scrollToChapter("home")}>Back to top <ArrowUpRight size={13} /></button></footer>
-
-      <AnimatePresence>{(commandOpen || menuOpen) && <motion.div className="command-backdrop" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => { setCommandOpen(false); setMenuOpen(false); }}><motion.div className="command-menu" role="dialog" aria-modal="true" aria-label="Quick chapter navigation" initial={{ opacity: 0, y: 13, scale: .98 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: 10, scale: .98 }} transition={{ duration: .25, ease }} onClick={(event) => event.stopPropagation()}><div className="command-menu__top"><span><Search size={14} /> Quick navigation</span><kbd>ESC</kbd></div><div className="command-menu__items">{chapters.map((chapter, index) => <button type="button" key={chapter.id} onClick={() => scrollToChapter(chapter.id)} className={activeChapter === chapter.id ? "is-active" : ""}><span>0{index + 1}</span>{chapter.label}<ArrowRight size={14} /></button>)}</div></motion.div></motion.div>}</AnimatePresence>
-      {guideOpen && <NavigationGuide onClose={() => setGuideOpen(false)} onStart={() => { setGuideOpen(false); scrollToChapter("signal"); }} />}
-      {selectedProject && <ProjectDialog repo={selectedProject} onClose={() => setSelectedProject(null)} />}
-    </main>
-  );
+    <footer className="mobile-footer"><span>© 2026 Aggelos Frantzeskakis</span><a href={`mailto:${email}`}>Contact</a></footer>
+    {menuOpen && <div className="mobile-menu"><div className="mobile-menu__inner"><div className="mobile-menu__head"><span>Gallery index</span><button type="button" onClick={() => setMenuOpen(false)} aria-label="Close menu"><X size={18} /></button></div>{chapters.map((chapter, index) => <button type="button" key={chapter.id} className={activeIndex === index ? "is-active" : ""} onClick={() => goTo(index)}><span>0{index + 1}</span>{chapter.label}<ArrowRight size={15} /></button>)}</div></div>}
+    {selectedRepo && <ProjectDialog repo={selectedRepo} onClose={() => setSelectedRepo(null)} />}
+  </main>;
 }
