@@ -8,6 +8,7 @@ import {
   Code2,
   Download,
   ExternalLink,
+  FileText,
   Github,
   Instagram,
   Layers3,
@@ -20,6 +21,7 @@ import {
 } from "lucide-react";
 import { useCallback, useEffect, useState, type FormEvent, type ReactNode } from "react";
 import { toast } from "sonner";
+import CvPreviewModal from "@/components/CvPreviewModal";
 import { getGitHubData, type GitHubRepository } from "@/data/loader";
 
 /**
@@ -149,7 +151,7 @@ function CinematicLoader({ onComplete }: { onComplete: () => void }) {
 
   return <motion.div className="loading-screen" initial={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: reduced ? .1 : .5, ease }} aria-label="Loading Aggelos portfolio" role="status">
     <div className="loading-screen__top"><span>AF / digital craft</span><span>Portfolio / 2026</span></div>
-    <div className="loading-screen__center"><div className="loading-screen__mark"><BrandMark /></div><p className="loading-screen__name">Aggelos</p><p className="loading-screen__sub">Frantzeskakis / ideas in motion</p><div className="loading-screen__progress"><span style={{ width: `${progress}%` }} /></div><p className="loading-screen__percent">{Math.round(progress)}%</p></div>
+    <div className="loading-screen__center"><div className="loading-screen__monogram" aria-hidden="true"><span>A</span><span>F</span></div><p className="loading-screen__name">Aggelos</p><p className="loading-screen__sub">Frantzeskakis / ideas in motion</p><div className="loading-screen__progress"><span style={{ width: `${progress}%` }} /></div><div className="loading-screen__status"><span>{progress < 82 ? "Calibrating the flight path" : "Opening the portfolio"}</span><strong>{Math.round(progress)}%</strong></div></div>
     <div className="loading-screen__flight" aria-hidden="true"><img src={assetUrls.pegasus} alt="" onError={(event) => { event.currentTarget.style.display = "none"; }} /></div>
     <div className="loading-screen__bottom"><span>Loading a useful space</span><span>Scroll when ready ↓</span></div>
   </motion.div>;
@@ -215,6 +217,7 @@ export default function Home() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [copied, setCopied] = useState(false);
   const [isDownloadingCv, setIsDownloadingCv] = useState(false);
+  const [isCvPreviewOpen, setIsCvPreviewOpen] = useState(false);
   const reduced = useReducedMotion();
   const completeLoading = useCallback(() => setIsLoading(false), []);
 
@@ -384,7 +387,7 @@ export default function Home() {
             <div className="about-actions">
               <a className="button button--dark" href={profileUrl} target="_blank" rel="noreferrer"><Github size={16} /> Open GitHub <ArrowUpRight size={14} /></a>
               <button type="button" className="button button--outline" onClick={copyHandle}>{copied ? <Check size={15} /> : <Clipboard size={15} />}{copied ? "Copied" : "Copy handle"}</button>
-              <button type="button" className={`button button--outline ${isDownloadingCv ? "is-loading" : ""}`} onClick={handleDownloadCv} disabled={isDownloadingCv} aria-busy={isDownloadingCv}>{isDownloadingCv ? <span className="button-spinner" aria-hidden="true" /> : <Download size={15} />}{isDownloadingCv ? "Preparing CV…" : "Download CV"}</button>
+              <button type="button" className={`button button--outline ${isDownloadingCv ? "is-loading" : ""}`} onClick={() => setIsCvPreviewOpen(true)} disabled={isDownloadingCv} aria-haspopup="dialog" aria-busy={isDownloadingCv}>{isDownloadingCv ? <span className="button-spinner" aria-hidden="true" /> : <FileText size={15} />}{isDownloadingCv ? "Preparing CV…" : "Download CV"}</button>
               <span>{github.profile.public_repos} public repositories</span>
             </div>
           </div>
@@ -415,5 +418,6 @@ export default function Home() {
     </div>
 
     {selectedRepo && <ProjectDialog repo={selectedRepo} onClose={() => setSelectedRepo(null)} />}
+    <CvPreviewModal open={isCvPreviewOpen} onClose={() => setIsCvPreviewOpen(false)} onDownload={() => { setIsCvPreviewOpen(false); handleDownloadCv(); }} />
   </main>;
 }

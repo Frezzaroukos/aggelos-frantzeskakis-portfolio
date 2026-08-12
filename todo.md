@@ -1,8 +1,7 @@
-# Aggelos Portfolio Comprehensive Audit & CV Download TODO
+# Aggelos Portfolio Final Polish TODO
 
-- [ ] Audit content consistency, broken link risks, accessibility aria attributes, keyboard navigation, and responsive padding.
-- [ ] Implement a professional "Download CV" feature in the Profile section with a smooth progress animation, Sonner toast notifications, and automatic generation/download of an Aggelos Frantzeskakis professional CV text/PDF document.
-- [ ] Perform micro-polish on typography contrast, button hover states, card depth, and empty/fallback states.
-- [ ] Create an exhaustive evaluation report (`EVALUATION.md`) assessing the portfolio's current state, identifying logical gaps, and proposing advanced features.
-- [ ] Run TypeScript, production build, desktop/mobile visual verification, and save a final stable checkpoint.
-- [ ] Deliver the professional summary, evaluation report, and next steps.
+- [x] Add CvPreviewModal component with document preview, metadata note about replacing the draft after local clone, and instant download/close actions.
+- [x] Upgrade the cinematic preloader from generic spinner to a bespoke AF brand sequence (orbit line, gold typography, smooth progress, instant fade).
+- [x] Implement evaluation quick wins: enhanced project proof notes, verified GitHub facts, and Formspree/email delivery polish.
+- [x] Run TypeScript check, production build, and multi-device preview verification.
+- [ ] Commit and push all changes to the private GitHub repository (`aggelos-frantzeskakis-portfolio`).
