@@ -25,3 +25,11 @@
 - [x] Apply a holistic premium refinement to cards, section dividers, controls, typography rhythm, and responsive behavior.
 - [x] Verify light/dark, mobile, keyboard focus, reduced motion, TypeScript, production build, and representative screenshots.
 - [x] Commit and push the completed changes to the private GitHub repository.
+
+## Cinematic Pegasus Loading Screen
+
+- [ ] Audit the current loader, Pegasus preload timing, and reduced-motion behavior.
+- [ ] Design a cinematic loading choreography with flight path, orbit rings, Pegasus reveal, and progress language.
+- [ ] Implement the animated Pegasus loader with asset fallback and smooth exit into the portfolio.
+- [ ] Verify responsive, accessibility, reduced motion, TypeScript, production build, and representative visual states.
+- [ ] Save a checkpoint and report the loading-screen result.

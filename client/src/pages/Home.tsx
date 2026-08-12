@@ -130,6 +130,7 @@ function CinematicLoader({ onComplete, language }: { onComplete: () => void; lan
   useEffect(() => {
     let cancelled = false;
     let completionTimer: number | undefined;
+    let finishTimer: number | undefined;
     const startedAt = performance.now();
     const preload = new Image();
     preload.src = assetUrls.pegasus;
@@ -144,8 +145,9 @@ function CinematicLoader({ onComplete, language }: { onComplete: () => void; lan
     const finish = async () => {
       await Promise.race([Promise.all([imageReady, fontsReady]), new Promise((resolve) => window.setTimeout(resolve, 1800))]);
       const wait = Math.max(0, 760 - (performance.now() - startedAt));
-      window.setTimeout(() => {
+      finishTimer = window.setTimeout(() => {
         if (cancelled) return;
+        window.clearInterval(progressTimer);
         setProgress(100);
         completionTimer = window.setTimeout(onComplete, reduced ? 80 : 620);
       }, wait);
@@ -154,14 +156,22 @@ function CinematicLoader({ onComplete, language }: { onComplete: () => void; lan
     return () => {
       cancelled = true;
       window.clearInterval(progressTimer);
+      if (finishTimer) window.clearTimeout(finishTimer);
       if (completionTimer) window.clearTimeout(completionTimer);
     };
   }, [onComplete, reduced]);
 
   return <motion.div className="loading-screen" initial={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: reduced ? .1 : .5, ease }} aria-label={t.aria} role="status">
+    <div className="loading-screen__grid" aria-hidden="true" />
     <div className="loading-screen__top"><span>{t.topLeft}</span><span>{t.topRight}</span></div>
+    <div className="loading-screen__signal" aria-hidden="true"><span>FLIGHT PATH / 01</span><i /><span>{progress < 82 ? "CALIBRATING" : "OPENING"}</span></div>
+    <motion.div className="loading-screen__stage" aria-hidden="true" animate={reduced ? undefined : { y: [0, -8, 0], rotate: [-1, 0, 1] }} transition={reduced ? undefined : { duration: 6, repeat: Infinity, ease: "easeInOut" }}>
+      <span className="loading-screen__orbit loading-screen__orbit--outer" />
+      <span className="loading-screen__orbit loading-screen__orbit--inner" />
+      <span className="loading-screen__orbit loading-screen__orbit--trace" />
+      <motion.img className="loading-screen__pegasus" src={assetUrls.pegasus} alt="" initial={reduced ? false : { opacity: 0, scale: .92, x: 26 }} animate={{ opacity: .86, scale: 1, x: 0 }} transition={{ duration: reduced ? .1 : 1.2, delay: reduced ? 0 : .18, ease }} onError={(event) => { event.currentTarget.style.display = "none"; }} />
+    </motion.div>
     <div className="loading-screen__center"><div className="loading-screen__monogram" aria-hidden="true"><span>A</span><span>F</span></div><p className="loading-screen__name">Aggelos</p><p className="loading-screen__sub">Frantzeskakis / ideas in motion</p><div className="loading-screen__progress"><span style={{ width: `${progress}%` }} /></div><div className="loading-screen__status"><span>{progress < 82 ? t.calibrating : t.opening}</span><strong>{Math.round(progress)}%</strong></div></div>
-    <div className="loading-screen__flight" aria-hidden="true"><img src={assetUrls.pegasus} alt="" onError={(event) => { event.currentTarget.style.display = "none"; }} /></div>
     <div className="loading-screen__bottom"><span>{t.bottomLeft}</span><span>{t.bottomRight}</span></div>
   </motion.div>;
 }
