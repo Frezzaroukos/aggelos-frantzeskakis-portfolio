@@ -1,6 +1,7 @@
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import {
   ArrowDown,
+  ArrowUp,
   ArrowUpRight,
   Check,
   ChevronRight,
@@ -23,6 +24,7 @@ import { useCallback, useEffect, useState, type FormEvent, type ReactNode } from
 import { toast } from "sonner";
 import CvPreviewModal from "@/components/CvPreviewModal";
 import { getGitHubData, type GitHubRepository } from "@/data/loader";
+import { ui, type Language } from "@/lib/uiCopy";
 
 /**
  * Aggelos Frantzeskakis / AF — vertical top-to-bottom portfolio.
@@ -50,13 +52,13 @@ const allGalleryRepos = [...curatedRepos, ...remainingRepos];
 const ease = [0.22, 1, 0.36, 1] as const;
 
 const chapters = [
-  { id: "home", label: "Arrival" },
-  { id: "work", label: "Work" },
-  { id: "skills", label: "Skills" },
-  { id: "stack", label: "Stack" },
-  { id: "about", label: "Profile" },
-  { id: "contact", label: "Contact" },
-];
+  { id: "home" },
+  { id: "work" },
+  { id: "skills" },
+  { id: "stack" },
+  { id: "about" },
+  { id: "contact" },
+] as const;
 
 type Story = { kicker: string; title: string; summary: string; detail: string; facts: string[] };
 const stories: Record<string, Story> = {
@@ -111,12 +113,10 @@ function SectionLabel({ index, children }: { index: string; children: ReactNode 
   return <div className="section-label"><span>{index}</span><i />{children}</div>;
 }
 
-function BrandMark() {
-  return <img className="brand-mark" src={assetUrls.mark} alt="AF brand mark" onError={(event) => { event.currentTarget.style.display = "none"; }} />;
-}
 
-function CinematicLoader({ onComplete }: { onComplete: () => void }) {
+function CinematicLoader({ onComplete, language }: { onComplete: () => void; language: Language }) {
   const [progress, setProgress] = useState(6);
+  const t = ui[language].loader;
   const reduced = useReducedMotion();
   useEffect(() => {
     let cancelled = false;
@@ -149,46 +149,49 @@ function CinematicLoader({ onComplete }: { onComplete: () => void }) {
     };
   }, [onComplete, reduced]);
 
-  return <motion.div className="loading-screen" initial={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: reduced ? .1 : .5, ease }} aria-label="Loading Aggelos portfolio" role="status">
-    <div className="loading-screen__top"><span>AF / digital craft</span><span>Portfolio / 2026</span></div>
-    <div className="loading-screen__center"><div className="loading-screen__monogram" aria-hidden="true"><span>A</span><span>F</span></div><p className="loading-screen__name">Aggelos</p><p className="loading-screen__sub">Frantzeskakis / ideas in motion</p><div className="loading-screen__progress"><span style={{ width: `${progress}%` }} /></div><div className="loading-screen__status"><span>{progress < 82 ? "Calibrating the flight path" : "Opening the portfolio"}</span><strong>{Math.round(progress)}%</strong></div></div>
+  return <motion.div className="loading-screen" initial={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: reduced ? .1 : .5, ease }} aria-label={t.aria} role="status">
+    <div className="loading-screen__top"><span>{t.topLeft}</span><span>{t.topRight}</span></div>
+    <div className="loading-screen__center"><div className="loading-screen__monogram" aria-hidden="true"><span>A</span><span>F</span></div><p className="loading-screen__name">Aggelos</p><p className="loading-screen__sub">Frantzeskakis / ideas in motion</p><div className="loading-screen__progress"><span style={{ width: `${progress}%` }} /></div><div className="loading-screen__status"><span>{progress < 82 ? t.calibrating : t.opening}</span><strong>{Math.round(progress)}%</strong></div></div>
     <div className="loading-screen__flight" aria-hidden="true"><img src={assetUrls.pegasus} alt="" onError={(event) => { event.currentTarget.style.display = "none"; }} /></div>
-    <div className="loading-screen__bottom"><span>Loading a useful space</span><span>Scroll when ready ↓</span></div>
+    <div className="loading-screen__bottom"><span>{t.bottomLeft}</span><span>{t.bottomRight}</span></div>
   </motion.div>;
 }
 
-function ProjectCard({ repo, index, onOpen }: { repo: GitHubRepository; index: number; onOpen: (repo: GitHubRepository) => void }) {
+function ProjectCard({ repo, index, onOpen, language }: { repo: GitHubRepository; index: number; onOpen: (repo: GitHubRepository) => void; language: Language }) {
+  const t = ui[language].project;
   const story = stories[repo.name.toLowerCase()];
   const reduced = useReducedMotion();
   return <motion.article className={`project-card ${repo.private ? "is-private" : ""}`} initial={reduced ? false : { opacity: 0, y: 16 }} whileInView={reduced ? undefined : { opacity: 1, y: 0 }} viewport={{ once: true, amount: .15 }} transition={reduced ? { duration: 0 } : { duration: .5, delay: index * .04, ease }} whileHover={reduced ? undefined : { y: -6 }}>
-    <div className="project-card__top"><span>0{String(index + 1).padStart(1, "0")}</span><span className="project-status"><b />{repo.private ? "Private" : "Public"}</span></div>
+    <div className="project-card__top"><span>0{String(index + 1).padStart(1, "0")}</span><span className="project-status"><b />{repo.private ? t.private : t.public}</span></div>
     <button type="button" className="project-card__body" onClick={() => onOpen(repo)} aria-label={`Open details for ${repo.name}`}>
       <span className="project-card__name">{repo.name}</span>
-      <span className="project-card__description">{story?.summary ?? repo.description ?? "A repository shaped through curiosity and iteration."}</span>
-      <span className="project-card__open">Open details <ArrowUpRight size={15} /></span>
+      <span className="project-card__description">{story?.summary ?? repo.description ?? t.fallback}</span>
+      <span className="project-card__open">{t.openDetails} <ArrowUpRight size={15} /></span>
     </button>
-    <div className="project-card__footer"><span>{repo.language ?? "Mixed"}</span><span>{repo.stars} stars</span><span>{repo.forks} forks</span></div>
+    <div className="project-card__footer"><span>{repo.language ?? t.mixed}</span><span>{repo.stars} {t.stars}</span><span>{repo.forks} {t.forks}</span></div>
   </motion.article>;
 }
 
-function ProjectDialog({ repo, onClose }: { repo: GitHubRepository | null; onClose: () => void }) {
+function ProjectDialog({ repo, onClose, language }: { repo: GitHubRepository | null; onClose: () => void; language: Language }) {
+  const t = ui[language].project;
   const reduced = useReducedMotion();
   if (!repo) return null;
   const story = stories[repo.name.toLowerCase()];
   return <AnimatePresence><motion.div className="modal-backdrop" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={onClose}><motion.section className="project-dialog" role="dialog" aria-modal="true" aria-labelledby="project-title" initial={reduced ? false : { opacity: 0, y: 20, scale: .98 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: 12, scale: .98 }} transition={{ duration: .34, ease }} onClick={(event) => event.stopPropagation()}>
-    <div className="dialog-head"><span>{story?.kicker ?? (repo.private ? "Private build" : "Public project")}</span><button type="button" onClick={onClose} aria-label="Close details"><X size={18} /></button></div>
+    <div className="dialog-head"><span>{story?.kicker ?? (repo.private ? "Private build" : "Public project")}</span><button type="button" onClick={onClose} aria-label={t.closeDetails}><X size={18} /></button></div>
     <div className="dialog-grid"><div><p className="dialog-code">Project study / {repo.name}</p><h2 id="project-title">{story?.title ?? repo.name}</h2><p className="dialog-summary">{story?.summary ?? repo.description}</p></div><div className="dialog-detail"><p>{story?.detail ?? "This study is generated from the current GitHub snapshot."}</p><div className="fact-list">{(story?.facts ?? [repo.language ?? "Mixed stack", repo.private ? "Private repository" : "Public repository"]).map((fact) => <span key={fact}><Check size={13} />{fact}</span>)}</div></div></div>
-    <div className="dialog-foot"><span>{repo.private ? "Source boundary: private" : "Source available on GitHub"}</span><a href={repo.html_url} target="_blank" rel="noreferrer">Open repository <ExternalLink size={14} /></a></div>
+    <div className="dialog-foot"><span>{repo.private ? t.privateSource : t.sourceGithub}</span><a href={repo.html_url} target="_blank" rel="noreferrer">{t.openDetails} <ExternalLink size={14} /></a></div>
   </motion.section></motion.div></AnimatePresence>;
 }
 
-function ContactForm() {
+function ContactForm({ language }: { language: Language }) {
   const [status, setStatus] = useState<"idle" | "sending" | "success" | "error">("idle");
+  const t = ui[language].form;
   const submit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const form = event.currentTarget;
     const data = new FormData(form);
-    const subject = String(data.get("subject") || "Portfolio collaboration");
+    const subject = String(data.get("subject") || t.defaultSubject);
     const message = String(data.get("message") || "");
     setStatus("sending");
     if (!FORMSPREE_ENDPOINT) {
@@ -205,13 +208,18 @@ function ContactForm() {
       setStatus("error");
     }
   };
-  const notice = status === "sending" ? "Sending securely…" : status === "success" ? (FORMSPREE_ENDPOINT ? "Message sent. I’ll get back to you soon." : "Your email client should open now.") : status === "error" ? "Something went wrong. Please email me directly." : FORMSPREE_ENDPOINT ? "Secure Formspree delivery is active." : "Email fallback is active until a Formspree endpoint is added.";
-  return <form className="contact-form" onSubmit={submit}><label><span>Your name</span><input name="name" required placeholder="Name" /></label><label><span>Subject</span><input name="subject" required placeholder="A good problem" /></label><label className="contact-form__wide"><span>Message</span><textarea name="message" required rows={4} placeholder="Tell me what you are shaping..." /></label><div className="contact-form__submit"><span className={status === "error" ? "is-error" : status === "success" ? "is-success" : ""}>{notice}</span><button className="button button--dark" type="submit" disabled={status === "sending"}>{status === "sending" ? "Sending…" : "Compose email"} <Send size={15} /></button></div></form>;
+  const notice = status === "sending" ? t.sending : status === "success" ? (FORMSPREE_ENDPOINT ? t.sent : t.emailOpened) : status === "error" ? t.error : FORMSPREE_ENDPOINT ? t.active : t.fallback;
+  return <form className="contact-form" onSubmit={submit}><label><span>{t.name}</span><input name="name" required placeholder={t.namePlaceholder} /></label><label><span>{t.subject}</span><input name="subject" required placeholder={t.subjectPlaceholder} /></label><label className="contact-form__wide"><span>{t.message}</span><textarea name="message" required rows={4} placeholder={t.messagePlaceholder} /></label><div className="contact-form__submit"><span className={status === "error" ? "is-error" : status === "success" ? "is-success" : ""}>{notice}</span><button className="button button--dark" type="submit" disabled={status === "sending"}>{status === "sending" ? t.sending : t.compose} <Send size={15} /></button></div></form>;
 }
 
 export default function Home() {
   const [isLoading, setIsLoading] = useState(true);
   const [activeSection, setActiveSection] = useState("home");
+  const [language, setLanguage] = useState<Language>(() => {
+    if (typeof window === "undefined") return "en";
+    return window.localStorage.getItem("aggellos-portfolio-language") === "el" ? "el" : "en";
+  });
+  const [showBackToTop, setShowBackToTop] = useState(false);
   const [selectedRepo, setSelectedRepo] = useState<GitHubRepository | null>(null);
   const [selectedSkill, setSelectedSkill] = useState("systems");
   const [menuOpen, setMenuOpen] = useState(false);
@@ -220,10 +228,17 @@ export default function Home() {
   const [isCvPreviewOpen, setIsCvPreviewOpen] = useState(false);
   const reduced = useReducedMotion();
   const completeLoading = useCallback(() => setIsLoading(false), []);
+  const t = ui[language];
+
+  useEffect(() => {
+    window.localStorage.setItem("aggellos-portfolio-language", language);
+    document.documentElement.lang = language;
+  }, [language]);
 
   useEffect(() => {
     const handleScroll = () => {
       const scrollPos = window.scrollY + 200;
+      setShowBackToTop(window.scrollY > 560);
       for (const chapter of chapters) {
         const el = document.getElementById(chapter.id);
         if (el) {
@@ -236,6 +251,7 @@ export default function Home() {
         }
       }
     };
+    handleScroll();
     window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
@@ -286,46 +302,46 @@ export default function Home() {
   const activeSkillObj = skillGroups.find((group) => group.id === selectedSkill) ?? skillGroups[0];
 
   return <main className="app-shell">
-    <AnimatePresence>{isLoading && <CinematicLoader onComplete={completeLoading} />}</AnimatePresence>
+    <AnimatePresence>{isLoading && <CinematicLoader onComplete={completeLoading} language={language} />}</AnimatePresence>
     <div className="grain" aria-hidden="true" />
     <header className="topbar">
       <a className="brand" href="#home" onClick={(event) => { event.preventDefault(); scrollToSection("home"); }} aria-label="Aggelos Frantzeskakis home">
-        <span><strong>Aggelos</strong><small>Frantzeskakis / AF</small></span>
+        <span className="brand-monogram" aria-hidden="true">AF</span><span><strong>Aggelos</strong><small>Frantzeskakis / AF</small></span>
       </a>
-      <div className="topbar__motto"><span />Independent digital craft</div>
+      <div className="topbar__motto"><span />{language === "el" ? "Ανεξάρτητη ψηφιακή δημιουργία" : "Independent digital craft"}</div>
       <nav className={`desktop-nav ${menuOpen ? "is-open" : ""}`} aria-label="Primary navigation">
-        {chapters.map((chapter) => <button type="button" className={activeSection === chapter.id ? "is-active" : ""} key={chapter.id} onClick={() => scrollToSection(chapter.id)}>{chapter.label}</button>)}
+        {chapters.map((chapter) => <button type="button" className={activeSection === chapter.id ? "is-active" : ""} key={chapter.id} onClick={() => scrollToSection(chapter.id)}>{t.nav[chapter.id]}</button>)}
       </nav>
       <div className="topbar__actions">
-        <a className="github-link" href={profileUrl} target="_blank" rel="noreferrer"><Github size={15} /><span>GitHub</span><ArrowUpRight size={12} /></a>
-        <button type="button" className="menu-button" onClick={() => setMenuOpen((value) => !value)} aria-expanded={menuOpen} aria-label={menuOpen ? "Close navigation" : "Open navigation"}>
+        <div className="language-switch" role="group" aria-label={t.languageLabel}><button type="button" className={language === "en" ? "is-active" : ""} aria-pressed={language === "en"} onClick={() => setLanguage("en")}>EN</button><span>/</span><button type="button" className={language === "el" ? "is-active" : ""} aria-pressed={language === "el"} onClick={() => setLanguage("el")}>EL</button></div>
+        <a className="github-link" href={profileUrl} target="_blank" rel="noreferrer"><Github size={15} /><span>{t.github}</span><ArrowUpRight size={12} /></a>
+        <button type="button" className="menu-button" onClick={() => setMenuOpen((value) => !value)} aria-expanded={menuOpen} aria-label={menuOpen ? t.closeNavigation : t.openNavigation}>
           {menuOpen ? <X size={18} /> : <Menu size={18} />}
         </button>
       </div>
     </header>
 
-    {menuOpen && <div className="mobile-menu"><div className="mobile-menu__inner"><div className="mobile-menu__head"><span>Navigation</span><button type="button" onClick={() => setMenuOpen(false)} aria-label="Close menu"><X size={18} /></button></div>{chapters.map((chapter, index) => <button type="button" key={chapter.id} className={activeSection === chapter.id ? "is-active" : ""} onClick={() => scrollToSection(chapter.id)}><span>0{index + 1}</span>{chapter.label}<ChevronRight size={15} /></button>)}</div></div>}
+    {menuOpen && <div className="mobile-menu"><div className="mobile-menu__inner"><div className="mobile-menu__head"><span>{t.navigation}</span><button type="button" onClick={() => setMenuOpen(false)} aria-label={t.closeMenu}><X size={18} /></button></div>{chapters.map((chapter, index) => <button type="button" key={chapter.id} className={activeSection === chapter.id ? "is-active" : ""} onClick={() => scrollToSection(chapter.id)}><span>0{index + 1}</span>{t.nav[chapter.id]}<ChevronRight size={15} /></button>)}</div></div>}
 
     <div className="document-flow">
       <section id="home" className="panel panel--hero">
         <div className="panel-grid" aria-hidden="true" />
         <div className="panel-inner hero-panel">
           <div className="hero-panel__copy">
-            <Reveal><div className="eyebrow"><span className="pulse" />Aggelos Frantzeskakis / ideas in motion</div></Reveal>
-            <Reveal delay={.08}><h1>Make the complex<br /><em>feel alive.</em></h1></Reveal>
-            <Reveal delay={.16}><p>I build useful digital experiences around offline-first products, local AI, and interfaces that give ambitious ideas a clearer way to move.</p></Reveal>
+            <Reveal><div className="eyebrow"><span className="pulse" />{t.heroEyebrow}</div></Reveal>
+            <Reveal delay={.08}><h1>{t.heroTitle}<br /><em>{t.heroAccent}</em></h1></Reveal>
+            <Reveal delay={.16}><p>{t.heroDescription}</p></Reveal>
             <Reveal delay={.22} className="hero-actions">
-              <button type="button" className="button button--dark" onClick={() => scrollToSection("work")}>Explore the work <ArrowDown size={16} /></button>
-              <button type="button" className="text-button" onClick={() => scrollToSection("skills")}>See the skills <ChevronRight size={15} /></button>
+              <button type="button" className="button button--dark" onClick={() => scrollToSection("work")}>{t.exploreWork} <ArrowDown size={16} /></button>
+              <button type="button" className="text-button" onClick={() => scrollToSection("skills")}>{t.seeSkills} <ChevronRight size={15} /></button>
             </Reveal>
-            <div className="hero-signature"><span>Now exploring</span><strong>resilient products · local intelligence</strong></div>
+            <div className="hero-signature"><span>{t.nowExploring}</span><strong>{t.heroSignature}</strong></div>
           </div>
           <motion.div className="hero-visual" animate={reduced ? undefined : { y: [0, -7, 0] }} transition={reduced ? undefined : { duration: 6, repeat: Infinity, ease: "easeInOut" }}>
             <div className="hero-visual__orbit" aria-hidden="true" />
             <div className="hero-visual__trace" aria-hidden="true" />
-            <img src={assetUrls.pegasus} alt="Clean watercolor Pegasus looking toward the right" onError={(event) => { event.currentTarget.style.display = "none"; event.currentTarget.parentElement?.classList.add("is-image-missing"); }} />
-            <div className="hero-visual__label">Signature study <span>01 / flight path</span></div>
-            <div className="hero-visual__brand"><BrandMark /></div>
+            <img src={assetUrls.pegasus} alt={language === "el" ? "Καθαρός watercolor Πήγασος που κοιτάζει προς τα δεξιά" : "Clean watercolor Pegasus looking toward the right"} onError={(event) => { event.currentTarget.style.display = "none"; event.currentTarget.parentElement?.classList.add("is-image-missing"); }} />
+            <div className="hero-visual__label">{t.signatureStudy} <span>{t.flightPath}</span></div>
           </motion.div>
         </div>
       </section>
@@ -333,10 +349,10 @@ export default function Home() {
       <section id="work" className="panel panel--work">
         <div className="panel-inner">
           <div className="panel-heading">
-            <div><SectionLabel index="01">Selected work</SectionLabel><Reveal><h2>Projects with<br /><em>a point of view.</em></h2></Reveal></div>
-            <Reveal delay={.1} className="panel-heading__aside"><p>A live selection from the current GitHub snapshot. Click a card for a focused study; private work stays clearly marked.</p><span>Scroll naturally to explore each chapter.</span></Reveal>
+            <div><SectionLabel index="01">{t.selectedWork}</SectionLabel><Reveal><h2>{t.workTitle}<br /><em>{t.workAccent}</em></h2></Reveal></div>
+            <Reveal delay={.1} className="panel-heading__aside"><p>{t.workAside}</p><span>{t.workHint}</span></Reveal>
           </div>
-          <div className="project-grid">{curatedRepos.map((repo, index) => <ProjectCard key={repo.name} repo={repo} index={index} onOpen={setSelectedRepo} />)}</div>
+          <div className="project-grid">{curatedRepos.map((repo, index) => <ProjectCard key={repo.name} repo={repo} index={index} onOpen={setSelectedRepo} language={language} />)}</div>
         </div>
       </section>
 
@@ -344,20 +360,19 @@ export default function Home() {
         <div className="panel-inner">
           <div className="skills-layout">
             <div className="skills-intro">
-              <SectionLabel index="02">Skills / current practice</SectionLabel>
-              <Reveal><h2>Build the shape<br /><em>around the signal.</em></h2></Reveal>
-              <Reveal delay={.1}><p>These are the working directions visible in the current projects. They are a base, not a final limit — you can expand them later as your practice evolves.</p></Reveal>
-              <div className="skill-tabs" role="tablist" aria-label="Skill groups">
-                {skillGroups.map((group) => <button type="button" role="tab" aria-selected={selectedSkill === group.id} className={selectedSkill === group.id ? "is-active" : ""} key={group.id} onClick={() => setSelectedSkill(group.id)}><group.icon size={17} />{group.label}</button>)}
+              <SectionLabel index="02">{t.skillsLabel}</SectionLabel>
+              <Reveal><h2>{t.skillsTitle}<br /><em>{t.skillsAccent}</em></h2></Reveal>
+              <Reveal delay={.1}><p>{t.skillsDescription}</p></Reveal>
+              <div className="skill-tabs" role="tablist" aria-label={t.skillTabsLabel}>
+                {skillGroups.map((group) => <button type="button" role="tab" aria-selected={selectedSkill === group.id} className={selectedSkill === group.id ? "is-active" : ""} key={group.id} onClick={() => setSelectedSkill(group.id)}><group.icon size={17} />{t.skillTabs[group.id as keyof typeof t.skillTabs]}</button>)}</div>
               </div>
-            </div>
             <AnimatePresence mode="wait">
               <motion.div className="skill-feature" key={activeSkillObj.id} initial={reduced ? false : { opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: .34, ease }}>
                 <span className="skill-feature__number">{activeSkillObj.id === "systems" ? "01" : activeSkillObj.id === "resilient" ? "02" : "03"}</span>
                 <activeSkillObj.icon size={41} strokeWidth={1.15} />
-                <h3>{activeSkillObj.title}</h3>
-                <p>{activeSkillObj.text}</p>
-                <div className="skill-tags">{activeSkillObj.tags.map((tag) => <span key={tag}>{tag}</span>)}</div>
+                <h3>{t.skillContent[activeSkillObj.id as keyof typeof t.skillContent].title}</h3>
+                <p>{t.skillContent[activeSkillObj.id as keyof typeof t.skillContent].text}</p>
+                <div className="skill-tags">{t.skillContent[activeSkillObj.id as keyof typeof t.skillContent].tags.map((tag) => <span key={tag}>{tag}</span>)}</div>
               </motion.div>
             </AnimatePresence>
           </div>
@@ -367,28 +382,28 @@ export default function Home() {
       <section id="stack" className="panel panel--stack">
         <div className="panel-inner">
           <div className="panel-heading">
-            <div><SectionLabel index="03">Tech stack</SectionLabel><Reveal><h2>Tools for a<br /><em>living system.</em></h2></Reveal></div>
-            <Reveal delay={.1} className="panel-heading__aside"><p>Based on the languages, patterns, and AI directions represented in the current GitHub snapshot. The stack is intentionally expandable.</p><span>Current evidence, future room.</span></Reveal>
+            <div><SectionLabel index="03">{t.stackLabel}</SectionLabel><Reveal><h2>{t.stackTitle}<br /><em>{t.stackAccent}</em></h2></Reveal></div>
+            <Reveal delay={.1} className="panel-heading__aside"><p>{t.stackAside}</p><span>{t.stackEvidence}</span></Reveal>
           </div>
           <div className="stack-grid">
-            {stackGroups.map((group, index) => <Reveal key={group.label} delay={index * .08} className="stack-card"><span className="stack-card__index">0{index + 1}</span><h3>{group.label}</h3><div>{group.items.map((item) => <span key={item}><i />{item}</span>)}</div></Reveal>)}
+            {stackGroups.map((group, index) => <Reveal key={group.label} delay={index * .08} className="stack-card"><span className="stack-card__index">0{index + 1}</span><h3>{t.stackGroupLabels[index]}</h3><div>{group.items.map((item) => <span key={item}><i />{item}</span>)}</div></Reveal>)}
           </div>
-          <div className="stack-note"><Code2 size={18} /><span>Stack details can grow with the portfolio — this layer is ready for deeper case studies, tools, and links.</span></div>
+          <div className="stack-note"><Code2 size={18} /><span>{t.stackNote}</span></div>
         </div>
       </section>
 
       <section id="about" className="panel panel--about">
         <div className="panel-inner about-layout">
-          <div className="about-visual"><img src={github.profile.avatar_url} alt={`GitHub avatar for ${profileHandle}`} /><div className="about-visual__line" /><span>github.com/{profileHandle}</span></div>
+          <div className="about-visual"><img src={github.profile.avatar_url} alt={language === "el" ? `GitHub avatar για το ${profileHandle}` : `GitHub avatar for ${profileHandle}`} /><div className="about-visual__line" /><span>github.com/{profileHandle}</span></div>
           <div className="about-copy">
-            <SectionLabel index="04">The person behind the work</SectionLabel>
+            <SectionLabel index="04">{t.aboutLabel}</SectionLabel>
             <Reveal><h2>Aggelos<br /><em>Frantzeskakis.</em></h2></Reveal>
-            <Reveal delay={.1}><p>I’m building a practice around useful software: products that respect attention, make complexity legible, and leave a little room for wonder. The public GitHub profile stays quiet; the repositories show how I think.</p></Reveal>
+            <Reveal delay={.1}><p>{t.aboutDescription}</p></Reveal>
             <div className="about-actions">
-              <a className="button button--dark" href={profileUrl} target="_blank" rel="noreferrer"><Github size={16} /> Open GitHub <ArrowUpRight size={14} /></a>
-              <button type="button" className="button button--outline" onClick={copyHandle}>{copied ? <Check size={15} /> : <Clipboard size={15} />}{copied ? "Copied" : "Copy handle"}</button>
-              <button type="button" className={`button button--outline ${isDownloadingCv ? "is-loading" : ""}`} onClick={() => setIsCvPreviewOpen(true)} disabled={isDownloadingCv} aria-haspopup="dialog" aria-busy={isDownloadingCv}>{isDownloadingCv ? <span className="button-spinner" aria-hidden="true" /> : <FileText size={15} />}{isDownloadingCv ? "Preparing CV…" : "Download CV"}</button>
-              <span>{github.profile.public_repos} public repositories</span>
+              <a className="button button--dark" href={profileUrl} target="_blank" rel="noreferrer"><Github size={16} /> {t.openGithub} <ArrowUpRight size={14} /></a>
+              <button type="button" className="button button--outline" onClick={copyHandle}>{copied ? <Check size={15} /> : <Clipboard size={15} />}{copied ? t.copied : t.copyHandle}</button>
+              <button type="button" className={`button button--outline ${isDownloadingCv ? "is-loading" : ""}`} onClick={() => setIsCvPreviewOpen(true)} disabled={isDownloadingCv} aria-haspopup="dialog" aria-busy={isDownloadingCv}>{isDownloadingCv ? <span className="button-spinner" aria-hidden="true" /> : <FileText size={15} />}{isDownloadingCv ? t.preparingCv : t.downloadCv}</button>
+              <span>{github.profile.public_repos} {t.publicRepositories}</span>
             </div>
           </div>
         </div>
@@ -396,28 +411,31 @@ export default function Home() {
 
       <section id="contact" className="panel panel--contact">
         <div className="panel-inner contact-layout">
-          <div className="contact-heading"><SectionLabel index="05">Start a conversation</SectionLabel><span>Have a good problem?</span></div>
+          <div className="contact-heading"><SectionLabel index="05">{t.contactLabel}</SectionLabel><span>{t.contactPrompt}</span></div>
           <div className="contact-grid">
             <div>
-              <Reveal><h2>Let’s make<br /><em>something memorable.</em></h2></Reveal>
-              <p>Tell me what you are shaping. The form opens your email client so the conversation stays direct.</p>
+              <Reveal><h2>{t.contactTitle}<br /><em>{t.contactAccent}</em></h2></Reveal>
+              <p>{t.contactDescription}</p>
               <div className="social-links">
                 <a href={`mailto:${email}`}><Mail size={15} />{email}</a>
                 <a href={instagramUrl} target="_blank" rel="noreferrer"><Instagram size={15} />{instagramHandle}</a>
               </div>
             </div>
-            <ContactForm />
+            <ContactForm language={language} />
           </div>
           <div className="contact-footer">
             <span>© 2026 Aggelos Frantzeskakis</span>
-            <span>AF / vertical editorial portfolio</span>
-            <button type="button" onClick={() => scrollToSection("home")}>Back to top <ArrowUpRight size={13} /></button>
+            <span className="footer-signature"><b>AF</b><span>{t.footerNote}</span></span>
+            <button type="button" onClick={() => scrollToSection("home")}>{t.backToTop} <ArrowUpRight size={13} /></button>
           </div>
         </div>
       </section>
     </div>
 
-    {selectedRepo && <ProjectDialog repo={selectedRepo} onClose={() => setSelectedRepo(null)} />}
+    {selectedRepo && <ProjectDialog repo={selectedRepo} onClose={() => setSelectedRepo(null)} language={language} />}
     <CvPreviewModal open={isCvPreviewOpen} onClose={() => setIsCvPreviewOpen(false)} onDownload={() => { setIsCvPreviewOpen(false); handleDownloadCv(); }} />
+    <AnimatePresence>
+      {showBackToTop && <motion.button type="button" className="back-to-top" initial={reduced ? false : { opacity: 0, y: 12, scale: .96 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={reduced ? undefined : { opacity: 0, y: 12, scale: .96 }} transition={{ duration: .24, ease }} onClick={() => scrollToSection("home")} aria-label={t.backToTop}><ArrowUp size={15} /><span>{t.backToTop}</span></motion.button>}
+    </AnimatePresence>
   </main>;
 }
