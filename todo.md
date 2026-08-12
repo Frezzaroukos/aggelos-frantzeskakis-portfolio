@@ -40,4 +40,4 @@
 - [x] Download/save local copies of Pegasus, monogram, and CV PDF into client/public/ and update references to use static relative paths (`/pegasus_cleaned.png`, etc.).
 - [x] Ensure Vite config builds a standalone static client without requiring Manus proxy runtime.
 - [x] Verify static production build, preview server, and GitHub push.
-- [ ] Save a checkpoint and report the portable build readiness.
+- [x] Save a checkpoint and report the portable build readiness.
