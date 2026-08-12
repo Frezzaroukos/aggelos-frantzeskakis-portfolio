@@ -6,7 +6,7 @@ The portfolio is stored in the private repository `Frezzaroukos/aggelos-frantzes
 
 `https://github.com/Frezzaroukos/aggelos-frantzeskakis-portfolio`
 
-The repository uses the `main` branch. Existing project repositories were not modified.
+The repository uses the `main` branch. Existing project repositories were not modified. The critical portfolio assets are now committed in `client/public/assets/`, so the visual identity and CV do not depend on Manus storage or Forge credentials.
 
 ## Recommended desktop setup
 
@@ -20,6 +20,12 @@ pnpm dev
 ```
 
 Open the local address shown by Vite, usually `http://localhost:5173/` or the port printed in the terminal. Keep the terminal running while an AI coding tool edits the project.
+
+## Portable assets and independent deployment
+
+The repository includes the optimized Pegasus artwork at `client/public/assets/pegasus.webp`, the AF brand mark at `client/public/assets/af-brand-mark.webp`, and the current factual CV at `client/public/assets/Aggelos-Frantzeskakis-CV.pdf`. The React code references these files through `/assets/...` paths. Do not restore `/manus-storage/...` references: those are Manus-development paths and are not required for an independent host.
+
+For a static host, use the following build settings: install command `pnpm install`, build command `pnpm build`, and publish directory `dist/public`. If the host expects a single-page application fallback, rewrite all unknown routes to `/index.html`; the current portfolio itself uses the root route.
 
 ## Updating an existing local copy
 
@@ -39,7 +45,7 @@ After making changes, verify and commit them:
 pnpm check
 pnpm build
 git status
-git add client package.json pnpm-lock.yaml README.md
+git add client vite.config.ts GITHUB-LOCAL-HANDOFF.md package.json pnpm-lock.yaml README.md
 git commit -m "Refine portfolio navigation and content"
 git push origin main
 ```

@@ -40,11 +40,11 @@ const profileUrl = github.profile.html_url;
 const email = "aggelosf2016@gmail.com";
 const instagramUrl = "https://www.instagram.com/aggelosfrantzeskakiss?igsh=c2Zldmh3ZW1zNXEy&utm_source=qr";
 const instagramHandle = "@aggelosfrantzeskakiss";
-const cvUrl = "/manus-storage/Aggelos-Frantzeskakis-CV_3f144ec3.pdf";
+const cvUrl = "/assets/Aggelos-Frantzeskakis-CV.pdf";
 const FORMSPREE_ENDPOINT = (import.meta.env.VITE_FORMSPREE_ENDPOINT as string | undefined)?.trim();
 const assetUrls = {
-  pegasus: "/manus-storage/pegasus_cleaned_541401ab.png",
-  mark: "/manus-storage/af-brand-mark_0341fe3d.png",
+  pegasus: "/assets/pegasus.webp",
+  mark: "/assets/af-brand-mark.webp",
 };
 
 const repositories = github.repositories.filter((repo) => !repo.name.toLowerCase().includes("morfos") && !repo.fork);

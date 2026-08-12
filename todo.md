@@ -28,8 +28,16 @@
 
 ## Cinematic Pegasus Loading Screen
 
-- [ ] Audit the current loader, Pegasus preload timing, and reduced-motion behavior.
-- [ ] Design a cinematic loading choreography with flight path, orbit rings, Pegasus reveal, and progress language.
-- [ ] Implement the animated Pegasus loader with asset fallback and smooth exit into the portfolio.
-- [ ] Verify responsive, accessibility, reduced motion, TypeScript, production build, and representative visual states.
-- [ ] Save a checkpoint and report the loading-screen result.
+- [x] Audit the current loader, Pegasus preload timing, and reduced-motion behavior.
+- [x] Design a cinematic loading choreography with flight path, orbit rings, Pegasus reveal, and progress language.
+- [x] Implement the animated Pegasus loader with asset fallback and smooth exit into the portfolio.
+- [x] Verify responsive, accessibility, reduced motion, TypeScript, production build, and representative visual states.
+- [x] Save a checkpoint and report the loading-screen result.
+
+## Portable Deployment Blocker Fixes
+
+- [x] Audit all asset URLs in Home.tsx and Vite storage proxy middleware in vite.config.ts.
+- [x] Download/save local copies of Pegasus, monogram, and CV PDF into client/public/ and update references to use static relative paths (`/pegasus_cleaned.png`, etc.).
+- [x] Ensure Vite config builds a standalone static client without requiring Manus proxy runtime.
+- [x] Verify static production build, preview server, and GitHub push.
+- [ ] Save a checkpoint and report the portable build readiness.

@@ -2,7 +2,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { Download, FileText, Mail, X } from "lucide-react";
 import { useEffect } from "react";
 
-const cvUrl = "/manus-storage/Aggelos-Frantzeskakis-CV_3f144ec3.pdf";
+const cvUrl = "/assets/Aggelos-Frantzeskakis-CV.pdf";
 
 export default function CvPreviewModal({ open, onClose, onDownload }: { open: boolean; onClose: () => void; onDownload: () => void }) {
   useEffect(() => {
