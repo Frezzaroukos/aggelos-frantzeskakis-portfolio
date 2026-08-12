@@ -179,12 +179,16 @@ export default function Home() {
     if (!gallery) return;
     let locked = false;
     const onWheel = (event: WheelEvent) => {
-      if (window.innerWidth <= 760 || Math.abs(event.deltaY) < Math.abs(event.deltaX)) return;
+      if (window.innerWidth <= 760) return;
+      const target = event.target as HTMLElement | null;
+      if (target?.closest("textarea, input, select, [role=dialog]")) return;
+      const delta = Math.abs(event.deltaY) >= Math.abs(event.deltaX) ? event.deltaY : event.deltaX;
+      if (!delta) return;
       event.preventDefault();
       if (locked) return;
       locked = true;
       const current = Math.round(gallery.scrollLeft / Math.max(1, gallery.clientWidth));
-      const direction = event.deltaY > 0 ? 1 : -1;
+      const direction = delta > 0 ? 1 : -1;
       const next = Math.max(0, Math.min(chapters.length - 1, current + direction));
       gallery.scrollTo({ left: next * gallery.clientWidth, behavior: reduced ? "auto" : "smooth" });
       window.setTimeout(() => { locked = false; }, reduced ? 0 : 420);
@@ -202,6 +206,8 @@ export default function Home() {
     let startScroll = 0;
     const onPointerDown = (event: PointerEvent) => {
       if (window.innerWidth <= 760 || (event.pointerType === "mouse" && event.button !== 0)) return;
+      const target = event.target as HTMLElement | null;
+      if (target?.closest("button, a, input, textarea, select, [role=dialog]")) return;
       dragging = true;
       pointerId = event.pointerId;
       startX = event.clientX;
@@ -246,7 +252,9 @@ export default function Home() {
 
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
-      if (event.key === "Escape") { setSelectedRepo(null); setMenuOpen(false); }
+      if (event.key === "Escape") { setSelectedRepo(null); setMenuOpen(false); return; }
+      const target = event.target as HTMLElement | null;
+      if (target?.closest("input, textarea, select, [contenteditable=true]")) return;
       if (window.innerWidth > 760 && (event.key === "ArrowRight" || event.key === "ArrowLeft")) { event.preventDefault(); goTo(activeIndex + (event.key === "ArrowRight" ? 1 : -1)); }
     };
     window.addEventListener("keydown", onKey);
@@ -260,11 +268,12 @@ export default function Home() {
     const next = Math.max(0, Math.min(chapters.length - 1, index));
     const gallery = galleryRef.current;
     if (gallery && window.innerWidth > 760) {
-      gallery.focus({ preventScroll: true });
+      try { gallery.focus({ preventScroll: true }); } catch { gallery.focus(); }
       gallery.scrollTo({ left: next * gallery.clientWidth, behavior: reduced ? "auto" : "smooth" });
     } else {
       document.getElementById(chapters[next].id)?.scrollIntoView({ behavior: reduced ? "auto" : "smooth", block: "start" });
     }
+    setActiveIndex(next);
     setMenuOpen(false);
   }
 
