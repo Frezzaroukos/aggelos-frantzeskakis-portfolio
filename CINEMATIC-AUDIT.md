@@ -17,3 +17,8 @@ The trusted review confirmed the overall Ethereal Motion direction, then the bui
 ## Mobile QA
 
 The iPhone-sized preview keeps the project cards in a single column, preserves the Pegasus scene and orbit rings without overflow, and retains the editorial section rhythm. The profile imagery now uses a softened graphite treatment rather than a hard black block. Mobile tool and stack content remain readable; the final dark-theme screenshot will validate the same hierarchy on graphite surfaces.
+
+
+## Final QA and repository sync
+
+Light desktop, mobile, and graphite dark screenshots were captured after the refinement pass. The default preview was reset to light mode. TypeScript and production build passed, the cinematic change set was committed as `4bc5e6b`, and the private GitHub repository `Frezzaroukos/aggelos-frantzeskakis-portfolio` accepted the push on `main`.
