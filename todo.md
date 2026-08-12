@@ -1,11 +1,8 @@
-# Aggelos Portfolio Loading & Contact Upgrade TODO
+# Aggelos Portfolio God-Level & Social Upgrade TODO
 
-- [ ] Audit the current Pegasus/AF assets, image URLs, alt text, GitHub snapshot, metadata, and responsive loading states.
-- [ ] Add a cinematic first-load sequence with Pegasus silhouette, AF mark, progress line, and skip/reduced-motion behavior.
-- [ ] Ensure loading completes reliably even if an image or external font is slow or unavailable.
-- [ ] Add a configurable Formspree endpoint boundary and async submit states: idle, sending, success, and error.
-- [ ] Preserve a mailto fallback until the user supplies a real Formspree form endpoint.
-- [ ] Keep Telegram and AXON integration out of the static frontend; document the future webhook/module boundary for the user’s AI tools.
-- [ ] Improve image loading, broken-image fallback, metadata, focus states, and mobile layout where needed.
-- [ ] Run TypeScript, production build, desktop/mobile screenshots, and loading/contact regression checks.
-- [ ] Save a stable checkpoint and provide exact Formspree activation instructions.
+- [ ] Audit existing portfolio code health, accessibility tags, keyboard focus, and mobile responsiveness.
+- [ ] Visit and inspect the user's public Instagram profile (`@aggelosfrantzeskakiss`) using browser/search to establish brand positioning.
+- [ ] Implement advanced portfolio enhancements: keyboard shortcuts (press 'c' to jump to contact, 'w' for work, 's' for skills), toast notifications on copy/submit, enhanced project dialogs with tech badges, and refined typography/spacing.
+- [ ] Write an exhaustive Instagram & LinkedIn profile optimization playbook with exact bios, link-in-bio structures, headline copy, and content strategies.
+- [ ] Run TypeScript, production build, desktop/mobile visual verification, and save a final stable checkpoint.
+- [ ] Deliver the professional report and social playbook.
