@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 
-type Theme = "light" | "dark";
+export type Theme = "light" | "dark";
 
 interface ThemeContextType {
   theme: Theme;
@@ -23,8 +23,10 @@ export function ThemeProvider({
 }: ThemeProviderProps) {
   const [theme, setTheme] = useState<Theme>(() => {
     if (switchable) {
-      const stored = localStorage.getItem("theme");
-      return (stored as Theme) || defaultTheme;
+      const queryTheme = new URLSearchParams(window.location.search).get("theme");
+      const stored = window.localStorage.getItem("aggellos-portfolio-theme");
+      if (queryTheme === "dark" || queryTheme === "light") return queryTheme;
+      return stored === "dark" || stored === "light" ? stored : defaultTheme;
     }
     return defaultTheme;
   });
@@ -38,7 +40,7 @@ export function ThemeProvider({
     }
 
     if (switchable) {
-      localStorage.setItem("theme", theme);
+      window.localStorage.setItem("aggellos-portfolio-theme", theme);
     }
   }, [theme, switchable]);
 

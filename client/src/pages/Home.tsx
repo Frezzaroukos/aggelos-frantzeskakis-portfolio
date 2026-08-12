@@ -3,6 +3,8 @@ import {
   ArrowDown,
   ArrowUp,
   ArrowUpRight,
+  Moon,
+  Sun,
   Check,
   ChevronRight,
   Clipboard,
@@ -25,6 +27,7 @@ import { toast } from "sonner";
 import CvPreviewModal from "@/components/CvPreviewModal";
 import { getGitHubData, type GitHubRepository } from "@/data/loader";
 import { ui, type Language } from "@/lib/uiCopy";
+import { useTheme } from "@/contexts/ThemeContext";
 
 /**
  * Aggelos Frantzeskakis / AF — vertical top-to-bottom portfolio.
@@ -102,6 +105,12 @@ const stackGroups = [
   { label: "Languages", items: ["TypeScript", "Python", "JavaScript", "HTML", "Shell"] },
   { label: "Product patterns", items: ["PWA", "Offline-first", "Local-first", "Bilingual UX", "Responsive UI"] },
   { label: "AI direction", items: ["Ollama", "Krikri", "RAG", "Multi-provider routing", "Cost-aware systems"] },
+];
+const skillTools = [
+  { icon: Code2, items: ["TypeScript", "Python", "JavaScript", "HTML"] },
+  { icon: Layers3, items: ["React", "PWA", "Offline-first", "Responsive UI"] },
+  { icon: Sparkles, items: ["Ollama", "Krikri", "RAG", "Local AI"] },
+  { icon: Github, items: ["GitHub", "Git", "Shell", "CLI workflows"] },
 ];
 
 function Reveal({ children, className = "", delay = 0 }: { children: ReactNode; className?: string; delay?: number }) {
@@ -197,6 +206,7 @@ function ContactForm({ language }: { language: Language }) {
     if (!FORMSPREE_ENDPOINT) {
       window.location.href = `mailto:${email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(message)}`;
       setStatus("success");
+      toast(t.emailOpened, { duration: 3600 });
       return;
     }
     try {
@@ -204,8 +214,10 @@ function ContactForm({ language }: { language: Language }) {
       if (!response.ok) throw new Error("Formspree request failed");
       form.reset();
       setStatus("success");
+      toast.success(t.successToastTitle, { description: t.successToastDescription, duration: 4600 });
     } catch {
       setStatus("error");
+      toast.error(t.error, { duration: 4200 });
     }
   };
   const notice = status === "sending" ? t.sending : status === "success" ? (FORMSPREE_ENDPOINT ? t.sent : t.emailOpened) : status === "error" ? t.error : FORMSPREE_ENDPOINT ? t.active : t.fallback;
@@ -227,6 +239,7 @@ export default function Home() {
   const [isDownloadingCv, setIsDownloadingCv] = useState(false);
   const [isCvPreviewOpen, setIsCvPreviewOpen] = useState(false);
   const reduced = useReducedMotion();
+  const { theme, toggleTheme } = useTheme();
   const completeLoading = useCallback(() => setIsLoading(false), []);
   const t = ui[language];
 
@@ -314,6 +327,7 @@ export default function Home() {
       </nav>
       <div className="topbar__actions">
         <div className="language-switch" role="group" aria-label={t.languageLabel}><button type="button" className={language === "en" ? "is-active" : ""} aria-pressed={language === "en"} onClick={() => setLanguage("en")}>EN</button><span>/</span><button type="button" className={language === "el" ? "is-active" : ""} aria-pressed={language === "el"} onClick={() => setLanguage("el")}>EL</button></div>
+        <button type="button" className={`theme-toggle ${theme === "dark" ? "is-dark" : ""}`} role="switch" aria-checked={theme === "dark"} aria-label={theme === "dark" ? t.switchToLight : t.switchToDark} title={theme === "dark" ? t.switchToLight : t.switchToDark} onClick={() => toggleTheme?.()}><span className="theme-toggle__track"><span className="theme-toggle__thumb">{theme === "dark" ? <Moon size={12} /> : <Sun size={12} />}</span></span></button>
         <a className="github-link" href={profileUrl} target="_blank" rel="noreferrer"><Github size={15} /><span>{t.github}</span><ArrowUpRight size={12} /></a>
         <button type="button" className="menu-button" onClick={() => setMenuOpen((value) => !value)} aria-expanded={menuOpen} aria-label={menuOpen ? t.closeNavigation : t.openNavigation}>
           {menuOpen ? <X size={18} /> : <Menu size={18} />}
@@ -375,6 +389,15 @@ export default function Home() {
                 <div className="skill-tags">{t.skillContent[activeSkillObj.id as keyof typeof t.skillContent].tags.map((tag) => <span key={tag}>{tag}</span>)}</div>
               </motion.div>
             </AnimatePresence>
+          </div>
+          <div id="skills-tools" className="skills-tools">
+            <div className="skills-tools__head">
+              <div><SectionLabel index="02 / tools">{t.skillsToolsNote}</SectionLabel><Reveal><h3>{t.skillsToolsTitle}<br /><em>{t.skillsToolsAccent}</em></h3></Reveal></div>
+              <Reveal delay={.1} className="skills-tools__aside"><p>{t.skillsToolsDescription}</p><span>Editable after git pull / local AI handoff</span></Reveal>
+            </div>
+            <div className="skills-tools__grid">
+              {skillTools.map((tool, index) => <Reveal key={t.skillsToolGroupLabels[index]} delay={index * .06} className="skills-tool-card"><span className="skills-tool-card__index">0{index + 1}</span><tool.icon size={19} strokeWidth={1.4} /><h4>{t.skillsToolGroupLabels[index]}</h4><div>{tool.items.map((item) => <span key={item}><i />{item}</span>)}</div></Reveal>)}
+            </div>
           </div>
         </div>
       </section>

@@ -8,6 +8,10 @@ export const ui = {
   en: {
     nav: { home: "Arrival", work: "Work", skills: "Skills", stack: "Stack", about: "Profile", contact: "Contact" },
     languageLabel: "Language",
+    themeLabel: "Theme",
+    switchToDark: "Switch to dark theme",
+    switchToLight: "Switch to light theme",
+
     github: "GitHub",
     openNavigation: "Open navigation",
     closeNavigation: "Close navigation",
@@ -46,6 +50,12 @@ export const ui = {
     stackEvidence: "Current evidence, future room.",
     stackGroupLabels: ["Languages", "Product patterns", "AI direction"],
     stackNote: "Stack details can grow with the portfolio — this layer is ready for deeper case studies, tools, and links.",
+    skillsToolsTitle: "The tools behind",
+    skillsToolsAccent: "the practice.",
+    skillsToolsDescription: "A current working map of the tools and technologies visible across the portfolio projects. This is intentionally editable after the next local git pull.",
+    skillsToolsNote: "Editable layer / expand after git pull",
+    skillsToolGroupLabels: ["Build language", "Resilient products", "Local intelligence", "Delivery craft"],
+
     aboutLabel: "The person behind the work",
     aboutDescription: "I’m building a practice around useful software: products that respect attention, make complexity legible, and leave a little room for wonder. The public GitHub profile stays quiet; the repositories show how I think.",
     openGithub: "Open GitHub",
@@ -63,11 +73,15 @@ export const ui = {
     footerNote: "AF / vertical editorial portfolio",
     project: { private: "Private", public: "Public", openDetails: "Open details", fallback: "A repository shaped through curiosity and iteration.", mixed: "Mixed", stars: "stars", forks: "forks", privateSource: "Source boundary: private", sourceGithub: "Source available on GitHub", closeDetails: "Close details" },
     loader: { aria: "Loading Aggelos portfolio", topLeft: "AF / digital craft", topRight: "Portfolio / 2026", calibrating: "Calibrating the flight path", opening: "Opening the portfolio", bottomLeft: "Loading a useful space", bottomRight: "Scroll when ready ↓" },
-    form: { name: "Your name", namePlaceholder: "Name", subject: "Subject", subjectPlaceholder: "A good problem", message: "Message", messagePlaceholder: "Tell me what you are shaping...", sending: "Sending securely…", sent: "Message sent. I’ll get back to you soon.", emailOpened: "Your email client should open now.", error: "Something went wrong. Please email me directly.", active: "Secure Formspree delivery is active.", fallback: "Email fallback is active until a Formspree endpoint is added.", compose: "Compose email", defaultSubject: "Portfolio collaboration" },
+    form: { name: "Your name", namePlaceholder: "Name", subject: "Subject", subjectPlaceholder: "A good problem", message: "Message", messagePlaceholder: "Tell me what you are shaping...", sending: "Sending securely…", sent: "Message sent. I’ll get back to you soon.", successToastTitle: "Message received", successToastDescription: "Thanks — your note is safely on its way. I’ll reply soon.", emailOpened: "Your email client should open now.", error: "Something went wrong. Please email me directly.", active: "Secure Formspree delivery is active.", fallback: "Email fallback is active until a Formspree endpoint is added.", compose: "Compose email", defaultSubject: "Portfolio collaboration" },
   },
   el: {
     nav: { home: "Άφιξη", work: "Έργα", skills: "Ικανότητες", stack: "Stack", about: "Προφίλ", contact: "Επικοινωνία" },
     languageLabel: "Γλώσσα",
+    themeLabel: "Θέμα",
+    switchToDark: "Εναλλαγή σε σκοτεινό θέμα",
+    switchToLight: "Εναλλαγή σε φωτεινό θέμα",
+
     github: "GitHub",
     openNavigation: "Άνοιγμα πλοήγησης",
     closeNavigation: "Κλείσιμο πλοήγησης",
@@ -106,6 +120,12 @@ export const ui = {
     stackEvidence: "Σημερινά δεδομένα, αυριανός χώρος.",
     stackGroupLabels: ["Γλώσσες", "Product patterns", "AI κατεύθυνση"],
     stackNote: "Οι λεπτομέρειες του stack μπορούν να μεγαλώσουν μαζί με το portfolio — αυτή η βάση είναι έτοιμη για βαθύτερα case studies, εργαλεία και links.",
+    skillsToolsTitle: "Τα εργαλεία πίσω από",
+    skillsToolsAccent: "την πρακτική.",
+    skillsToolsDescription: "Ένας τρέχων χάρτης των εργαλείων και τεχνολογιών που φαίνονται στα projects του portfolio. Είναι σκόπιμα editable μετά το επόμενο local git pull.",
+    skillsToolsNote: "Editable layer / επέκταση μετά το git pull",
+    skillsToolGroupLabels: ["Γλώσσα ανάπτυξης", "Resilient products", "Local intelligence", "Τρόπος παράδοσης"],
+
     aboutLabel: "Ο άνθρωπος πίσω από το έργο",
     aboutDescription: "Χτίζω μια πρακτική γύρω από χρήσιμο software: προϊόντα που σέβονται την προσοχή, κάνουν την πολυπλοκότητα κατανοητή και αφήνουν λίγο χώρο για θαυμασμό. Το δημόσιο GitHub προφίλ μένει ήσυχο· τα repositories δείχνουν τον τρόπο σκέψης.",
     openGithub: "Άνοιγμα GitHub",
@@ -123,6 +143,6 @@ export const ui = {
     footerNote: "AF / κάθετο editorial portfolio",
     project: { private: "Ιδιωτικό", public: "Δημόσιο", openDetails: "Άνοιγμα λεπτομερειών", fallback: "Ένα repository που διαμορφώθηκε μέσα από περιέργεια και επανάληψη.", mixed: "Mixed", stars: "stars", forks: "forks", privateSource: "Όριο πηγής: ιδιωτικό", sourceGithub: "Η πηγή είναι διαθέσιμη στο GitHub", closeDetails: "Κλείσιμο λεπτομερειών" },
     loader: { aria: "Φόρτωση portfolio του Aggelos", topLeft: "AF / digital craft", topRight: "Portfolio / 2026", calibrating: "Ρυθμίζω τη διαδρομή πτήσης", opening: "Ανοίγω το portfolio", bottomLeft: "Φορτώνω έναν χρήσιμο χώρο", bottomRight: "Κάνε scroll όταν είσαι έτοιμος ↓" },
-    form: { name: "Το όνομά σου", namePlaceholder: "Όνομα", subject: "Θέμα", subjectPlaceholder: "Ένα καλό πρόβλημα", message: "Μήνυμα", messagePlaceholder: "Πες μου τι διαμορφώνεις...", sending: "Ασφαλής αποστολή…", sent: "Το μήνυμα στάλθηκε. Θα σου απαντήσω σύντομα.", emailOpened: "Το email client σου θα πρέπει να ανοίξει τώρα.", error: "Κάτι πήγε στραβά. Στείλε μου απευθείας email.", active: "Η ασφαλής παράδοση μέσω Formspree είναι ενεργή.", fallback: "Το email fallback είναι ενεργό μέχρι να προστεθεί Formspree endpoint.", compose: "Σύνταξη email", defaultSubject: "Συνεργασία μέσω portfolio" },
+    form: { name: "Το όνομά σου", namePlaceholder: "Όνομα", subject: "Θέμα", subjectPlaceholder: "Ένα καλό πρόβλημα", message: "Μήνυμα", messagePlaceholder: "Πες μου τι διαμορφώνεις...", sending: "Ασφαλής αποστολή…", sent: "Το μήνυμα στάλθηκε. Θα σου απαντήσω σύντομα.", successToastTitle: "Το μήνυμα παραλήφθηκε", successToastDescription: "Ευχαριστώ — το μήνυμά σου στάλθηκε με ασφάλεια. Θα απαντήσω σύντομα.", emailOpened: "Το email client σου θα πρέπει να ανοίξει τώρα.", error: "Κάτι πήγε στραβά. Στείλε μου απευθείας email.", active: "Η ασφαλής παράδοση μέσω Formspree είναι ενεργή.", fallback: "Το email fallback είναι ενεργό μέχρι να προστεθεί Formspree endpoint.", compose: "Σύνταξη email", defaultSubject: "Συνεργασία μέσω portfolio" },
   },
 } as const;
