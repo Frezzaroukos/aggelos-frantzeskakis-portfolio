@@ -17,7 +17,7 @@ import {
   X,
   Zap,
 } from "lucide-react";
-import { useEffect, useMemo, useState, type FormEvent, type ReactNode } from "react";
+import { useCallback, useEffect, useState, type FormEvent, type ReactNode } from "react";
 import { getGitHubData, type GitHubRepository } from "@/data/loader";
 
 /**
@@ -31,6 +31,7 @@ const profileUrl = github.profile.html_url;
 const email = "aggelosf2016@gmail.com";
 const instagramUrl = "https://www.instagram.com/aggelosfrantzeskakiss?igsh=c2Zldmh3ZW1zNXEy&utm_source=qr";
 const instagramHandle = "@aggelosfrantzeskakiss";
+const FORMSPREE_ENDPOINT = (import.meta.env.VITE_FORMSPREE_ENDPOINT as string | undefined)?.trim();
 const assetUrls = {
   pegasus: "/manus-storage/pegasus_cleaned_541401ab.png",
   mark: "/manus-storage/af-brand-mark_0341fe3d.png",
@@ -106,7 +107,49 @@ function SectionLabel({ index, children }: { index: string; children: ReactNode 
 }
 
 function BrandMark() {
-  return <img className="brand-mark" src={assetUrls.mark} alt="AF brand mark" />;
+  return <img className="brand-mark" src={assetUrls.mark} alt="AF brand mark" onError={(event) => { event.currentTarget.style.display = "none"; }} />;
+}
+
+function CinematicLoader({ onComplete }: { onComplete: () => void }) {
+  const [progress, setProgress] = useState(6);
+  const reduced = useReducedMotion();
+  useEffect(() => {
+    let cancelled = false;
+    let completionTimer: number | undefined;
+    const startedAt = performance.now();
+    const preload = new Image();
+    preload.src = assetUrls.pegasus;
+    const imageReady = new Promise<void>((resolve) => {
+      preload.onload = () => resolve();
+      preload.onerror = () => resolve();
+    });
+    const fontsReady = document.fonts?.ready ?? Promise.resolve();
+    const progressTimer = window.setInterval(() => {
+      if (!cancelled) setProgress((value) => Math.min(92, value + 2.5));
+    }, 45);
+    const finish = async () => {
+      await Promise.race([Promise.all([imageReady, fontsReady]), new Promise((resolve) => window.setTimeout(resolve, 1800))]);
+      const wait = Math.max(0, 760 - (performance.now() - startedAt));
+      window.setTimeout(() => {
+        if (cancelled) return;
+        setProgress(100);
+        completionTimer = window.setTimeout(onComplete, reduced ? 80 : 620);
+      }, wait);
+    };
+    void finish();
+    return () => {
+      cancelled = true;
+      window.clearInterval(progressTimer);
+      if (completionTimer) window.clearTimeout(completionTimer);
+    };
+  }, [onComplete, reduced]);
+
+  return <motion.div className="loading-screen" initial={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: reduced ? .1 : .5, ease }} aria-label="Loading Aggelos portfolio" role="status">
+    <div className="loading-screen__top"><span>AF / digital craft</span><span>Portfolio / 2026</span></div>
+    <div className="loading-screen__center"><div className="loading-screen__mark"><BrandMark /></div><p className="loading-screen__name">Aggelos</p><p className="loading-screen__sub">Frantzeskakis / ideas in motion</p><div className="loading-screen__progress"><span style={{ width: `${progress}%` }} /></div><p className="loading-screen__percent">{Math.round(progress)}%</p></div>
+    <div className="loading-screen__flight" aria-hidden="true"><img src={assetUrls.pegasus} alt="" onError={(event) => { event.currentTarget.style.display = "none"; }} /></div>
+    <div className="loading-screen__bottom"><span>Loading a useful space</span><span>Scroll when ready ↓</span></div>
+  </motion.div>;
 }
 
 function ProjectCard({ repo, index, onOpen }: { repo: GitHubRepository; index: number; onOpen: (repo: GitHubRepository) => void }) {
@@ -135,25 +178,41 @@ function ProjectDialog({ repo, onClose }: { repo: GitHubRepository | null; onClo
 }
 
 function ContactForm() {
-  const [status, setStatus] = useState<"idle" | "sent">("idle");
-  const submit = (event: FormEvent<HTMLFormElement>) => {
+  const [status, setStatus] = useState<"idle" | "sending" | "success" | "error">("idle");
+  const submit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    const data = new FormData(event.currentTarget);
+    const form = event.currentTarget;
+    const data = new FormData(form);
     const subject = String(data.get("subject") || "Portfolio collaboration");
     const message = String(data.get("message") || "");
-    window.location.href = `mailto:${email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(message)}`;
-    setStatus("sent");
+    setStatus("sending");
+    if (!FORMSPREE_ENDPOINT) {
+      window.location.href = `mailto:${email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(message)}`;
+      setStatus("success");
+      return;
+    }
+    try {
+      const response = await fetch(FORMSPREE_ENDPOINT, { method: "POST", body: data, headers: { Accept: "application/json" } });
+      if (!response.ok) throw new Error("Formspree request failed");
+      form.reset();
+      setStatus("success");
+    } catch {
+      setStatus("error");
+    }
   };
-  return <form className="contact-form" onSubmit={submit}><label><span>Your name</span><input name="name" required placeholder="Name" /></label><label><span>Subject</span><input name="subject" required placeholder="A good problem" /></label><label className="contact-form__wide"><span>Message</span><textarea name="message" required rows={4} placeholder="Tell me what you are shaping..." /></label><div className="contact-form__submit"><span>{status === "sent" ? "Your mail client should open now." : "This opens your email client — no data is stored here."}</span><button className="button button--dark" type="submit">Compose email <Send size={15} /></button></div></form>;
+  const notice = status === "sending" ? "Sending securely…" : status === "success" ? (FORMSPREE_ENDPOINT ? "Message sent. I’ll get back to you soon." : "Your email client should open now.") : status === "error" ? "Something went wrong. Please email me directly." : FORMSPREE_ENDPOINT ? "Secure Formspree delivery is active." : "Email fallback is active until a Formspree endpoint is added.";
+  return <form className="contact-form" onSubmit={submit}><label><span>Your name</span><input name="name" required placeholder="Name" /></label><label><span>Subject</span><input name="subject" required placeholder="A good problem" /></label><label className="contact-form__wide"><span>Message</span><textarea name="message" required rows={4} placeholder="Tell me what you are shaping..." /></label><div className="contact-form__submit"><span className={status === "error" ? "is-error" : status === "success" ? "is-success" : ""}>{notice}</span><button className="button button--dark" type="submit" disabled={status === "sending"}>{status === "sending" ? "Sending…" : "Compose email"} <Send size={15} /></button></div></form>;
 }
 
 export default function Home() {
+  const [isLoading, setIsLoading] = useState(true);
   const [activeSection, setActiveSection] = useState("home");
   const [selectedRepo, setSelectedRepo] = useState<GitHubRepository | null>(null);
   const [selectedSkill, setSelectedSkill] = useState("systems");
   const [menuOpen, setMenuOpen] = useState(false);
   const [copied, setCopied] = useState(false);
   const reduced = useReducedMotion();
+  const completeLoading = useCallback(() => setIsLoading(false), []);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -189,6 +248,7 @@ export default function Home() {
   const activeSkillObj = skillGroups.find((group) => group.id === selectedSkill) ?? skillGroups[0];
 
   return <main className="app-shell">
+    <AnimatePresence>{isLoading && <CinematicLoader onComplete={completeLoading} />}</AnimatePresence>
     <div className="grain" aria-hidden="true" />
     <header className="topbar">
       <a className="brand" href="#home" onClick={(event) => { event.preventDefault(); scrollToSection("home"); }} aria-label="Aggelos Frantzeskakis home">
@@ -225,7 +285,7 @@ export default function Home() {
           <motion.div className="hero-visual" animate={reduced ? undefined : { y: [0, -7, 0] }} transition={reduced ? undefined : { duration: 6, repeat: Infinity, ease: "easeInOut" }}>
             <div className="hero-visual__orbit" aria-hidden="true" />
             <div className="hero-visual__trace" aria-hidden="true" />
-            <img src={assetUrls.pegasus} alt="Clean watercolor Pegasus looking toward the right" />
+            <img src={assetUrls.pegasus} alt="Clean watercolor Pegasus looking toward the right" onError={(event) => { event.currentTarget.style.display = "none"; event.currentTarget.parentElement?.classList.add("is-image-missing"); }} />
             <div className="hero-visual__label">Signature study <span>01 / flight path</span></div>
             <div className="hero-visual__brand"><BrandMark /></div>
           </motion.div>

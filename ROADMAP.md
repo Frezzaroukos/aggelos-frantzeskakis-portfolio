@@ -16,3 +16,12 @@ This document outlines structured phases for evolving the portfolio locally and 
 - **Design System Extensions:** Refine typography scales, subtle micro-interactions, and high-contrast accessibility compliance.
 - **Analytics & SEO:** Add privacy-focused analytics (such as Umami) and OpenGraph meta tags for rich social sharing previews.
 - **Production Publishing:** Keep the GitHub repository private during local AI iterations; publish and bind a custom domain when the portfolio reaches its final professional state.
+
+
+## Phase 0: Launch quality already prepared
+
+The current portfolio now includes a cinematic first-load sequence that preloads the Pegasus artwork and waits safely for fonts or a bounded timeout. It also includes resilient image failure handling, reduced-motion compatibility, and a Formspree-ready contact boundary with explicit sending, success, and error states.
+
+## Future notification architecture
+
+Formspree can deliver incoming messages directly to the configured email account. Telegram notifications and AXON storage should be added behind a private server-side webhook owned by the user. The static frontend should post only to that controlled endpoint; Telegram bot tokens, AXON credentials, message persistence, retries, and moderation must remain outside browser code. This keeps the public portfolio safe while allowing the user’s own AI tools to build a proper inbox module later.
