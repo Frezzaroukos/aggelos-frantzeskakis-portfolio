@@ -98,6 +98,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visib
 .menu-button { display: none !important; justify-content: center; }
 .gallery-progress { width: 100%; height: 3px; position: fixed; top: 74px; left: 0; z-index: 81; background: var(--soft-border); }
 .gallery-progress span { height: 100%; display: block; background: var(--accent); transition: width .35s var(--ease-out); }
+.mobile-section-nav { display: none; }
 .gallery-rail { position: fixed; top: 50%; right: 28px; z-index: 70; display: flex; flex-direction: column; align-items: flex-end; gap: 11px; transform: translateY(-50%); }
 .gallery-rail__track { width: 1px; height: 134px; position: absolute; top: 1px; right: -11px; background: var(--soft-border); }
 .gallery-rail__track span { width: 100%; display: block; background: var(--accent); transition: height .35s var(--ease-out); }
@@ -282,7 +283,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visib
   .contact-grid { grid-template-columns: 1fr; gap: 28px; margin-top: 27px; }
   .contact-grid h2 { font-size: clamp(4rem, 11vw, 6.8rem); }
   .contact-form { padding: 20px; }
-  .mobile-menu { position: fixed; inset: 74px 0 0; z-index: 79; display: block; padding: 17px 20px; background: color-mix(in srgb, var(--background) 94%, transparent); backdrop-filter: blur(17px); }
+  .mobile-menu { position: fixed; inset: 64px 0 0; z-index: 79; display: block; padding: 17px 20px; background: color-mix(in srgb, var(--background) 94%, transparent); backdrop-filter: blur(17px); }
   .mobile-menu__inner { padding: 17px; border: 1px solid var(--border); background: var(--background); box-shadow: 0 20px 50px rgba(0,0,0,.16); }
   .mobile-menu__head { display: flex; align-items: center; justify-content: space-between; padding-bottom: 14px; color: var(--muted-foreground); border-bottom: 1px solid var(--soft-border); font: 9px 'DM Mono', monospace; text-transform: uppercase; }
   .mobile-menu__head button { display: grid; color: var(--foreground); background: transparent; }
@@ -299,6 +300,11 @@ button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visib
   .gallery .panel--hero { min-height: calc(100vh - 64px); }
   .gallery .panel-inner { width: calc(100% - 32px); min-height: inherit; padding: 86px 0 72px; }
   .gallery-progress { top: 64px; }
+  .mobile-section-nav { position: fixed; right: 16px; bottom: calc(14px + env(safe-area-inset-bottom)); left: 16px; z-index: 74; display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 48px; padding: 7px 10px; color: var(--foreground); background: color-mix(in srgb, var(--background) 92%, transparent); border: 1px solid var(--soft-border); box-shadow: 0 12px 30px color-mix(in srgb, var(--foreground) 10%, transparent); backdrop-filter: blur(16px); touch-action: manipulation; }
+  .mobile-section-nav button { width: 34px; height: 34px; display: grid; place-items: center; color: var(--foreground); background: var(--card); border: 1px solid var(--soft-border); }
+  .mobile-section-nav button:disabled { color: var(--muted-foreground); opacity: .38; }
+  .mobile-section-nav span { flex: 1; color: var(--muted-foreground); font: 9px 'DM Mono', monospace; letter-spacing: .08em; text-align: center; text-transform: uppercase; }
+  .mobile-section-nav b { color: var(--accent); font-weight: 500; }
   .topbar { height: 64px; padding-inline: 16px; }
   .brand strong { font-size: 12px; }
   .brand small { font-size: 7px; }
@@ -316,7 +322,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visib
   .hero-visual__trace { width: 360px; height: 135px; }
   .hero-visual__brand { right: 7%; bottom: 13%; }
   .hero-visual__brand .brand-mark { width: 56px; height: 56px; }
-  .panel-footer { right: 16px; bottom: 18px; left: 16px; font-size: 8px; }
+  .panel-footer { display: none; right: 16px; bottom: 18px; left: 16px; font-size: 8px; }
   .panel-footer i { width: 42px; }
   .panel-heading { display: block; margin-bottom: 28px; }
   .panel h2 { font-size: clamp(3.4rem, 14.6vw, 5.7rem); }
