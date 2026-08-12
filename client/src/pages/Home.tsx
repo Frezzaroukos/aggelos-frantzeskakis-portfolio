@@ -183,11 +183,56 @@ export default function Home() {
       event.preventDefault();
       if (locked) return;
       locked = true;
-      gallery.scrollBy({ left: event.deltaY * 1.08, behavior: reduced ? "auto" : "smooth" });
-      window.setTimeout(() => { locked = false; }, reduced ? 0 : 380);
+      const current = Math.round(gallery.scrollLeft / Math.max(1, gallery.clientWidth));
+      const direction = event.deltaY > 0 ? 1 : -1;
+      const next = Math.max(0, Math.min(chapters.length - 1, current + direction));
+      gallery.scrollTo({ left: next * gallery.clientWidth, behavior: reduced ? "auto" : "smooth" });
+      window.setTimeout(() => { locked = false; }, reduced ? 0 : 420);
     };
     gallery.addEventListener("wheel", onWheel, { passive: false });
     return () => gallery.removeEventListener("wheel", onWheel);
+  }, [reduced]);
+
+  useEffect(() => {
+    const gallery = galleryRef.current;
+    if (!gallery) return;
+    let dragging = false;
+    let pointerId = -1;
+    let startX = 0;
+    let startScroll = 0;
+    const onPointerDown = (event: PointerEvent) => {
+      if (window.innerWidth <= 760 || (event.pointerType === "mouse" && event.button !== 0)) return;
+      dragging = true;
+      pointerId = event.pointerId;
+      startX = event.clientX;
+      startScroll = gallery.scrollLeft;
+      gallery.classList.add("is-dragging");
+      gallery.setPointerCapture?.(event.pointerId);
+    };
+    const onPointerMove = (event: PointerEvent) => {
+      if (!dragging || event.pointerId !== pointerId) return;
+      event.preventDefault();
+      gallery.scrollLeft = startScroll - (event.clientX - startX);
+    };
+    const finishDrag = (event: PointerEvent) => {
+      if (!dragging || event.pointerId !== pointerId) return;
+      dragging = false;
+      gallery.classList.remove("is-dragging");
+      gallery.releasePointerCapture?.(event.pointerId);
+      const next = Math.max(0, Math.min(chapters.length - 1, Math.round(gallery.scrollLeft / Math.max(1, gallery.clientWidth))));
+      gallery.scrollTo({ left: next * gallery.clientWidth, behavior: reduced ? "auto" : "smooth" });
+      pointerId = -1;
+    };
+    gallery.addEventListener("pointerdown", onPointerDown);
+    gallery.addEventListener("pointermove", onPointerMove);
+    gallery.addEventListener("pointerup", finishDrag);
+    gallery.addEventListener("pointercancel", finishDrag);
+    return () => {
+      gallery.removeEventListener("pointerdown", onPointerDown);
+      gallery.removeEventListener("pointermove", onPointerMove);
+      gallery.removeEventListener("pointerup", finishDrag);
+      gallery.removeEventListener("pointercancel", finishDrag);
+    };
   }, [reduced]);
 
   useEffect(() => {
@@ -206,7 +251,7 @@ export default function Home() {
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  });
+  }, [activeIndex, reduced]);
 
   const visibleRepos = useMemo(() => allGalleryRepos.filter((repo) => filter === "all" || filter === "public" && !repo.private || filter === "private" && repo.private || filter === "TypeScript" && repo.language === "TypeScript"), [filter]);
   const activeSkill = skillGroups.find((group) => group.id === selectedSkill) ?? skillGroups[0];
@@ -214,7 +259,12 @@ export default function Home() {
   function goTo(index: number) {
     const next = Math.max(0, Math.min(chapters.length - 1, index));
     const gallery = galleryRef.current;
-    if (gallery) gallery.scrollTo({ left: next * gallery.clientWidth, behavior: reduced ? "auto" : "smooth" });
+    if (gallery && window.innerWidth > 760) {
+      gallery.focus({ preventScroll: true });
+      gallery.scrollTo({ left: next * gallery.clientWidth, behavior: reduced ? "auto" : "smooth" });
+    } else {
+      document.getElementById(chapters[next].id)?.scrollIntoView({ behavior: reduced ? "auto" : "smooth", block: "start" });
+    }
     setMenuOpen(false);
   }
 
