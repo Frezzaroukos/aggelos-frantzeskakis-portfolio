@@ -84,3 +84,8 @@ Contemporary minimalism with emphasis on smooth, flowing animations and negative
 ## Style Decisions
 
 The personal identity is now Angelos Frantzeskakis / AF rather than Pegasus as the primary wordmark. Navigation should behave like a quiet gallery index: spacious, curated, and secondary to the hero. The voice should pair poetic creative aspiration with technical clarity, framing systems, AI, and offline-first work through craft and motion. Soft Gold #D4AF37 is the sole signature accent and appears only on meaningful emphasis points, numerals, trace lines, and primary interaction moments. Pegasus-derived curves, orbits, and flight-path traces should recur across panels so the motion language remains coherent beyond the hero.
+
+
+### Accepted Style Amendments — Cinematic High-Tier Pass
+
+Structured content should feel curated rather than gridded: use asymmetry, negative space, and selective emphasis so cards never read as a generic dashboard. All illustrative imagery must share the Pegasus visual language: refined graphite, watercolor softness, pale gold trace lines, and airy gallery framing. Soft Gold #D4AF37 is reserved for poetic emphasis, flight-path traces, key numerals, and primary actions; pale gold background forms remain sparse and purposeful.

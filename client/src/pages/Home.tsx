@@ -232,6 +232,7 @@ export default function Home() {
     return window.localStorage.getItem("aggellos-portfolio-language") === "el" ? "el" : "en";
   });
   const [showBackToTop, setShowBackToTop] = useState(false);
+  const [scrollDirection, setScrollDirection] = useState<"up" | "down">("down");
   const [selectedRepo, setSelectedRepo] = useState<GitHubRepository | null>(null);
   const [selectedSkill, setSelectedSkill] = useState("systems");
   const [menuOpen, setMenuOpen] = useState(false);
@@ -249,25 +250,73 @@ export default function Home() {
   }, [language]);
 
   useEffect(() => {
-    const handleScroll = () => {
-      const scrollPos = window.scrollY + 200;
-      setShowBackToTop(window.scrollY > 560);
+    let frame = 0;
+    let previousY = window.scrollY;
+    const root = document.documentElement;
+    const updateMotion = () => {
+      frame = 0;
+      const y = window.scrollY;
+      const maxScroll = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
+      const progress = Math.min(1, Math.max(0, y / maxScroll));
+      const direction = y < previousY ? "up" : "down";
+      const scrollPos = y + 200;
+      root.style.setProperty("--scroll-progress", progress.toFixed(3));
+      root.style.setProperty("--orbit-rotation", `${Math.round(progress * 126)}deg`);
+      root.style.setProperty("--trace-rotation", `${-23 + (direction === "down" ? progress * 4 : -progress * 4)}deg`);
+      root.style.setProperty("--hero-depth", `${Math.round(progress * -22)}px`);
+      root.style.setProperty("--hero-bank", direction === "down" ? "-1.4deg" : "1.4deg");
+      setScrollDirection((current) => current === direction ? current : direction);
+      setShowBackToTop(y > 560);
       for (const chapter of chapters) {
         const el = document.getElementById(chapter.id);
         if (el) {
           const top = el.offsetTop;
           const height = el.offsetHeight;
           if (scrollPos >= top && scrollPos < top + height) {
-            setActiveSection(chapter.id);
+            setActiveSection((current) => current === chapter.id ? current : chapter.id);
             break;
           }
         }
       }
+      previousY = y;
     };
-    handleScroll();
+    const handleScroll = () => {
+      if (!frame) frame = window.requestAnimationFrame(updateMotion);
+    };
+    updateMotion();
     window.addEventListener("scroll", handleScroll, { passive: true });
-    return () => window.removeEventListener("scroll", handleScroll);
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+      if (frame) window.cancelAnimationFrame(frame);
+    };
   }, []);
+
+  useEffect(() => {
+    const root = document.documentElement;
+    if (reduced) {
+      root.style.setProperty("--pointer-shift-x", "0px");
+      root.style.setProperty("--pointer-shift-y", "0px");
+      return;
+    }
+    let frame = 0;
+    let pointerX = 0;
+    let pointerY = 0;
+    const updatePointer = () => {
+      frame = 0;
+      root.style.setProperty("--pointer-shift-x", `${Math.round(pointerX * 14)}px`);
+      root.style.setProperty("--pointer-shift-y", `${Math.round(pointerY * 10)}px`);
+    };
+    const handlePointerMove = (event: PointerEvent) => {
+      pointerX = (event.clientX / window.innerWidth - .5) * 2;
+      pointerY = (event.clientY / window.innerHeight - .5) * 2;
+      if (!frame) frame = window.requestAnimationFrame(updatePointer);
+    };
+    window.addEventListener("pointermove", handlePointerMove, { passive: true });
+    return () => {
+      window.removeEventListener("pointermove", handlePointerMove);
+      if (frame) window.cancelAnimationFrame(frame);
+    };
+  }, [reduced]);
 
   function scrollToSection(id: string) {
     const el = document.getElementById(id);
@@ -314,7 +363,7 @@ export default function Home() {
 
   const activeSkillObj = skillGroups.find((group) => group.id === selectedSkill) ?? skillGroups[0];
 
-  return <main className="app-shell">
+  return <main className={`app-shell motion-${scrollDirection}`} data-active-section={activeSection}>
     <AnimatePresence>{isLoading && <CinematicLoader onComplete={completeLoading} language={language} />}</AnimatePresence>
     <div className="grain" aria-hidden="true" />
     <header className="topbar">
@@ -337,7 +386,7 @@ export default function Home() {
 
     {menuOpen && <div className="mobile-menu"><div className="mobile-menu__inner"><div className="mobile-menu__head"><span>{t.navigation}</span><button type="button" onClick={() => setMenuOpen(false)} aria-label={t.closeMenu}><X size={18} /></button></div>{chapters.map((chapter, index) => <button type="button" key={chapter.id} className={activeSection === chapter.id ? "is-active" : ""} onClick={() => scrollToSection(chapter.id)}><span>0{index + 1}</span>{t.nav[chapter.id]}<ChevronRight size={15} /></button>)}</div></div>}
 
-    <div className="document-flow">
+    <div className="document-flow" data-active-section={activeSection} data-scroll-direction={scrollDirection}>
       <section id="home" className="panel panel--hero">
         <div className="panel-grid" aria-hidden="true" />
         <div className="panel-inner hero-panel">
@@ -351,11 +400,16 @@ export default function Home() {
             </Reveal>
             <div className="hero-signature"><span>{t.nowExploring}</span><strong>{t.heroSignature}</strong></div>
           </div>
-          <motion.div className="hero-visual" animate={reduced ? undefined : { y: [0, -7, 0] }} transition={reduced ? undefined : { duration: 6, repeat: Infinity, ease: "easeInOut" }}>
-            <div className="hero-visual__orbit" aria-hidden="true" />
-            <div className="hero-visual__trace" aria-hidden="true" />
-            <img src={assetUrls.pegasus} alt={language === "el" ? "Καθαρός watercolor Πήγασος που κοιτάζει προς τα δεξιά" : "Clean watercolor Pegasus looking toward the right"} onError={(event) => { event.currentTarget.style.display = "none"; event.currentTarget.parentElement?.classList.add("is-image-missing"); }} />
+          <motion.div className={`hero-visual hero-visual--${scrollDirection}`} animate={reduced ? undefined : { y: [0, -7, 0] }} transition={reduced ? undefined : { duration: 6, repeat: Infinity, ease: "easeInOut" }}>
+            <div className="hero-visual__scene">
+              <div className="hero-visual__orbit" aria-hidden="true" />
+              <div className="hero-visual__orbit hero-visual__orbit--inner" aria-hidden="true" />
+              <div className="hero-visual__trace" aria-hidden="true" />
+              <div className="hero-visual__trace hero-visual__trace--fine" aria-hidden="true" />
+              <img src={assetUrls.pegasus} alt={language === "el" ? "Καθαρός watercolor Πήγασος που κοιτάζει προς τα δεξιά" : "Clean watercolor Pegasus looking toward the right"} onError={(event) => { event.currentTarget.style.display = "none"; event.currentTarget.parentElement?.classList.add("is-image-missing"); }} />
+            </div>
             <div className="hero-visual__label">{t.signatureStudy} <span>{t.flightPath}</span></div>
+            <div className="hero-visual__telemetry" aria-hidden="true"><span>AF / FLIGHT SYSTEM</span><i /><span>{activeSection.toUpperCase()} / {scrollDirection.toUpperCase()}</span></div>
           </motion.div>
         </div>
       </section>

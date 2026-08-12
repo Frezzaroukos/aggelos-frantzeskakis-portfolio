@@ -16,3 +16,12 @@
 - [x] Add a persisted accessible light/dark theme switch beside the EN/EL control with a calm graphite palette.
 - [x] Verify responsive, keyboard, reduced-motion, persistence, TypeScript, production build, and light/dark visuals.
 - [ ] Save a checkpoint and report the new theme-aware skills/contact experience.
+
+## Cinematic Pegasus High-Tier Pass
+
+- [x] Re-audit current Pegasus asset, scroll motion, theme handling, section transitions, and Git status.
+- [x] Define a cinematic motion language that reacts to scroll direction, active section, pointer movement, and reduced-motion preferences.
+- [x] Implement layered Pegasus rings, flight-path traces, depth/parallax, and navigation-linked visual states.
+- [x] Apply a holistic premium refinement to cards, section dividers, controls, typography rhythm, and responsive behavior.
+- [x] Verify light/dark, mobile, keyboard focus, reduced motion, TypeScript, production build, and representative screenshots.
+- [ ] Commit and push the completed changes to the private GitHub repository.
