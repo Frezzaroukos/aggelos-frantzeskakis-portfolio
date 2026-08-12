@@ -6,6 +6,7 @@ import {
   ChevronRight,
   Clipboard,
   Code2,
+  Download,
   ExternalLink,
   Github,
   Instagram,
@@ -18,6 +19,7 @@ import {
   Zap,
 } from "lucide-react";
 import { useCallback, useEffect, useState, type FormEvent, type ReactNode } from "react";
+import { toast } from "sonner";
 import { getGitHubData, type GitHubRepository } from "@/data/loader";
 
 /**
@@ -31,6 +33,7 @@ const profileUrl = github.profile.html_url;
 const email = "aggelosf2016@gmail.com";
 const instagramUrl = "https://www.instagram.com/aggelosfrantzeskakiss?igsh=c2Zldmh3ZW1zNXEy&utm_source=qr";
 const instagramHandle = "@aggelosfrantzeskakiss";
+const cvUrl = "/manus-storage/Aggelos-Frantzeskakis-CV_3f144ec3.pdf";
 const FORMSPREE_ENDPOINT = (import.meta.env.VITE_FORMSPREE_ENDPOINT as string | undefined)?.trim();
 const assetUrls = {
   pegasus: "/manus-storage/pegasus_cleaned_541401ab.png",
@@ -211,6 +214,7 @@ export default function Home() {
   const [selectedSkill, setSelectedSkill] = useState("systems");
   const [menuOpen, setMenuOpen] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [isDownloadingCv, setIsDownloadingCv] = useState(false);
   const reduced = useReducedMotion();
   const completeLoading = useCallback(() => setIsLoading(false), []);
 
@@ -242,8 +246,39 @@ export default function Home() {
   }
 
   async function copyHandle() {
-    try { await navigator.clipboard.writeText(`github.com/${profileHandle}`); setCopied(true); window.setTimeout(() => setCopied(false), 1800); } catch { setCopied(false); }
+    try { await navigator.clipboard.writeText(`github.com/${profileHandle}`); setCopied(true); toast.success("GitHub handle copied"); window.setTimeout(() => setCopied(false), 1800); } catch { setCopied(false); toast.error("Could not copy the GitHub handle"); }
   }
+
+  const handleDownloadCv = useCallback(() => {
+    if (isDownloadingCv) return;
+    setIsDownloadingCv(true);
+    toast("Preparing your CV…", { duration: reduced ? 500 : 900 });
+    window.setTimeout(async () => {
+      try {
+        const response = await fetch(cvUrl);
+        if (!response.ok) throw new Error("CV asset unavailable");
+        const blob = await response.blob();
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(blob);
+        link.download = "Aggelos-Frantzeskakis-CV.pdf";
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        window.setTimeout(() => URL.revokeObjectURL(link.href), 1000);
+      } catch {
+        const link = document.createElement("a");
+        link.href = cvUrl;
+        link.download = "Aggelos-Frantzeskakis-CV.pdf";
+        link.target = "_blank";
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+      } finally {
+        setIsDownloadingCv(false);
+        toast.success("CV ready to download", { duration: 1800 });
+      }
+    }, reduced ? 120 : 720);
+  }, [isDownloadingCv, reduced]);
 
   const activeSkillObj = skillGroups.find((group) => group.id === selectedSkill) ?? skillGroups[0];
 
@@ -349,6 +384,7 @@ export default function Home() {
             <div className="about-actions">
               <a className="button button--dark" href={profileUrl} target="_blank" rel="noreferrer"><Github size={16} /> Open GitHub <ArrowUpRight size={14} /></a>
               <button type="button" className="button button--outline" onClick={copyHandle}>{copied ? <Check size={15} /> : <Clipboard size={15} />}{copied ? "Copied" : "Copy handle"}</button>
+              <button type="button" className={`button button--outline ${isDownloadingCv ? "is-loading" : ""}`} onClick={handleDownloadCv} disabled={isDownloadingCv} aria-busy={isDownloadingCv}>{isDownloadingCv ? <span className="button-spinner" aria-hidden="true" /> : <Download size={15} />}{isDownloadingCv ? "Preparing CV…" : "Download CV"}</button>
               <span>{github.profile.public_repos} public repositories</span>
             </div>
           </div>

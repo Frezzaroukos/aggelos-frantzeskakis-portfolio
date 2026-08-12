@@ -6,11 +6,11 @@ This document provides exact, professional profile optimization guidance for Ins
 
 ## 1. Instagram Profile Setup (`@aggelosfrantzeskakiss`)
 
-Your Instagram serves as a curated visual journal of your work, aesthetic taste, and technical exploration.
+Your Instagram should serve as a curated visual journal of your work, aesthetic taste, and technical exploration. The exact public grid could not be reliably verified from public search results, so use the recommendations below as a positioning system rather than claims about your current posts.
 
 ### **Bio (Optimized for Impact)**
-> Building useful software, local AI & quiet digital craft. 🏛️
-> Athens / Digital Creator
+> Building useful software, local AI & quiet digital craft.
+> Digital creator / product builder
 > [Link to portfolio]
 
 ### **Highlights Structure**
