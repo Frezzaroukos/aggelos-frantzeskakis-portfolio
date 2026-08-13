@@ -158,6 +158,14 @@ button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visib
 .button--dark:hover { color: var(--accent-foreground); background: var(--accent); transform: translateY(-3px); }
 .button--outline { color: var(--foreground); border: 1px solid var(--border); background: transparent; }
 .button--outline:hover { color: var(--accent); border-color: var(--accent); transform: translateY(-3px); }
+.button--cv { position: relative; overflow: hidden; }
+.button--cv::before { content: ''; width: 130%; height: 180%; position: absolute; left: -118%; top: -40%; background: linear-gradient(105deg, transparent 35%, color-mix(in srgb, var(--accent) 34%, transparent) 50%, transparent 65%); transform: skewX(-18deg); transition: left .7s var(--ease-out); pointer-events: none; }
+.button--cv:hover::before, .button--cv:focus-visible::before { left: 108%; }
+.button--cv > * { position: relative; z-index: 1; }
+.cv-download-button__icon { display: inline-grid; place-items: center; color: var(--accent); transition: transform .3s var(--ease-out); }
+.cv-download-button__arrow { transition: transform .3s var(--ease-out), color .25s var(--ease-out); }
+.button--cv:hover .cv-download-button__icon, .button--cv:focus-visible .cv-download-button__icon { transform: translateY(-2px); }
+.button--cv:hover .cv-download-button__arrow, .button--cv:focus-visible .cv-download-button__arrow { color: var(--accent); transform: translate(3px, -3px); }
 .text-button { display: inline-flex; align-items: center; gap: 6px; padding: 0; color: var(--muted-foreground); background: transparent; font-size: 10px; font-weight: 800; }
 .text-button:hover { color: var(--accent); }
 .hero-signature { display: flex; flex-direction: column; gap: 5px; margin-top: 42px; padding-left: 14px; border-left: 1px solid var(--accent); color: var(--muted-foreground); font: 9px 'DM Mono', monospace; letter-spacing: .06em; text-transform: uppercase; }
@@ -196,10 +204,10 @@ button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visib
 .panel-heading__aside p { margin: 0 0 15px; color: var(--muted-foreground); font-size: 11px; line-height: 1.8; }
 .panel-heading__aside span { color: var(--accent); font: 9px 'DM Mono', monospace; }
 
-.project-grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 28px 22px; width: 100%; align-items: stretch; }
+.project-grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 28px 22px; width: 100%; align-items: stretch; perspective: 1600px; }
 .project-card:nth-child(1), .project-card:nth-child(4) { grid-column: span 7; }
 .project-card:nth-child(2), .project-card:nth-child(3) { grid-column: span 5; }
-.project-card { position: relative; overflow: hidden; background: var(--card); border: 1px solid var(--soft-border); transition: border-color .3s, box-shadow .3s var(--ease-out), background .3s var(--ease-out), transform .3s var(--ease-out); }
+.project-card { position: relative; overflow: hidden; background: var(--card); border: 1px solid var(--soft-border); transform-style: preserve-3d; will-change: transform, opacity, filter; transition: border-color .3s, box-shadow .3s var(--ease-out), background .3s var(--ease-out), transform .3s var(--ease-out); }
 .project-card::after { content: ''; width: 180px; height: 180px; position: absolute; right: -110px; bottom: -110px; border: 1px solid color-mix(in srgb, var(--accent) 22%, transparent); border-radius: 50%; transform: scale(.84); transition: transform .5s var(--ease-out), opacity .4s var(--ease-out); opacity: .65; pointer-events: none; }
 .project-card:hover::after, .project-card:focus-within::after { transform: scale(1.15) translate(-12px, -12px); opacity: 1; }
 .project-card::before { content: ''; position: absolute; inset: 0 auto auto 0; width: 100%; height: 2px; background: var(--accent); transform: scaleX(0); transform-origin: left; transition: transform .38s var(--ease-out); }
@@ -219,11 +227,16 @@ button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visib
 .project-card:hover .project-card__footer span, .project-card:focus-within .project-card__footer span { color: var(--foreground); }
 .project-status { display: inline-flex; align-items: center; gap: 6px; }
 .project-status b { width: 5px; height: 5px; display: inline-block; background: var(--accent); border-radius: 50%; }
-.project-card__body { width: 100%; min-height: 220px; display: flex; flex-direction: column; align-items: flex-start; padding: 24px; color: var(--foreground); background: transparent; text-align: left; }
+.project-card__body { width: 100%; min-height: 220px; position: relative; z-index: 1; display: flex; flex-direction: column; align-items: flex-start; padding: 24px; color: var(--foreground); background: transparent; text-align: left; }
 .project-card__name { font: 500 clamp(1.8rem, 2.4vw, 2.4rem)/1 'Playfair Display', serif; letter-spacing: -.06em; }
 .project-card__description { margin-top: 16px; color: var(--muted-foreground); font-size: 11px; line-height: 1.75; }
 .project-card__open { display: inline-flex; align-items: center; gap: 6px; margin-top: auto; color: var(--accent); font-size: 10px; font-weight: 800; padding-top: 14px; }
-.project-card__footer { border-top: 1px solid var(--soft-border); }
+.project-card__footer { position: relative; z-index: 1; border-top: 1px solid var(--soft-border); }
+.project-card__top { position: relative; z-index: 1; }
+.project-card::after { transition: transform .7s var(--ease-out), opacity .45s var(--ease-out), border-color .35s var(--ease-out); }
+.project-card:hover::after, .project-card:focus-within::after { border-color: color-mix(in srgb, var(--accent) 56%, transparent); }
+.project-card__open { transition: color .25s var(--ease-out), letter-spacing .25s var(--ease-out); }
+.project-card:hover .project-card__open, .project-card:focus-within .project-card__open { letter-spacing: .04em; }
 
 .panel--skills { background: var(--background); }
 .skills-layout { display: grid; grid-template-columns: .85fr 1.15fr; align-items: center; gap: 6vw; width: 100%; }
@@ -397,6 +410,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visib
   .skills-tools__grid { grid-template-columns: repeat(2, 1fr); }
   .project-grid, .stack-grid { grid-template-columns: 1fr; }
   .project-card, .skills-tool-card { grid-column: 1 / -1; }
+  .button--cv { width: 100%; justify-content: space-between; }
   .contact-form { grid-template-columns: 1fr; padding: 20px; }
   .contact-form__wide, .contact-form__submit { grid-column: auto; }
   .contact-form__submit { flex-direction: column; align-items: flex-start; }
@@ -422,4 +436,6 @@ button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visib
   .hero-visual:hover img { filter: saturate(.62) contrast(1.02) !important; }
   .hero-visual:hover .hero-visual__orbit--inner { box-shadow: none; }
   .hero-visual::after { opacity: .35; }
+  .button--cv::before { display: none; }
+  .project-card { will-change: auto; }
 }

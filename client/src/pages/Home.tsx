@@ -180,7 +180,9 @@ function ProjectCard({ repo, index, onOpen, language }: { repo: GitHubRepository
   const t = ui[language].project;
   const story = stories[repo.name.toLowerCase()];
   const reduced = useReducedMotion();
-  return <motion.article className={`project-card ${repo.private ? "is-private" : ""}`} initial={reduced ? false : { opacity: 0, y: 16 }} whileInView={reduced ? undefined : { opacity: 1, y: 0 }} viewport={{ once: true, amount: .15 }} transition={reduced ? { duration: 0 } : { duration: .5, delay: index * .04, ease }} whileHover={reduced ? undefined : { y: -6 }}>
+  const revealFrom = index % 2 === 0 ? 28 : 42;
+  const revealTilt = index % 2 === 0 ? -.7 : .7;
+  return <motion.article className={`project-card project-card--${index + 1} ${repo.private ? "is-private" : ""}`} initial={reduced ? false : { opacity: 0, y: revealFrom, rotate: revealTilt, filter: "blur(6px)" }} whileInView={reduced ? undefined : { opacity: 1, y: 0, rotate: 0, filter: "blur(0px)" }} viewport={{ once: true, amount: .28, margin: "0px 0px -8%" }} transition={reduced ? { duration: 0 } : { duration: .72, delay: index * .1, ease }} whileHover={reduced ? undefined : { y: -8, rotate: 0 }} whileTap={reduced ? undefined : { scale: .995 }}>
     <div className="project-card__top"><span>0{String(index + 1).padStart(1, "0")}</span><span className="project-status"><b />{repo.private ? t.private : t.public}</span></div>
       <button type="button" className="project-card__body" onClick={() => onOpen(repo)} aria-label={`${t.openProjectPrefix} ${repo.name}`}>
       <span className="project-card__name">{repo.name}</span>
@@ -351,7 +353,7 @@ export default function Home() {
   const handleDownloadCv = useCallback(() => {
     if (isDownloadingCv) return;
     setIsDownloadingCv(true);
-    toast(t.preparingCv, { duration: reduced ? 500 : 900 });
+    toast(t.downloadStarted, { duration: reduced ? 500 : 900 });
     window.setTimeout(async () => {
       try {
         const response = await fetch(cvUrl);
@@ -497,7 +499,7 @@ export default function Home() {
             <div className="about-actions">
               <a className="button button--dark" href={profileUrl} target="_blank" rel="noreferrer"><Github size={16} /> {t.openGithub} <ArrowUpRight size={14} /></a>
               <button type="button" className="button button--outline" onClick={copyHandle}>{copied ? <Check size={15} /> : <Clipboard size={15} />}{copied ? t.copied : t.copyHandle}</button>
-              <button type="button" className={`button button--outline ${isDownloadingCv ? "is-loading" : ""}`} onClick={() => setIsCvPreviewOpen(true)} disabled={isDownloadingCv} aria-haspopup="dialog" aria-busy={isDownloadingCv}>{isDownloadingCv ? <span className="button-spinner" aria-hidden="true" /> : <FileText size={15} />}{isDownloadingCv ? t.preparingCv : t.downloadCv}</button>
+              <button type="button" className={`button button--outline button--cv ${isDownloadingCv ? "is-loading" : ""}`} onClick={() => setIsCvPreviewOpen(true)} disabled={isDownloadingCv} aria-haspopup="dialog" aria-busy={isDownloadingCv}><span className="cv-download-button__icon" aria-hidden="true">{isDownloadingCv ? <span className="button-spinner" /> : <Download size={15} />}</span><span>{isDownloadingCv ? t.preparingCv : t.downloadCv}</span><ArrowUpRight className="cv-download-button__arrow" size={13} aria-hidden="true" /></button>
               <span>{github.profile.public_repos} {t.publicRepositories}</span>
             </div>
           </div>

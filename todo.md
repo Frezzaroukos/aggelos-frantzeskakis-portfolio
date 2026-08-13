@@ -56,3 +56,11 @@
 - [x] Refine visual consistency, touch interactions, typography rhythm, and accessibility landmarks.
 - [x] Verify bilingual copy completeness, Formspree boundary, CV download, and portable static assets.
 - [x] Run TypeScript check, production build, visual QA, final checkpoint, and Git push.
+
+## Cinematic Projects Scroll & CV Download
+
+- [ ] Audit project-card reveal flow and existing CV download interaction.
+- [ ] Add scroll-triggered project choreography with stagger, depth, and reduced-motion fallback.
+- [ ] Upgrade the CV download action with authored hover/press states and bilingual start-download toast.
+- [ ] Verify responsive, accessibility, reduced motion, TypeScript, production build, and visual QA.
+- [ ] Save a checkpoint and push the completed changes.
