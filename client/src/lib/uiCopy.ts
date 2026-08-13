@@ -15,6 +15,8 @@ export const ui = {
     switchToLight: "Switch to light theme",
 
     github: "GitHub",
+    linkedin: "LinkedIn",
+    linkedinPending: "LinkedIn profile URL pending",
     openNavigation: "Open navigation",
     closeNavigation: "Close navigation",
     navigation: "Navigation",
@@ -92,6 +94,8 @@ export const ui = {
     switchToLight: "Εναλλαγή σε φωτεινό θέμα",
 
     github: "GitHub",
+    linkedin: "LinkedIn",
+    linkedinPending: "Αναμένεται το URL του LinkedIn",
     openNavigation: "Άνοιγμα πλοήγησης",
     closeNavigation: "Κλείσιμο πλοήγησης",
     navigation: "Πλοήγηση",

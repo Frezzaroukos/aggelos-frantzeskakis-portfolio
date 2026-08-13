@@ -64,3 +64,12 @@
 - [ ] Upgrade the CV download action with authored hover/press states and bilingual start-download toast.
 - [ ] Verify responsive, accessibility, reduced motion, TypeScript, production build, and visual QA.
 - [ ] Save a checkpoint and push the completed changes.
+
+## CV Preview, Social Actions & Smooth Filters
+
+- [x] Audit existing CV modal, social data, project filters and Git state.
+- [x] Ensure bilingual CV preview modal opens before download and preserves accessible close behavior.
+- [x] Add GitHub and LinkedIn contact icons with configurable LinkedIn URL boundary and cinematic hover states.
+- [x] Add crossfade/stagger transitions when project technology filters change, including reduced-motion behavior and empty state.
+- [x] Extend and validate the reusable cinematic-portfolio skill with these patterns.
+- [ ] Save a checkpoint and push the completed changes.

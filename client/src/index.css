@@ -547,3 +547,26 @@ body { cursor: default; }
 @media (prefers-reduced-motion: reduce) {
   .cinematic-cursor { display: none !important; }
 }
+
+/* Social network actions and project filter transition surfaces */
+.social-links { display: flex; flex-wrap: wrap; gap: 10px; }
+.social-links a { position: relative; overflow: hidden; }
+.social-link--network { display: inline-flex; align-items: center; gap: 7px; padding: 9px 11px; color: var(--foreground) !important; border: 1px solid var(--soft-border); background: color-mix(in srgb, var(--card) 70%, transparent); transition: transform .28s var(--ease-out), color .28s var(--ease-out), border-color .28s var(--ease-out), background .28s var(--ease-out), box-shadow .28s var(--ease-out); }
+.social-link--network::before { content: ''; position: absolute; inset: 0; background: linear-gradient(105deg, transparent 25%, color-mix(in srgb, var(--accent) 22%, transparent) 50%, transparent 75%); transform: translateX(-120%); transition: transform .55s var(--ease-out); pointer-events: none; }
+.social-link--network svg { position: relative; z-index: 1; color: var(--accent); transition: transform .28s var(--ease-out); }
+.social-link--network span, .social-link--network svg:last-child { position: relative; z-index: 1; }
+.social-link--network:hover, .social-link--network:focus-visible { color: var(--foreground) !important; border-color: var(--accent); background: color-mix(in srgb, var(--accent) 10%, var(--card)); box-shadow: 0 10px 25px color-mix(in srgb, var(--foreground) 8%, transparent); transform: translateY(-3px); }
+.social-link--network:hover::before, .social-link--network:focus-visible::before { transform: translateX(120%); }
+.social-link--network:hover svg:first-child, .social-link--network:focus-visible svg:first-child { transform: translateY(-2px) rotate(-5deg); }
+.project-grid--filtered { min-height: 220px; }
+.project-filters button { position: relative; overflow: hidden; }
+.project-filters button::after { content: ''; position: absolute; inset: 0; background: color-mix(in srgb, var(--accent) 18%, transparent); transform: translateX(-105%); transition: transform .35s var(--ease-out); pointer-events: none; }
+.project-filters button:hover::after, .project-filters button:focus-visible::after, .project-filters button.is-active::after { transform: translateX(0); }
+.project-filters button.is-active { box-shadow: 0 8px 20px color-mix(in srgb, var(--accent) 14%, transparent); }
+@media (prefers-reduced-motion: reduce) {
+  .social-link--network, .social-link--network::before, .social-link--network svg, .project-filters button::after { transition: none !important; }
+}
+@media (max-width: 600px) {
+  .social-links { gap: 8px; }
+  .social-link--network { flex: 1 1 auto; justify-content: center; }
+}

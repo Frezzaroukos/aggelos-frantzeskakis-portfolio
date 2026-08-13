@@ -1,4 +1,4 @@
-import { AnimatePresence, motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { Download, FileText, Mail, X } from "lucide-react";
 import { useEffect } from "react";
 import { ui, type Language } from "@/lib/uiCopy";

@@ -13,6 +13,7 @@ import {
   FileText,
   Github,
   Instagram,
+  Linkedin,
   Layers3,
   Mail,
   Menu,
@@ -40,6 +41,7 @@ const profileUrl = github.profile.html_url;
 const email = "aggelosf2016@gmail.com";
 const instagramHandle = "@aggelosfrantzeskakiss";
 const instagramUrl = "https://www.instagram.com/aggelosfrantzeskakiss?igsh=c2Zldmh3ZW1zNXEy&utm_source=qr";
+const linkedinUrl = import.meta.env.VITE_LINKEDIN_URL || "https://www.linkedin.com/";
 const FORMSPREE_ENDPOINT = import.meta.env.VITE_FORMSPREE_ENDPOINT || "";
 
 const repositories = github.repositories;
@@ -514,11 +516,15 @@ export default function Home() {
           <div className="project-filters" role="tablist" aria-label="Project technology filters">
             {(["all", "typescript", "pwa", "ai", "private"] as const).map((filter) => <button type="button" role="tab" aria-selected={projectFilter === filter} key={filter} className={projectFilter === filter ? "is-active" : ""} onClick={() => setProjectFilter(filter)}>{t.project[(`filter${filter.charAt(0).toUpperCase() + filter.slice(1)}` as keyof typeof t.project)] as string}</button>)}
           </div>
-          {filteredRepos.length > 0 ? (
-            <div className="project-grid">{filteredRepos.map((repo, index) => <ProjectCard key={repo.name} repo={repo} index={index} onOpen={setSelectedRepo} language={language} />)}</div>
-          ) : (
-            <div className="project-empty"><p>{t.project.emptyFilter}</p><button type="button" className="button button--outline" onClick={() => setProjectFilter("all")}>{t.project.filterAll}</button></div>
-          )}
+          <AnimatePresence mode="wait" initial={false}>
+            {filteredRepos.length > 0 ? (
+              <motion.div key={projectFilter} className="project-grid project-grid--filtered" initial={reduced ? false : { opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} exit={reduced ? undefined : { opacity: 0, y: -10 }} transition={{ duration: reduced ? 0 : .38, ease: [0.22, 1, 0.36, 1] }}>
+                {filteredRepos.map((repo, index) => <ProjectCard key={repo.name} repo={repo} index={index} onOpen={setSelectedRepo} language={language} />)}
+              </motion.div>
+            ) : (
+              <motion.div key="empty-filter" className="project-empty" initial={reduced ? false : { opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={reduced ? undefined : { opacity: 0, y: -8 }} transition={{ duration: reduced ? 0 : .3 }}><p>{t.project.emptyFilter}</p><button type="button" className="button button--outline" onClick={() => setProjectFilter("all")}>{t.project.filterAll}</button></motion.div>
+            )}
+          </AnimatePresence>
         </div>
       </section>
 
@@ -594,6 +600,8 @@ export default function Home() {
               <div className="social-links">
                 <a href={`mailto:${email}`}><Mail size={15} />{email}</a>
                 <a href={instagramUrl} target="_blank" rel="noreferrer"><Instagram size={15} />{instagramHandle}</a>
+                <a className="social-link--network" href={profileUrl} target="_blank" rel="noreferrer" aria-label={`${t.github} — ${profileHandle}`}><Github size={15} /><span>{t.github}</span><ArrowUpRight size={12} /></a>
+                <a className="social-link--network" href={linkedinUrl} target="_blank" rel="noreferrer" aria-label={linkedinUrl === "https://www.linkedin.com/" ? t.linkedinPending : t.linkedin}><Linkedin size={15} /><span>{t.linkedin}</span><ArrowUpRight size={12} /></a>
               </div>
             </div>
             <ContactForm language={language} />
