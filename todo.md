@@ -41,3 +41,11 @@
 - [x] Ensure Vite config builds a standalone static client without requiring Manus proxy runtime.
 - [x] Verify static production build, preview server, and GitHub push.
 - [x] Save a checkpoint and report the portable build readiness.
+
+## Pegasus Hover Effect & Reusable Skill
+
+- [ ] Implement responsive, smooth Pegasus hover/float effect with orbit tilt and reduced-motion fallback.
+- [ ] Initialize and write the `cinematic-portfolio` skill using the skill-creator workflow.
+- [ ] Validate the skill using quick_validate.py.
+- [ ] Verify portfolio build, TypeScript, and Git sync.
+- [ ] Save a checkpoint and report deliverables.
