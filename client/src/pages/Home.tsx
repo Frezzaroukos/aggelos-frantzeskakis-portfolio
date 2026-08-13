@@ -164,7 +164,7 @@ function CinematicLoader({ onComplete, language }: { onComplete: () => void; lan
   return <motion.div className="loading-screen" initial={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: reduced ? .1 : .5, ease }} aria-label={t.aria} role="status">
     <div className="loading-screen__grid" aria-hidden="true" />
     <div className="loading-screen__top"><span>{t.topLeft}</span><span>{t.topRight}</span></div>
-    <div className="loading-screen__signal" aria-hidden="true"><span>FLIGHT PATH / 01</span><i /><span>{progress < 82 ? "CALIBRATING" : "OPENING"}</span></div>
+    <div className="loading-screen__signal" aria-hidden="true"><span>FLIGHT PATH / 01</span><i /><span>{progress < 82 ? t.signalCalibrating : t.signalOpening}</span></div>
     <motion.div className="loading-screen__stage" aria-hidden="true" animate={reduced ? undefined : { y: [0, -8, 0], rotate: [-1, 0, 1] }} transition={reduced ? undefined : { duration: 6, repeat: Infinity, ease: "easeInOut" }}>
       <span className="loading-screen__orbit loading-screen__orbit--outer" />
       <span className="loading-screen__orbit loading-screen__orbit--inner" />
@@ -182,7 +182,7 @@ function ProjectCard({ repo, index, onOpen, language }: { repo: GitHubRepository
   const reduced = useReducedMotion();
   return <motion.article className={`project-card ${repo.private ? "is-private" : ""}`} initial={reduced ? false : { opacity: 0, y: 16 }} whileInView={reduced ? undefined : { opacity: 1, y: 0 }} viewport={{ once: true, amount: .15 }} transition={reduced ? { duration: 0 } : { duration: .5, delay: index * .04, ease }} whileHover={reduced ? undefined : { y: -6 }}>
     <div className="project-card__top"><span>0{String(index + 1).padStart(1, "0")}</span><span className="project-status"><b />{repo.private ? t.private : t.public}</span></div>
-    <button type="button" className="project-card__body" onClick={() => onOpen(repo)} aria-label={`Open details for ${repo.name}`}>
+      <button type="button" className="project-card__body" onClick={() => onOpen(repo)} aria-label={`${t.openProjectPrefix} ${repo.name}`}>
       <span className="project-card__name">{repo.name}</span>
       <span className="project-card__description">{story?.summary ?? repo.description ?? t.fallback}</span>
       <span className="project-card__open">{t.openDetails} <ArrowUpRight size={15} /></span>
@@ -194,11 +194,19 @@ function ProjectCard({ repo, index, onOpen, language }: { repo: GitHubRepository
 function ProjectDialog({ repo, onClose, language }: { repo: GitHubRepository | null; onClose: () => void; language: Language }) {
   const t = ui[language].project;
   const reduced = useReducedMotion();
+  useEffect(() => {
+    if (!repo) return;
+    const handleKeyDown = (event: KeyboardEvent) => { if (event.key === "Escape") onClose(); };
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    window.addEventListener("keydown", handleKeyDown);
+    return () => { document.body.style.overflow = previousOverflow; window.removeEventListener("keydown", handleKeyDown); };
+  }, [repo, onClose]);
   if (!repo) return null;
   const story = stories[repo.name.toLowerCase()];
   return <AnimatePresence><motion.div className="modal-backdrop" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={onClose}><motion.section className="project-dialog" role="dialog" aria-modal="true" aria-labelledby="project-title" initial={reduced ? false : { opacity: 0, y: 20, scale: .98 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: 12, scale: .98 }} transition={{ duration: .34, ease }} onClick={(event) => event.stopPropagation()}>
-    <div className="dialog-head"><span>{story?.kicker ?? (repo.private ? "Private build" : "Public project")}</span><button type="button" onClick={onClose} aria-label={t.closeDetails}><X size={18} /></button></div>
-    <div className="dialog-grid"><div><p className="dialog-code">Project study / {repo.name}</p><h2 id="project-title">{story?.title ?? repo.name}</h2><p className="dialog-summary">{story?.summary ?? repo.description}</p></div><div className="dialog-detail"><p>{story?.detail ?? "This study is generated from the current GitHub snapshot."}</p><div className="fact-list">{(story?.facts ?? [repo.language ?? "Mixed stack", repo.private ? "Private repository" : "Public repository"]).map((fact) => <span key={fact}><Check size={13} />{fact}</span>)}</div></div></div>
+    <div className="dialog-head"><span>{story?.kicker ?? (repo.private ? t.privateKicker : t.publicKicker)}</span><button type="button" autoFocus onClick={onClose} aria-label={t.closeDetails}><X size={18} /></button></div>
+    <div className="dialog-grid"><div><p className="dialog-code">{t.studyLabel} / {repo.name}</p><h2 id="project-title">{story?.title ?? repo.name}</h2><p className="dialog-summary">{story?.summary ?? repo.description}</p></div><div className="dialog-detail"><p>{story?.detail ?? t.detailFallback}</p><div className="fact-list">{(story?.facts ?? [repo.language ?? t.mixed, repo.private ? t.private : t.public]).map((fact) => <span key={fact}><Check size={13} />{fact}</span>)}</div></div></div>
     <div className="dialog-foot"><span>{repo.private ? t.privateSource : t.sourceGithub}</span><a href={repo.html_url} target="_blank" rel="noreferrer">{t.openDetails} <ExternalLink size={14} /></a></div>
   </motion.section></motion.div></AnimatePresence>;
 }
@@ -231,7 +239,7 @@ function ContactForm({ language }: { language: Language }) {
     }
   };
   const notice = status === "sending" ? t.sending : status === "success" ? (FORMSPREE_ENDPOINT ? t.sent : t.emailOpened) : status === "error" ? t.error : FORMSPREE_ENDPOINT ? t.active : t.fallback;
-  return <form className="contact-form" onSubmit={submit}><label><span>{t.name}</span><input name="name" required placeholder={t.namePlaceholder} /></label><label><span>{t.subject}</span><input name="subject" required placeholder={t.subjectPlaceholder} /></label><label className="contact-form__wide"><span>{t.message}</span><textarea name="message" required rows={4} placeholder={t.messagePlaceholder} /></label><div className="contact-form__submit"><span className={status === "error" ? "is-error" : status === "success" ? "is-success" : ""}>{notice}</span><button className="button button--dark" type="submit" disabled={status === "sending"}>{status === "sending" ? t.sending : t.compose} <Send size={15} /></button></div></form>;
+  return <form className="contact-form" onSubmit={submit}><label><span>{t.name}</span><input name="name" required placeholder={t.namePlaceholder} /></label><label><span>{t.subject}</span><input name="subject" required placeholder={t.subjectPlaceholder} /></label><label className="contact-form__wide"><span>{t.message}</span><textarea name="message" required rows={4} placeholder={t.messagePlaceholder} /></label><div className="contact-form__submit"><span className={status === "error" ? "is-error" : status === "success" ? "is-success" : ""} role="status" aria-live="polite">{notice}</span><button className="button button--dark" type="submit" disabled={status === "sending"}>{status === "sending" ? t.sending : t.compose} <Send size={15} /></button></div></form>;
 }
 
 export default function Home() {
@@ -337,13 +345,13 @@ export default function Home() {
   }
 
   async function copyHandle() {
-    try { await navigator.clipboard.writeText(`github.com/${profileHandle}`); setCopied(true); toast.success("GitHub handle copied"); window.setTimeout(() => setCopied(false), 1800); } catch { setCopied(false); toast.error("Could not copy the GitHub handle"); }
+    try { await navigator.clipboard.writeText(`github.com/${profileHandle}`);       setCopied(true); toast.success(t.copySuccess); window.setTimeout(() => setCopied(false), 1800); } catch { setCopied(false); toast.error(t.copyError); }
   }
 
   const handleDownloadCv = useCallback(() => {
     if (isDownloadingCv) return;
     setIsDownloadingCv(true);
-    toast("Preparing your CV…", { duration: reduced ? 500 : 900 });
+    toast(t.preparingCv, { duration: reduced ? 500 : 900 });
     window.setTimeout(async () => {
       try {
         const response = await fetch(cvUrl);
@@ -366,10 +374,10 @@ export default function Home() {
         link.remove();
       } finally {
         setIsDownloadingCv(false);
-        toast.success("CV ready to download", { duration: 1800 });
+        toast.success(t.cvReady, { duration: 1800 });
       }
     }, reduced ? 120 : 720);
-  }, [isDownloadingCv, reduced]);
+  }, [isDownloadingCv, reduced, t]);
 
   const activeSkillObj = skillGroups.find((group) => group.id === selectedSkill) ?? skillGroups[0];
 
@@ -377,11 +385,11 @@ export default function Home() {
     <AnimatePresence>{isLoading && <CinematicLoader onComplete={completeLoading} language={language} />}</AnimatePresence>
     <div className="grain" aria-hidden="true" />
     <header className="topbar">
-      <a className="brand" href="#home" onClick={(event) => { event.preventDefault(); scrollToSection("home"); }} aria-label="Aggelos Frantzeskakis home">
+      <a className="brand" href="#home" onClick={(event) => { event.preventDefault(); scrollToSection("home"); }} aria-label={t.brandHome}>
         <span className="brand-monogram" aria-hidden="true">AF</span><span><strong>Aggelos</strong><small>Frantzeskakis / AF</small></span>
       </a>
       <div className="topbar__motto"><span />{language === "el" ? "Ανεξάρτητη ψηφιακή δημιουργία" : "Independent digital craft"}</div>
-      <nav className={`desktop-nav ${menuOpen ? "is-open" : ""}`} aria-label="Primary navigation">
+      <nav className={`desktop-nav ${menuOpen ? "is-open" : ""}`} aria-label={t.primaryNavigation}>
         {chapters.map((chapter) => <button type="button" className={activeSection === chapter.id ? "is-active" : ""} key={chapter.id} onClick={() => scrollToSection(chapter.id)}>{t.nav[chapter.id]}</button>)}
       </nav>
       <div className="topbar__actions">
@@ -520,7 +528,7 @@ export default function Home() {
     </div>
 
     {selectedRepo && <ProjectDialog repo={selectedRepo} onClose={() => setSelectedRepo(null)} language={language} />}
-    <CvPreviewModal open={isCvPreviewOpen} onClose={() => setIsCvPreviewOpen(false)} onDownload={() => { setIsCvPreviewOpen(false); handleDownloadCv(); }} />
+    <CvPreviewModal language={language} open={isCvPreviewOpen} onClose={() => setIsCvPreviewOpen(false)} onDownload={() => { setIsCvPreviewOpen(false); handleDownloadCv(); }} />
     <AnimatePresence>
       {showBackToTop && <motion.button type="button" className="back-to-top" initial={reduced ? false : { opacity: 0, y: 12, scale: .96 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={reduced ? undefined : { opacity: 0, y: 12, scale: .96 }} transition={{ duration: .24, ease }} onClick={() => scrollToSection("home")} aria-label={t.backToTop}><ArrowUp size={15} /><span>{t.backToTop}</span></motion.button>}
     </AnimatePresence>

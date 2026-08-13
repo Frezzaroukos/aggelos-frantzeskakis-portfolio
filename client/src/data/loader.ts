@@ -32,11 +32,37 @@ export interface GitHubRepository {
 
 export interface GitHubPortfolioData {
   profile: GitHubProfile;
-  repositoryCount?: number;
+  repositoryCount: number;
   repositories: GitHubRepository[];
   fetchedAt: string;
 }
 
+type RawGitHubRepository = Omit<GitHubRepository, "stars" | "forks"> & {
+  stars?: number;
+  forks?: number;
+  stargazers_count?: number;
+  forks_count?: number;
+};
+
+type RawGitHubPortfolioData = Omit<GitHubPortfolioData, "repositoryCount" | "repositories"> & {
+  repositoryCount?: number;
+  repositories: RawGitHubRepository[];
+};
+
+function normalizeRepository(repository: RawGitHubRepository): GitHubRepository {
+  return {
+    ...repository,
+    stars: Number(repository.stars ?? repository.stargazers_count ?? 0),
+    forks: Number(repository.forks ?? repository.forks_count ?? 0),
+  };
+}
+
 export const getGitHubData = (): GitHubPortfolioData => {
-  return portfolioData as unknown as GitHubPortfolioData;
+  const raw = portfolioData as RawGitHubPortfolioData;
+  const repositories = raw.repositories.map(normalizeRepository);
+  return {
+    ...raw,
+    repositoryCount: raw.repositoryCount ?? repositories.length,
+    repositories,
+  };
 };

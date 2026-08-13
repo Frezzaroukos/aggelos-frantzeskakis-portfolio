@@ -49,3 +49,10 @@
 - [x] Validate the skill using quick_validate.py.
 - [x] Verify portfolio build, TypeScript, and Git sync.
 - [x] Save a checkpoint and report deliverables.
+
+## End-to-End Audit & Hardened Polish
+
+- [x] Run full repository and runtime audit from loader to footer.
+- [x] Refine visual consistency, touch interactions, typography rhythm, and accessibility landmarks.
+- [x] Verify bilingual copy completeness, Formspree boundary, CV download, and portable static assets.
+- [x] Run TypeScript check, production build, visual QA, final checkpoint, and Git push.
