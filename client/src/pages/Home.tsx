@@ -231,7 +231,7 @@ function ContactForm({ language }: { language: Language }) {
     }
   };
   const notice = status === "sending" ? t.sending : status === "success" ? (FORMSPREE_ENDPOINT ? t.sent : t.emailOpened) : status === "error" ? t.error : FORMSPREE_ENDPOINT ? t.active : t.fallback;
-  return <form className="contact-form" onSubmit={submit}><label><span>{t.name}</span><input name="name" required placeholder={t.namePlaceholder} /></label><label><span>{t.subject}</span><input name="subject" required placeholder={t.subjectPlaceholder} /></label><label className="contact-form__wide"><span>{t.message}</span><textarea name="message" required rows={4} placeholder={t.messagePlaceholder} /></label><div className="contact-form__submit"><span className={status === "error" ? "is-error" : status === "success" ? "is-success" : ""}>{notice}</span><button className="button button--dark" type="submit" disabled={status === "sending"}>{status === "sending" ? t.sending : t.compose} <Send size={15} /></button></div></form>;
+  return <form className="contact-form" onSubmit={submit}><label><span>{t.name}</span><input name="name" required placeholder={t.namePlaceholder} /></label><label><span>{t.email}</span><input name="email" type="email" required placeholder={t.emailPlaceholder} /></label><label><span>{t.subject}</span><input name="subject" required placeholder={t.subjectPlaceholder} /></label><label className="contact-form__wide"><span>{t.message}</span><textarea name="message" required rows={4} placeholder={t.messagePlaceholder} /></label><div className="contact-form__submit"><span className={status === "error" ? "is-error" : status === "success" ? "is-success" : ""}>{notice}</span><button className="button button--dark" type="submit" disabled={status === "sending"}>{status === "sending" ? t.sending : t.compose} <Send size={15} /></button></div></form>;
 }
 
 export default function Home() {
@@ -457,7 +457,7 @@ export default function Home() {
           <div id="skills-tools" className="skills-tools">
             <div className="skills-tools__head">
               <div><SectionLabel index="02 / tools">{t.skillsToolsNote}</SectionLabel><Reveal><h3>{t.skillsToolsTitle}<br /><em>{t.skillsToolsAccent}</em></h3></Reveal></div>
-              <Reveal delay={.1} className="skills-tools__aside"><p>{t.skillsToolsDescription}</p><span>Editable after git pull / local AI handoff</span></Reveal>
+              <Reveal delay={.1} className="skills-tools__aside"><p>{t.skillsToolsDescription}</p></Reveal>
             </div>
             <div className="skills-tools__grid">
               {skillTools.map((tool, index) => <Reveal key={t.skillsToolGroupLabels[index]} delay={index * .06} className="skills-tool-card"><span className="skills-tool-card__index">0{index + 1}</span><tool.icon size={19} strokeWidth={1.4} /><h4>{t.skillsToolGroupLabels[index]}</h4><div>{tool.items.map((item) => <span key={item}><i />{item}</span>)}</div></Reveal>)}
