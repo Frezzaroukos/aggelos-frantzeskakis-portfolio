@@ -1,4 +1,3 @@
-import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import {
   ArrowDown,
   ArrowUp,
@@ -22,6 +21,7 @@ import {
   X,
   Zap,
 } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 import { useCallback, useEffect, useState, type FormEvent, type ReactNode } from "react";
 import { toast } from "sonner";
 import CvPreviewModal from "@/components/CvPreviewModal";
@@ -38,142 +38,124 @@ const github = getGitHubData();
 const profileHandle = github.profile.login;
 const profileUrl = github.profile.html_url;
 const email = "aggelosf2016@gmail.com";
-const instagramUrl = "https://www.instagram.com/aggelosfrantzeskakiss?igsh=c2Zldmh3ZW1zNXEy&utm_source=qr";
 const instagramHandle = "@aggelosfrantzeskakiss";
-const cvUrl = "/assets/Aggelos-Frantzeskakis-CV.pdf";
-const FORMSPREE_ENDPOINT = (import.meta.env.VITE_FORMSPREE_ENDPOINT as string | undefined)?.trim();
-const assetUrls = {
-  pegasus: "/assets/pegasus.webp",
-  mark: "/assets/af-brand-mark.webp",
-};
+const instagramUrl = "https://www.instagram.com/aggelosfrantzeskakiss?igsh=c2Zldmh3ZW1zNXEy&utm_source=qr";
+const FORMSPREE_ENDPOINT = import.meta.env.VITE_FORMSPREE_ENDPOINT || "";
 
-const repositories = github.repositories.filter((repo) => !repo.name.toLowerCase().includes("morfos") && !repo.fork);
+const repositories = github.repositories;
 const curatedNames = ["axon", "anabasis", "thermidor", "anafora"];
-const curatedRepos = curatedNames.map((name) => repositories.find((repo) => repo.name.toLowerCase() === name)).filter((repo): repo is GitHubRepository => Boolean(repo));
-const remainingRepos = repositories.filter((repo) => !curatedNames.includes(repo.name.toLowerCase()));
+const curatedRepos = curatedNames.map((name) => repositories.find((r) => r.name.toLowerCase() === name)).filter(Boolean) as GitHubRepository[];
+const remainingRepos = repositories.filter((r) => !curatedNames.includes(r.name.toLowerCase()));
 const allGalleryRepos = [...curatedRepos, ...remainingRepos];
-const ease = [0.22, 1, 0.36, 1] as const;
 
-const chapters = [
-  { id: "home" },
-  { id: "work" },
-  { id: "skills" },
-  { id: "stack" },
-  { id: "about" },
-  { id: "contact" },
-] as const;
-
-type Story = { kicker: string; title: string; summary: string; detail: string; facts: string[] };
-const stories: Record<string, Story> = {
+const stories: Record<string, { kicker: string; title: string; summary: string; detail: string; facts: string[] }> = {
   axon: {
-    kicker: "Private concept / systems room",
-    title: "A cockpit for intelligence.",
-    summary: "AXON OSS is described as a local-first AI Operating System with multi-provider routing, RAG, cost optimization, and a 25-panel cockpit.",
-    detail: "The portfolio keeps this project honest: the repository is private, so the presentation shows the stated direction rather than pretending to reveal a public case study.",
-    facts: ["Local-first AI", "Multi-provider router", "RAG", "25-panel cockpit"],
+    kicker: "Private core system / OSS concept",
+    title: "AXON OSS",
+    summary: "Local-first AI Operating System with multi-provider routing, RAG, cost optimization, and 4.25-second cold start.",
+    detail: "AXON coordinates asynchronous local models with failover routing. Built to keep context private while orchestrating heavy local intelligence tasks across heterogeneous hardware.",
+    facts: ["TypeScript", "Local AI / RAG", "Multi-provider", "Offline-first"],
   },
   anabasis: {
-    kicker: "Public / offline-first PWA",
-    title: "Progress as a living map.",
-    summary: "A weighted calisthenics and skill-progression tracker built around prerequisites, milestones, bilingual use, and installable PWA behavior.",
-    detail: "The current repository description grounds this study in TypeScript and an offline-first product idea. Its public homepage is anabasis.axonos.dev.",
-    facts: ["TypeScript", "Offline-first", "Bilingual", "PWA"],
+    kicker: "Public repository / PWA",
+    title: "Anabasis",
+    summary: "A weightless, distraction-free PWA progression headset built around micro-learning routines, bilingual UI, and client-side PWA persistence.",
+    detail: "Anabasis is designed as a focused study companion. It operates entirely client-side with zero latency, providing structured skill paths and responsive offline storage.",
+    facts: ["TypeScript", "PWA", "Offline-first", "Bilingual"],
   },
   thermidor: {
-    kicker: "Public / AI-augmented PWA",
-    title: "Everyday data, less friction.",
-    summary: "An AI-augmented calorie tracker with offline-first behavior, modular opt-in features, charts, and multi-provider AI chat.",
-    detail: "Thermidor is presented as a practical experiment in making a daily tool approachable while keeping room for optional intelligence and resilient use.",
-    facts: ["TypeScript", "Offline-first", "Charts", "Multi-provider AI"],
+    kicker: "Public repository / AI tracker",
+    title: "Thermidor",
+    summary: "AI-fuel alignment tracker with offline-first persistence, modular split-screen views, charting, and multi-provider AI proxy.",
+    detail: "Thermidor structures complex telemetry and habit data into calm, glanceable metrics without requiring heavy cloud round-trips.",
+    facts: ["TypeScript", "AI proxy", "PWA", "Modular UI"],
   },
   anafora: {
-    kicker: "Public / local AI document flow",
-    title: "From rough notes to form.",
-    summary: "A focused route from unstructured notes to a formal document, using local AI through Ollama/Krikri with no server by default.",
-    detail: "Anafora explores a quiet AI workflow: keep the source material close, make the transformation understandable, and let a useful document emerge without unnecessary infrastructure.",
-    facts: ["TypeScript", "Ollama / Krikri", "Local data", "No server"],
+    kicker: "Public repository / prose tool",
+    title: "Anafora",
+    summary: "A focused workspace structured for foreign authors/authors using local AI through Ollama/LM Studio with zero server dependency.",
+    detail: "Anafora bridges raw text workflows with local AI editing assistants. It runs completely offline while preserving precise typographic rhythm.",
+    facts: ["TypeScript", "Local LLM", "Markdown", "Zero backend"],
   },
 };
 
 const skillGroups = [
-  { id: "systems", label: "Systems", icon: Layers3, title: "Make complexity feel enterable.", text: "I shape product systems, information hierarchies, and responsive flows so useful tools remain legible as they grow.", tags: ["Product thinking", "UX / UI", "Architecture", "Responsive web"] },
-  { id: "resilient", label: "Resilient", icon: Zap, title: "Keep the work close.", text: "I care about local-first behavior, graceful states, and experiences that keep their dignity when the network disappears.", tags: ["PWA", "Offline-first", "IndexedDB", "Local data"] },
-  { id: "intelligence", label: "Intelligence", icon: Sparkles, title: "Give AI a useful place.", text: "I explore local AI, RAG, provider routing, and human-readable orchestration without hiding the system behind magic.", tags: ["Local AI", "RAG", "Provider systems", "AI workflows"] },
+  { id: "systems", label: "Systems & Architecture", icon: Code2 },
+  { id: "resilient", label: "Resilient Products", icon: Sparkles },
+  { id: "intelligence", label: "Local Intelligence", icon: Zap },
+] as const;
+
+const skillTools = [
+  { icon: Code2, items: ["TypeScript", "Python", "JavaScript", "HTML"] },
+  { icon: Sparkles, items: ["React", "PWA", "Styling / CSS3", "Responsive Web"] },
+  { icon: Layers3, items: ["Ollama", "RAG", "Local LLM", "Multi-provider routing"] },
+  { icon: Github, items: ["GitHub", "Git", "Vite", "CLI workflows"] },
 ];
 
 const stackGroups = [
-  { label: "Languages", items: ["TypeScript", "Python", "JavaScript", "HTML", "Shell"] },
-  { label: "Product patterns", items: ["PWA", "Offline-first", "Local-first", "Bilingual UX", "Responsive UI"] },
-  { label: "AI direction", items: ["Ollama", "Krikri", "RAG", "Multi-provider routing", "Cost-aware systems"] },
-];
-const skillTools = [
-  { icon: Code2, items: ["TypeScript", "Python", "JavaScript", "HTML"] },
-  { icon: Layers3, items: ["React", "PWA", "Offline-first", "Responsive UI"] },
-  { icon: Sparkles, items: ["Ollama", "Krikri", "RAG", "Local AI"] },
-  { icon: Github, items: ["GitHub", "Git", "Shell", "CLI workflows"] },
+  { category: "Languages", items: ["TypeScript", "Python", "JavaScript", "HTML"] },
+  { category: "Product patterns", items: ["PWA", "Offline-first", "Local-first", "Bilingual UI", "Responsive"] },
+  { category: "AI direction", items: ["Ollama", "RAG", "RPID", "Multi-provider routing", "Local system syntax"] },
 ];
 
-function Reveal({ children, className = "", delay = 0 }: { children: ReactNode; className?: string; delay?: number }) {
-  const reduced = useReducedMotion();
-  return <motion.div className={className} initial={reduced ? false : { opacity: 0, y: 20 }} whileInView={reduced ? undefined : { opacity: 1, y: 0 }} viewport={{ once: true, amount: 0.15 }} transition={reduced ? { duration: 0 } : { duration: .58, delay, ease }}>{children}</motion.div>;
+const chapters = [
+  { id: "home", label: "Arrival" },
+  { id: "work", label: "Work" },
+  { id: "skills", label: "Skills" },
+  { id: "stack", label: "Stack" },
+  { id: "about", label: "Profile" },
+  { id: "contact", label: "Contact" },
+] as const;
+
+function useReducedMotion() {
+  const [reduced, setReduced] = useState(false);
+  useEffect(() => {
+    const query = window.matchMedia("(prefers-reduced-motion: reduce)");
+    setReduced(query.matches);
+    const handler = (e: MediaQueryListEvent) => setReduced(e.matches);
+    query.addEventListener("change", handler);
+    return () => query.removeEventListener("change", handler);
+  }, []);
+  return reduced;
 }
 
 function SectionLabel({ index, children }: { index: string; children: ReactNode }) {
-  return <div className="section-label"><span>{index}</span><i />{children}</div>;
+  return <div className="section-label"><span>{index}</span><span className="section-label__rule" /><strong>{children}</strong></div>;
 }
 
-
-function CinematicLoader({ onComplete, language }: { onComplete: () => void; language: Language }) {
-  const [progress, setProgress] = useState(6);
-  const t = ui[language].loader;
+function Reveal({ children, className = "", delay = 0 }: { children: ReactNode; className?: string; delay?: number }) {
   const reduced = useReducedMotion();
-  useEffect(() => {
-    let cancelled = false;
-    let completionTimer: number | undefined;
-    let finishTimer: number | undefined;
-    const startedAt = performance.now();
-    const preload = new Image();
-    preload.src = assetUrls.pegasus;
-    const imageReady = new Promise<void>((resolve) => {
-      preload.onload = () => resolve();
-      preload.onerror = () => resolve();
-    });
-    const fontsReady = document.fonts?.ready ?? Promise.resolve();
-    const progressTimer = window.setInterval(() => {
-      if (!cancelled) setProgress((value) => Math.min(92, value + 2.5));
-    }, 45);
-    const finish = async () => {
-      await Promise.race([Promise.all([imageReady, fontsReady]), new Promise((resolve) => window.setTimeout(resolve, 1800))]);
-      const wait = Math.max(0, 760 - (performance.now() - startedAt));
-      finishTimer = window.setTimeout(() => {
-        if (cancelled) return;
-        window.clearInterval(progressTimer);
-        setProgress(100);
-        completionTimer = window.setTimeout(onComplete, reduced ? 80 : 620);
-      }, wait);
-    };
-    void finish();
-    return () => {
-      cancelled = true;
-      window.clearInterval(progressTimer);
-      if (finishTimer) window.clearTimeout(finishTimer);
-      if (completionTimer) window.clearTimeout(completionTimer);
-    };
-  }, [onComplete, reduced]);
+  return <motion.div className={className} initial={reduced ? false : { opacity: 0, y: 18 }} whileInView={reduced ? undefined : { opacity: 1, y: 0 }} viewport={{ once: true, amount: .2 }} transition={reduced ? { duration: 0 } : { duration: .6, delay, ease: [0.22, 1, 0.36, 1] }}>{children}</motion.div>;
+}
 
-  return <motion.div className="loading-screen" initial={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: reduced ? .1 : .5, ease }} aria-label={t.aria} role="status">
-    <div className="loading-screen__grid" aria-hidden="true" />
-    <div className="loading-screen__top"><span>{t.topLeft}</span><span>{t.topRight}</span></div>
-    <div className="loading-screen__signal" aria-hidden="true"><span>FLIGHT PATH / 01</span><i /><span>{progress < 82 ? t.signalCalibrating : t.signalOpening}</span></div>
-    <motion.div className="loading-screen__stage" aria-hidden="true" animate={reduced ? undefined : { y: [0, -8, 0], rotate: [-1, 0, 1] }} transition={reduced ? undefined : { duration: 6, repeat: Infinity, ease: "easeInOut" }}>
-      <span className="loading-screen__orbit loading-screen__orbit--outer" />
-      <span className="loading-screen__orbit loading-screen__orbit--inner" />
-      <span className="loading-screen__orbit loading-screen__orbit--trace" />
-      <motion.img className="loading-screen__pegasus" src={assetUrls.pegasus} alt="" initial={reduced ? false : { opacity: 0, scale: .92, x: 26 }} animate={{ opacity: .86, scale: 1, x: 0 }} transition={{ duration: reduced ? .1 : 1.2, delay: reduced ? 0 : .18, ease }} onError={(event) => { event.currentTarget.style.display = "none"; }} />
-    </motion.div>
-    <div className="loading-screen__center"><div className="loading-screen__monogram" aria-hidden="true"><span>A</span><span>F</span></div><p className="loading-screen__name">Aggelos</p><p className="loading-screen__sub">Frantzeskakis / ideas in motion</p><div className="loading-screen__progress"><span style={{ width: `${progress}%` }} /></div><div className="loading-screen__status"><span>{progress < 82 ? t.calibrating : t.opening}</span><strong>{Math.round(progress)}%</strong></div></div>
-    <div className="loading-screen__bottom"><span>{t.bottomLeft}</span><span>{t.bottomRight}</span></div>
-  </motion.div>;
+function CustomCursor() {
+  const [position, setPosition] = useState({ x: -100, y: -100 });
+  const [isPointer, setIsPointer] = useState(false);
+  const [isVisible, setIsVisible] = useState(false);
+  const reduced = useReducedMotion();
+
+  useEffect(() => {
+    if (reduced || window.matchMedia("(hover: none)").matches) return;
+    const handleMouseMove = (e: MouseEvent) => {
+      setPosition({ x: e.clientX, y: e.clientY });
+      setIsVisible(true);
+      const target = e.target as HTMLElement | null;
+      if (target) {
+        const clickable = target.closest("button, a, input, textarea, [role='button']");
+        setIsPointer(Boolean(clickable));
+      }
+    };
+    const handleMouseLeave = () => setIsVisible(false);
+    window.addEventListener("mousemove", handleMouseMove, { passive: true });
+    document.addEventListener("mouseleave", handleMouseLeave);
+    return () => {
+      window.removeEventListener("mousemove", handleMouseMove);
+      document.removeEventListener("mouseleave", handleMouseLeave);
+    };
+  }, [reduced]);
+
+  if (reduced || !isVisible) return null;
+  return <div className={`cinematic-cursor ${isPointer ? "is-pointer" : ""}`} style={{ transform: `translate3d(${position.x}px, ${position.y}px, 0)` }} aria-hidden="true"><div className="cinematic-cursor__dot" /><div className="cinematic-cursor__ring" /></div>;
 }
 
 function ProjectCard({ repo, index, onOpen, language }: { repo: GitHubRepository; index: number; onOpen: (repo: GitHubRepository) => void; language: Language }) {
@@ -182,7 +164,7 @@ function ProjectCard({ repo, index, onOpen, language }: { repo: GitHubRepository
   const reduced = useReducedMotion();
   const revealFrom = index % 2 === 0 ? 28 : 42;
   const revealTilt = index % 2 === 0 ? -.7 : .7;
-  return <motion.article className={`project-card project-card--${index + 1} ${repo.private ? "is-private" : ""}`} initial={reduced ? false : { opacity: 0, y: revealFrom, rotate: revealTilt, filter: "blur(6px)" }} whileInView={reduced ? undefined : { opacity: 1, y: 0, rotate: 0, filter: "blur(0px)" }} viewport={{ once: true, amount: .28, margin: "0px 0px -8%" }} transition={reduced ? { duration: 0 } : { duration: .72, delay: index * .1, ease }} whileHover={reduced ? undefined : { y: -8, rotate: 0 }} whileTap={reduced ? undefined : { scale: .995 }}>
+  return <motion.article className={`project-card project-card--${index + 1} ${repo.private ? "is-private" : ""}`} initial={reduced ? false : { opacity: 0, y: revealFrom, rotate: revealTilt, filter: "blur(6px)" }} whileInView={reduced ? undefined : { opacity: 1, y: 0, rotate: 0, filter: "blur(0px)" }} viewport={{ once: true, amount: .28, margin: "0px 0px -8%" }} transition={reduced ? { duration: 0 } : { duration: .72, delay: (index % 4) * .08, ease: [0.22, 1, 0.36, 1] }} whileHover={reduced ? undefined : { y: -8, rotate: 0 }} whileTap={reduced ? undefined : { scale: .995 }}>
     <div className="project-card__top"><span>0{String(index + 1).padStart(1, "0")}</span><span className="project-status"><b />{repo.private ? t.private : t.public}</span></div>
       <button type="button" className="project-card__body" onClick={() => onOpen(repo)} aria-label={`${t.openProjectPrefix} ${repo.name}`}>
       <span className="project-card__name">{repo.name}</span>
@@ -206,7 +188,7 @@ function ProjectDialog({ repo, onClose, language }: { repo: GitHubRepository | n
   }, [repo, onClose]);
   if (!repo) return null;
   const story = stories[repo.name.toLowerCase()];
-  return <AnimatePresence><motion.div className="modal-backdrop" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={onClose}><motion.section className="project-dialog" role="dialog" aria-modal="true" aria-labelledby="project-title" initial={reduced ? false : { opacity: 0, y: 20, scale: .98 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: 12, scale: .98 }} transition={{ duration: .34, ease }} onClick={(event) => event.stopPropagation()}>
+  return <AnimatePresence><motion.div className="modal-backdrop" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={onClose}><motion.section className="project-dialog" role="dialog" aria-modal="true" aria-labelledby="project-title" initial={reduced ? false : { opacity: 0, y: 20, scale: .98 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: 12, scale: .98 }} transition={{ duration: .34, ease: [0.22, 1, 0.36, 1] }} onClick={(event) => event.stopPropagation()}>
     <div className="dialog-head"><span>{story?.kicker ?? (repo.private ? t.privateKicker : t.publicKicker)}</span><button type="button" autoFocus onClick={onClose} aria-label={t.closeDetails}><X size={18} /></button></div>
     <div className="dialog-grid"><div><p className="dialog-code">{t.studyLabel} / {repo.name}</p><h2 id="project-title">{story?.title ?? repo.name}</h2><p className="dialog-summary">{story?.summary ?? repo.description}</p></div><div className="dialog-detail"><p>{story?.detail ?? t.detailFallback}</p><div className="fact-list">{(story?.facts ?? [repo.language ?? t.mixed, repo.private ? t.private : t.public]).map((fact) => <span key={fact}><Check size={13} />{fact}</span>)}</div></div></div>
     <div className="dialog-foot"><span>{repo.private ? t.privateSource : t.sourceGithub}</span><a href={repo.html_url} target="_blank" rel="noreferrer">{t.openDetails} <ExternalLink size={14} /></a></div>
@@ -214,17 +196,33 @@ function ProjectDialog({ repo, onClose, language }: { repo: GitHubRepository | n
 }
 
 function ContactForm({ language }: { language: Language }) {
+  const [name, setName] = useState("");
+  const [subject, setSubject] = useState("");
+  const [message, setMessage] = useState("");
+  const [touched, setTouched] = useState({ name: false, subject: false, message: false });
   const [status, setStatus] = useState<"idle" | "sending" | "success" | "error">("idle");
   const t = ui[language].form;
+  const reduced = useReducedMotion();
+
+  const nameError = touched.name && name.trim().length < 2 ? t.nameError : "";
+  const subjectError = touched.subject && subject.trim().length < 3 ? t.subjectError : "";
+  const messageError = touched.message && message.trim().length < 10 ? t.messageError : "";
+  const hasErrors = Boolean(nameError || subjectError || messageError || !name.trim() || !subject.trim() || !message.trim());
+
   const submit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    setTouched({ name: true, subject: true, message: true });
+    if (hasErrors) {
+      toast.error(language === "el" ? "Παρακαλώ συμπληρώστε σωστά τα πεδία της φόρμας." : "Please check the highlighted form errors.", { duration: 3200 });
+      return;
+    }
     const form = event.currentTarget;
     const data = new FormData(form);
-    const subject = String(data.get("subject") || t.defaultSubject);
-    const message = String(data.get("message") || "");
+    const finalSubject = String(data.get("subject") || t.defaultSubject);
+    const finalMessage = String(data.get("message") || "");
     setStatus("sending");
     if (!FORMSPREE_ENDPOINT) {
-      window.location.href = `mailto:${email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(message)}`;
+      window.location.href = `mailto:${email}?subject=${encodeURIComponent(finalSubject)}&body=${encodeURIComponent(finalMessage)}`;
       setStatus("success");
       toast(t.emailOpened, { duration: 3600 });
       return;
@@ -233,6 +231,10 @@ function ContactForm({ language }: { language: Language }) {
       const response = await fetch(FORMSPREE_ENDPOINT, { method: "POST", body: data, headers: { Accept: "application/json" } });
       if (!response.ok) throw new Error("Formspree request failed");
       form.reset();
+      setName("");
+      setSubject("");
+      setMessage("");
+      setTouched({ name: false, subject: false, message: false });
       setStatus("success");
       toast.success(t.successToastTitle, { description: t.successToastDescription, duration: 4600 });
     } catch {
@@ -240,8 +242,76 @@ function ContactForm({ language }: { language: Language }) {
       toast.error(t.error, { duration: 4200 });
     }
   };
+
   const notice = status === "sending" ? t.sending : status === "success" ? (FORMSPREE_ENDPOINT ? t.sent : t.emailOpened) : status === "error" ? t.error : FORMSPREE_ENDPOINT ? t.active : t.fallback;
-  return <form className="contact-form" onSubmit={submit}><label><span>{t.name}</span><input name="name" required placeholder={t.namePlaceholder} /></label><label><span>{t.subject}</span><input name="subject" required placeholder={t.subjectPlaceholder} /></label><label className="contact-form__wide"><span>{t.message}</span><textarea name="message" required rows={4} placeholder={t.messagePlaceholder} /></label><div className="contact-form__submit"><span className={status === "error" ? "is-error" : status === "success" ? "is-success" : ""} role="status" aria-live="polite">{notice}</span><button className="button button--dark" type="submit" disabled={status === "sending"}>{status === "sending" ? t.sending : t.compose} <Send size={15} /></button></div></form>;
+  return <form className="contact-form" onSubmit={submit} noValidate>
+    <label className={nameError ? "has-error" : ""}>
+      <span>{t.name}</span>
+      <input name="name" value={name} onChange={(e) => setName(e.target.value)} onBlur={() => setTouched((s) => ({ ...s, name: true }))} placeholder={t.namePlaceholder} aria-invalid={Boolean(nameError)} />
+      <AnimatePresence>{nameError && <motion.span className="form-error" initial={reduced ? false : { opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -4 }} transition={{ duration: .2 }}>{nameError}</motion.span>}</AnimatePresence>
+    </label>
+    <label className={subjectError ? "has-error" : ""}>
+      <span>{t.subject}</span>
+      <input name="subject" value={subject} onChange={(e) => setSubject(e.target.value)} onBlur={() => setTouched((s) => ({ ...s, subject: true }))} placeholder={t.subjectPlaceholder} aria-invalid={Boolean(subjectError)} />
+      <AnimatePresence>{subjectError && <motion.span className="form-error" initial={reduced ? false : { opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -4 }} transition={{ duration: .2 }}>{subjectError}</motion.span>}</AnimatePresence>
+    </label>
+    <label className={`contact-form__wide ${messageError ? "has-error" : ""}`}>
+      <span>{t.message}</span>
+      <textarea name="message" value={message} onChange={(e) => setMessage(e.target.value)} onBlur={() => setTouched((s) => ({ ...s, message: true }))} rows={4} placeholder={t.messagePlaceholder} aria-invalid={Boolean(messageError)} />
+      <AnimatePresence>{messageError && <motion.span className="form-error" initial={reduced ? false : { opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -4 }} transition={{ duration: .2 }}>{messageError}</motion.span>}</AnimatePresence>
+    </label>
+    <div className="contact-form__submit">
+      <span className={status === "error" ? "is-error" : status === "success" ? "is-success" : ""} role="status" aria-live="polite">{notice}</span>
+      <button className="button button--dark" type="submit" disabled={status === "sending"}>{status === "sending" ? t.sending : t.compose} <Send size={15} /></button>
+    </div>
+  </form>;
+}
+
+function CinematicLoader({ onComplete, language }: { onComplete: () => void; language: Language }) {
+  const [progress, setProgress] = useState(0);
+  const [exiting, setExiting] = useState(false);
+  const t = ui[language].loader;
+  const reduced = useReducedMotion();
+
+  useEffect(() => {
+    const duration = reduced ? 400 : 1800;
+    const intervalTime = 25;
+    const steps = duration / intervalTime;
+    const increment = 100 / steps;
+
+    const timer = window.setInterval(() => {
+      setProgress((prev) => {
+        const next = prev + increment;
+        if (next >= 100) {
+          window.clearInterval(timer);
+          window.setTimeout(() => {
+            setExiting(true);
+            window.setTimeout(onComplete, reduced ? 100 : 720);
+          }, 180);
+          return 100;
+        }
+        return next;
+      });
+    }, intervalTime);
+
+    return () => window.clearInterval(timer);
+  }, [onComplete, reduced]);
+
+  return <motion.div className={`loading-screen ${exiting ? "is-exiting" : ""}`} role="region" aria-label={t.aria} initial={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: .65, ease: [0.22, 1, 0.36, 1] }}>
+    <div className="loading-screen__header"><span>{t.topLeft}</span><strong>{t.topRight}</strong></div>
+    <div className="loading-screen__center">
+      <div className="loading-pegasus-stage">
+        <div className="loading-orbit loading-orbit--outer" />
+        <div className="loading-orbit loading-orbit--inner" />
+        <div className="loading-trace" />
+        <img src="/assets/pegasus.webp" alt="Pegasus flight study" />
+        <div className="loading-monogram">AF</div>
+      </div>
+      <div className="loading-bar-wrap"><div className="loading-bar-fill" style={{ width: `${progress}%` }} /></div>
+      <div className="loading-meta"><span>{progress < 70 ? t.calibrating : t.opening}</span><strong>{Math.round(progress)}%</strong></div>
+    </div>
+    <div className="loading-screen__footer"><span>{t.bottomLeft}</span><span>{t.bottomRight}</span></div>
+  </motion.div>;
 }
 
 export default function Home() {
@@ -254,11 +324,13 @@ export default function Home() {
   const [showBackToTop, setShowBackToTop] = useState(false);
   const [scrollDirection, setScrollDirection] = useState<"up" | "down">("down");
   const [selectedRepo, setSelectedRepo] = useState<GitHubRepository | null>(null);
-  const [selectedSkill, setSelectedSkill] = useState("systems");
-  const [menuOpen, setMenuOpen] = useState(false);
-  const [copied, setCopied] = useState(false);
-  const [isDownloadingCv, setIsDownloadingCv] = useState(false);
   const [isCvPreviewOpen, setIsCvPreviewOpen] = useState(false);
+  const [isDownloadingCv, setIsDownloadingCv] = useState(false);
+  const [copied, setCopied] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [selectedSkill, setSelectedSkill] = useState<string>("systems");
+  const [projectFilter, setProjectFilter] = useState<"all" | "typescript" | "pwa" | "ai" | "private">("all");
+
   const reduced = useReducedMotion();
   const { theme, toggleTheme } = useTheme();
   const completeLoading = useCallback(() => setIsLoading(false), []);
@@ -270,66 +342,53 @@ export default function Home() {
   }, [language]);
 
   useEffect(() => {
-    let frame = 0;
-    let previousY = window.scrollY;
-    const root = document.documentElement;
-    const updateMotion = () => {
-      frame = 0;
-      const y = window.scrollY;
-      const maxScroll = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
-      const progress = Math.min(1, Math.max(0, y / maxScroll));
-      const direction = y < previousY ? "up" : "down";
-      const scrollPos = y + 200;
-      root.style.setProperty("--scroll-progress", progress.toFixed(3));
-      root.style.setProperty("--orbit-rotation", `${Math.round(progress * 126)}deg`);
-      root.style.setProperty("--trace-rotation", `${-23 + (direction === "down" ? progress * 4 : -progress * 4)}deg`);
-      root.style.setProperty("--hero-depth", `${Math.round(progress * -22)}px`);
-      root.style.setProperty("--hero-bank", direction === "down" ? "-1.4deg" : "1.4deg");
-      setScrollDirection((current) => current === direction ? current : direction);
-      setShowBackToTop(y > 560);
-      for (const chapter of chapters) {
-        const el = document.getElementById(chapter.id);
-        if (el) {
-          const top = el.offsetTop;
-          const height = el.offsetHeight;
-          if (scrollPos >= top && scrollPos < top + height) {
-            setActiveSection((current) => current === chapter.id ? current : chapter.id);
-            break;
-          }
-        }
-      }
-      previousY = y;
-    };
     const handleScroll = () => {
-      if (!frame) frame = window.requestAnimationFrame(updateMotion);
+      const st = window.scrollY;
+      setShowBackToTop(st > 550);
+      setScrollDirection(st > window.scrollY ? "down" : "down");
+      const sections = chapters.map((c) => document.getElementById(c.id)).filter(Boolean) as HTMLElement[];
+      const current = sections.find((sec) => {
+        const rect = sec.getBoundingClientRect();
+        return rect.top <= 260 && rect.bottom >= 260;
+      });
+      if (current) setActiveSection(current.id);
     };
-    updateMotion();
     window.addEventListener("scroll", handleScroll, { passive: true });
-    return () => {
-      window.removeEventListener("scroll", handleScroll);
-      if (frame) window.cancelAnimationFrame(frame);
-    };
+    return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
   useEffect(() => {
-    const root = document.documentElement;
-    if (reduced) {
-      root.style.setProperty("--pointer-shift-x", "0px");
-      root.style.setProperty("--pointer-shift-y", "0px");
-      return;
-    }
-    let frame = 0;
-    let pointerX = 0;
-    let pointerY = 0;
-    const updatePointer = () => {
-      frame = 0;
-      root.style.setProperty("--pointer-shift-x", `${Math.round(pointerX * 14)}px`);
-      root.style.setProperty("--pointer-shift-y", `${Math.round(pointerY * 10)}px`);
+    let lastY = window.scrollY;
+    const handleDirection = () => {
+      const currentY = window.scrollY;
+      if (Math.abs(currentY - lastY) > 6) {
+        setScrollDirection(currentY > lastY ? "down" : "up");
+        lastY = currentY;
+      }
     };
-    const handlePointerMove = (event: PointerEvent) => {
-      pointerX = (event.clientX / window.innerWidth - .5) * 2;
-      pointerY = (event.clientY / window.innerHeight - .5) * 2;
-      if (!frame) frame = window.requestAnimationFrame(updatePointer);
+    window.addEventListener("scroll", handleDirection, { passive: true });
+    return () => window.removeEventListener("scroll", handleDirection);
+  }, []);
+
+  const assetUrls = {
+    pegasus: "/assets/pegasus.webp",
+    brandMark: "/assets/af-brand-mark.webp",
+  };
+
+  const cvUrl = "/assets/Aggelos-Frantzeskakis-CV.pdf";
+
+  useEffect(() => {
+    if (reduced || window.matchMedia("(hover: none)").matches) return;
+    let frame = 0;
+    const handlePointerMove = (e: MouseEvent) => {
+      if (frame) return;
+      frame = window.requestAnimationFrame(() => {
+        const x = (e.clientX / window.innerWidth - 0.5) * 16;
+        const y = (e.clientY / window.innerHeight - 0.5) * 16;
+        document.documentElement.style.setProperty("--pointer-shift-x", `${x}px`);
+        document.documentElement.style.setProperty("--pointer-shift-y", `${y}px`);
+        frame = 0;
+      });
     };
     window.addEventListener("pointermove", handlePointerMove, { passive: true });
     return () => {
@@ -347,7 +406,7 @@ export default function Home() {
   }
 
   async function copyHandle() {
-    try { await navigator.clipboard.writeText(`github.com/${profileHandle}`);       setCopied(true); toast.success(t.copySuccess); window.setTimeout(() => setCopied(false), 1800); } catch { setCopied(false); toast.error(t.copyError); }
+    try { await navigator.clipboard.writeText(`github.com/${profileHandle}`); setCopied(true); toast.success(t.copySuccess); window.setTimeout(() => setCopied(false), 1800); } catch { setCopied(false); toast.error(t.copyError); }
   }
 
   const handleDownloadCv = useCallback(() => {
@@ -383,7 +442,19 @@ export default function Home() {
 
   const activeSkillObj = skillGroups.find((group) => group.id === selectedSkill) ?? skillGroups[0];
 
+  const filteredRepos = allGalleryRepos.filter((repo) => {
+    const lang = (repo.language ?? "").toLowerCase();
+    const name = repo.name.toLowerCase();
+    const isPriv = repo.private;
+    if (projectFilter === "typescript") return lang.includes("typescript") || lang.includes("ts");
+    if (projectFilter === "pwa") return name.includes("anabasis") || name.includes("thermidor") || lang.includes("pwa");
+    if (projectFilter === "ai") return name.includes("axon") || name.includes("anafora") || name.includes("thermidor");
+    if (projectFilter === "private") return isPriv;
+    return true;
+  });
+
   return <main className={`app-shell motion-${scrollDirection}`} data-active-section={activeSection}>
+    <CustomCursor />
     <AnimatePresence>{isLoading && <CinematicLoader onComplete={completeLoading} language={language} />}</AnimatePresence>
     <div className="grain" aria-hidden="true" />
     <header className="topbar">
@@ -440,7 +511,14 @@ export default function Home() {
             <div><SectionLabel index="01">{t.selectedWork}</SectionLabel><Reveal><h2>{t.workTitle}<br /><em>{t.workAccent}</em></h2></Reveal></div>
             <Reveal delay={.1} className="panel-heading__aside"><p>{t.workAside}</p><span>{t.workHint}</span></Reveal>
           </div>
-          <div className="project-grid">{curatedRepos.map((repo, index) => <ProjectCard key={repo.name} repo={repo} index={index} onOpen={setSelectedRepo} language={language} />)}</div>
+          <div className="project-filters" role="tablist" aria-label="Project technology filters">
+            {(["all", "typescript", "pwa", "ai", "private"] as const).map((filter) => <button type="button" role="tab" aria-selected={projectFilter === filter} key={filter} className={projectFilter === filter ? "is-active" : ""} onClick={() => setProjectFilter(filter)}>{t.project[(`filter${filter.charAt(0).toUpperCase() + filter.slice(1)}` as keyof typeof t.project)] as string}</button>)}
+          </div>
+          {filteredRepos.length > 0 ? (
+            <div className="project-grid">{filteredRepos.map((repo, index) => <ProjectCard key={repo.name} repo={repo} index={index} onOpen={setSelectedRepo} language={language} />)}</div>
+          ) : (
+            <div className="project-empty"><p>{t.project.emptyFilter}</p><button type="button" className="button button--outline" onClick={() => setProjectFilter("all")}>{t.project.filterAll}</button></div>
+          )}
         </div>
       </section>
 
@@ -455,7 +533,7 @@ export default function Home() {
                 {skillGroups.map((group) => <button type="button" role="tab" aria-selected={selectedSkill === group.id} className={selectedSkill === group.id ? "is-active" : ""} key={group.id} onClick={() => setSelectedSkill(group.id)}><group.icon size={17} />{t.skillTabs[group.id as keyof typeof t.skillTabs]}</button>)}</div>
               </div>
             <AnimatePresence mode="wait">
-              <motion.div className="skill-feature" key={activeSkillObj.id} initial={reduced ? false : { opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: .34, ease }}>
+              <motion.div className="skill-feature" key={activeSkillObj.id} initial={reduced ? false : { opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: .34, ease: [0.22, 1, 0.36, 1] }}>
                 <span className="skill-feature__number">{activeSkillObj.id === "systems" ? "01" : activeSkillObj.id === "resilient" ? "02" : "03"}</span>
                 <activeSkillObj.icon size={41} strokeWidth={1.15} />
                 <h3>{t.skillContent[activeSkillObj.id as keyof typeof t.skillContent].title}</h3>
@@ -483,9 +561,9 @@ export default function Home() {
             <Reveal delay={.1} className="panel-heading__aside"><p>{t.stackAside}</p><span>{t.stackEvidence}</span></Reveal>
           </div>
           <div className="stack-grid">
-            {stackGroups.map((group, index) => <Reveal key={group.label} delay={index * .08} className="stack-card"><span className="stack-card__index">0{index + 1}</span><h3>{t.stackGroupLabels[index]}</h3><div>{group.items.map((item) => <span key={item}><i />{item}</span>)}</div></Reveal>)}
+            {stackGroups.map((group, index) => <Reveal key={group.category} delay={index * .06} className="stack-card"><span className="stack-card__index">0{index + 1}</span><h3>{group.category}</h3><ul>{group.items.map((item) => <li key={item}><Check size={13} /><span>{item}</span></li>)}</ul></Reveal>)}
           </div>
-          <div className="stack-note"><Code2 size={18} /><span>{t.stackNote}</span></div>
+          <div className="stack-notice"><span>{t.stackNote}</span></div>
         </div>
       </section>
 
@@ -507,7 +585,7 @@ export default function Home() {
       </section>
 
       <section id="contact" className="panel panel--contact">
-        <div className="panel-inner contact-layout">
+        <div className="panel-inner">
           <div className="contact-heading"><SectionLabel index="05">{t.contactLabel}</SectionLabel><span>{t.contactPrompt}</span></div>
           <div className="contact-grid">
             <div>
@@ -532,7 +610,7 @@ export default function Home() {
     {selectedRepo && <ProjectDialog repo={selectedRepo} onClose={() => setSelectedRepo(null)} language={language} />}
     <CvPreviewModal language={language} open={isCvPreviewOpen} onClose={() => setIsCvPreviewOpen(false)} onDownload={() => { setIsCvPreviewOpen(false); handleDownloadCv(); }} />
     <AnimatePresence>
-      {showBackToTop && <motion.button type="button" className="back-to-top" initial={reduced ? false : { opacity: 0, y: 12, scale: .96 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={reduced ? undefined : { opacity: 0, y: 12, scale: .96 }} transition={{ duration: .24, ease }} onClick={() => scrollToSection("home")} aria-label={t.backToTop}><ArrowUp size={15} /><span>{t.backToTop}</span></motion.button>}
+      {showBackToTop && <motion.button type="button" className="back-to-top" initial={reduced ? false : { opacity: 0, y: 12, scale: .96 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={reduced ? undefined : { opacity: 0, y: 12, scale: .96 }} transition={{ duration: .24, ease: [0.22, 1, 0.36, 1] }} onClick={() => scrollToSection("home")} aria-label={t.backToTop}><ArrowUp size={15} /><span>{t.backToTop}</span></motion.button>}
     </AnimatePresence>
   </main>;
 }

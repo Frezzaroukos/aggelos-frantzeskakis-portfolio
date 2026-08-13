@@ -439,3 +439,111 @@ button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visib
   .button--cv::before { display: none; }
   .project-card { will-change: auto; }
 }
+
+/* Cinematic Custom Cursor & Form Validation Styles */
+body { cursor: default; }
+@media (hover: hover) and (pointer: fine) {
+  a, button, input, textarea, [role="button"] { cursor: none !important; }
+}
+
+.cinematic-cursor {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 99999;
+  pointer-events: none;
+  mix-blend-mode: difference;
+}
+
+.cinematic-cursor__dot {
+  position: absolute;
+  top: -3px;
+  left: -3px;
+  width: 6px;
+  height: 6px;
+  background: #ffffff;
+  border-radius: 50%;
+  transition: transform .12s ease;
+}
+
+.cinematic-cursor__ring {
+  position: absolute;
+  top: -14px;
+  left: -14px;
+  width: 28px;
+  height: 28px;
+  border: 1px solid rgba(255, 255, 255, 0.55);
+  border-radius: 50%;
+  transition: width .2s ease, height .2s ease, top .2s ease, left .2s ease, border-color .2s ease;
+}
+
+.cinematic-cursor.is-pointer .cinematic-cursor__ring {
+  top: -22px;
+  left: -22px;
+  width: 44px;
+  height: 44px;
+  border-color: var(--accent);
+  border-width: 1.5px;
+  background: rgba(212, 175, 55, 0.08);
+}
+
+.project-filters {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 28px;
+  flex-wrap: wrap;
+}
+
+.project-filters button {
+  padding: 8px 16px;
+  color: var(--muted-foreground);
+  background: var(--card);
+  border: 1px solid var(--soft-border);
+  font: 9px 'DM Mono', monospace;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  transition: all .2s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.project-filters button:hover,
+.project-filters button.is-active {
+  color: var(--accent-foreground);
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+.project-empty {
+  padding: 60px 20px;
+  text-align: center;
+  background: var(--card);
+  border: 1px dashed var(--soft-border);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+.project-empty p {
+  color: var(--muted-foreground);
+  font: 12px 'DM Mono', monospace;
+}
+
+.contact-form label.has-error input,
+.contact-form label.has-error textarea {
+  border-color: #e05252;
+  background: rgba(224, 82, 82, 0.03);
+}
+
+.form-error {
+  display: block;
+  margin-top: 5px;
+  color: #d33b3b;
+  font: 8px 'DM Mono', monospace;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cinematic-cursor { display: none !important; }
+}
