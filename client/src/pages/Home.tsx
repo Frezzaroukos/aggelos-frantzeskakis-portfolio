@@ -64,41 +64,74 @@ const chapters = [
 ] as const;
 
 type Story = { kicker: string; title: string; summary: string; detail: string; facts: string[] };
-const stories: Record<string, Story> = {
-  axon: {
-    kicker: "Private concept / systems room",
-    title: "A cockpit for intelligence.",
-    summary: "AXON OSS is described as a local-first AI Operating System with multi-provider routing, RAG, cost optimization, and a 25-panel cockpit.",
-    detail: "The portfolio keeps this project honest: the repository is private, so the presentation shows the stated direction rather than pretending to reveal a public case study.",
-    facts: ["Local-first AI", "Multi-provider router", "RAG", "25-panel cockpit"],
+const stories: Record<Language, Record<string, Story>> = {
+  en: {
+    axon: {
+      kicker: "Private concept / systems room",
+      title: "A cockpit for intelligence.",
+      summary: "AXON OSS is described as a local-first AI Operating System with multi-provider routing, RAG, cost optimization, and a 25-panel cockpit.",
+      detail: "The portfolio keeps this project honest: the repository is private, so the presentation shows the stated direction rather than pretending to reveal a public case study.",
+      facts: ["Local-first AI", "Multi-provider router", "RAG", "25-panel cockpit"],
+    },
+    anabasis: {
+      kicker: "Public / offline-first PWA",
+      title: "Progress as a living map.",
+      summary: "A weighted calisthenics and skill-progression tracker built around prerequisites, milestones, bilingual use, and installable PWA behavior.",
+      detail: "The current repository description grounds this study in TypeScript and an offline-first product idea. Its public homepage is anabasis.axonos.dev.",
+      facts: ["TypeScript", "Offline-first", "Bilingual", "PWA"],
+    },
+    thermidor: {
+      kicker: "Public / AI-augmented PWA",
+      title: "Everyday data, less friction.",
+      summary: "An AI-augmented calorie tracker with offline-first behavior, modular opt-in features, charts, and multi-provider AI chat.",
+      detail: "Thermidor is presented as a practical experiment in making a daily tool approachable while keeping room for optional intelligence and resilient use.",
+      facts: ["TypeScript", "Offline-first", "Charts", "Multi-provider AI"],
+    },
+    anafora: {
+      kicker: "Public / local AI document flow",
+      title: "From rough notes to form.",
+      summary: "A focused route from unstructured notes to a formal document, using local AI through Ollama/Krikri with no server by default.",
+      detail: "Anafora explores a quiet AI workflow: keep the source material close, make the transformation understandable, and let a useful document emerge without unnecessary infrastructure.",
+      facts: ["TypeScript", "Ollama / Krikri", "Local data", "No server"],
+    },
   },
-  anabasis: {
-    kicker: "Public / offline-first PWA",
-    title: "Progress as a living map.",
-    summary: "A weighted calisthenics and skill-progression tracker built around prerequisites, milestones, bilingual use, and installable PWA behavior.",
-    detail: "The current repository description grounds this study in TypeScript and an offline-first product idea. Its public homepage is anabasis.axonos.dev.",
-    facts: ["TypeScript", "Offline-first", "Bilingual", "PWA"],
-  },
-  thermidor: {
-    kicker: "Public / AI-augmented PWA",
-    title: "Everyday data, less friction.",
-    summary: "An AI-augmented calorie tracker with offline-first behavior, modular opt-in features, charts, and multi-provider AI chat.",
-    detail: "Thermidor is presented as a practical experiment in making a daily tool approachable while keeping room for optional intelligence and resilient use.",
-    facts: ["TypeScript", "Offline-first", "Charts", "Multi-provider AI"],
-  },
-  anafora: {
-    kicker: "Public / local AI document flow",
-    title: "From rough notes to form.",
-    summary: "A focused route from unstructured notes to a formal document, using local AI through Ollama/Krikri with no server by default.",
-    detail: "Anafora explores a quiet AI workflow: keep the source material close, make the transformation understandable, and let a useful document emerge without unnecessary infrastructure.",
-    facts: ["TypeScript", "Ollama / Krikri", "Local data", "No server"],
+  el: {
+    axon: {
+      kicker: "Ιδιωτικό concept / δωμάτιο συστημάτων",
+      title: "Ένα cockpit για τη νοημοσύνη.",
+      summary: "Το AXON OSS περιγράφεται ως local-first AI Operating System με multi-provider routing, RAG, βελτιστοποίηση κόστους και cockpit 25 panels.",
+      detail: "Το portfolio κρατά το project ειλικρινές: το repository είναι ιδιωτικό, οπότε η παρουσίαση δείχνει τη δηλωμένη κατεύθυνση αντί να προσποιείται δημόσιο case study.",
+      facts: ["Local-first AI", "Multi-provider router", "RAG", "Cockpit 25 panels"],
+    },
+    anabasis: {
+      kicker: "Δημόσιο / offline-first PWA",
+      title: "Η πρόοδος ως ζωντανός χάρτης.",
+      summary: "Tracker για weighted calisthenics και εξέλιξη skills, χτισμένος γύρω από prerequisites, milestones, δίγλωσση χρήση και εγκαταστάσιμη PWA συμπεριφορά.",
+      detail: "Η τρέχουσα περιγραφή του repository θεμελιώνει τη μελέτη σε TypeScript και σε μια offline-first ιδέα προϊόντος. Δημόσια σελίδα: anabasis.axonos.dev.",
+      facts: ["TypeScript", "Offline-first", "Δίγλωσσο", "PWA"],
+    },
+    thermidor: {
+      kicker: "Δημόσιο / AI-augmented PWA",
+      title: "Καθημερινά δεδομένα, λιγότερη τριβή.",
+      summary: "Ένας AI-augmented μετρητής θερμίδων με offline-first συμπεριφορά, modular προαιρετικές λειτουργίες, γραφήματα και multi-provider AI chat.",
+      detail: "Το Thermidor παρουσιάζεται ως πρακτικό πείραμα: ένα καθημερινό εργαλείο να μένει προσιτό, με χώρο για προαιρετική νοημοσύνη και ανθεκτική χρήση.",
+      facts: ["TypeScript", "Offline-first", "Γραφήματα", "Multi-provider AI"],
+    },
+    anafora: {
+      kicker: "Δημόσιο / ροή εγγράφων με local AI",
+      title: "Από πρόχειρες σημειώσεις σε μορφή.",
+      summary: "Μια εστιασμένη διαδρομή από αδόμητες σημειώσεις σε επίσημο έγγραφο, με local AI μέσω Ollama/Krikri και χωρίς server από προεπιλογή.",
+      detail: "Η Αναφορά εξερευνά ένα ήσυχο AI workflow: το υλικό μένει κοντά, η μετατροπή παραμένει κατανοητή, και ένα χρήσιμο έγγραφο προκύπτει χωρίς περιττή υποδομή.",
+      facts: ["TypeScript", "Ollama / Krikri", "Τοπικά δεδομένα", "Χωρίς server"],
+    },
   },
 };
 
+// Text lives in uiCopy (skillTabs/skillContent); this only carries id + icon.
 const skillGroups = [
-  { id: "systems", label: "Systems", icon: Layers3, title: "Make complexity feel enterable.", text: "I shape product systems, information hierarchies, and responsive flows so useful tools remain legible as they grow.", tags: ["Product thinking", "UX / UI", "Architecture", "Responsive web"] },
-  { id: "resilient", label: "Resilient", icon: Zap, title: "Keep the work close.", text: "I care about local-first behavior, graceful states, and experiences that keep their dignity when the network disappears.", tags: ["PWA", "Offline-first", "IndexedDB", "Local data"] },
-  { id: "intelligence", label: "Intelligence", icon: Sparkles, title: "Give AI a useful place.", text: "I explore local AI, RAG, provider routing, and human-readable orchestration without hiding the system behind magic.", tags: ["Local AI", "RAG", "Provider systems", "AI workflows"] },
+  { id: "systems", icon: Layers3 },
+  { id: "resilient", icon: Zap },
+  { id: "intelligence", icon: Sparkles },
 ];
 
 const stackGroups = [
@@ -178,11 +211,11 @@ function CinematicLoader({ onComplete, language }: { onComplete: () => void; lan
 
 function ProjectCard({ repo, index, onOpen, language }: { repo: GitHubRepository; index: number; onOpen: (repo: GitHubRepository) => void; language: Language }) {
   const t = ui[language].project;
-  const story = stories[repo.name.toLowerCase()];
+  const story = stories[language][repo.name.toLowerCase()];
   const reduced = useReducedMotion();
   return <motion.article className={`project-card ${repo.private ? "is-private" : ""}`} initial={reduced ? false : { opacity: 0, y: 16 }} whileInView={reduced ? undefined : { opacity: 1, y: 0 }} viewport={{ once: true, amount: .15 }} transition={reduced ? { duration: 0 } : { duration: .5, delay: index * .04, ease }} whileHover={reduced ? undefined : { y: -6 }}>
     <div className="project-card__top"><span>0{String(index + 1).padStart(1, "0")}</span><span className="project-status"><b />{repo.private ? t.private : t.public}</span></div>
-    <button type="button" className="project-card__body" onClick={() => onOpen(repo)} aria-label={`Open details for ${repo.name}`}>
+    <button type="button" className="project-card__body" onClick={() => onOpen(repo)} aria-label={`${t.openDetailsFor} ${repo.name}`}>
       <span className="project-card__name">{repo.name}</span>
       <span className="project-card__description">{story?.summary ?? repo.description ?? t.fallback}</span>
       <span className="project-card__open">{t.openDetails} <ArrowUpRight size={15} /></span>
@@ -195,10 +228,10 @@ function ProjectDialog({ repo, onClose, language }: { repo: GitHubRepository | n
   const t = ui[language].project;
   const reduced = useReducedMotion();
   if (!repo) return null;
-  const story = stories[repo.name.toLowerCase()];
+  const story = stories[language][repo.name.toLowerCase()];
   return <AnimatePresence><motion.div className="modal-backdrop" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={onClose}><motion.section className="project-dialog" role="dialog" aria-modal="true" aria-labelledby="project-title" initial={reduced ? false : { opacity: 0, y: 20, scale: .98 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: 12, scale: .98 }} transition={{ duration: .34, ease }} onClick={(event) => event.stopPropagation()}>
-    <div className="dialog-head"><span>{story?.kicker ?? (repo.private ? "Private build" : "Public project")}</span><button type="button" onClick={onClose} aria-label={t.closeDetails}><X size={18} /></button></div>
-    <div className="dialog-grid"><div><p className="dialog-code">Project study / {repo.name}</p><h2 id="project-title">{story?.title ?? repo.name}</h2><p className="dialog-summary">{story?.summary ?? repo.description}</p></div><div className="dialog-detail"><p>{story?.detail ?? "This study is generated from the current GitHub snapshot."}</p><div className="fact-list">{(story?.facts ?? [repo.language ?? "Mixed stack", repo.private ? "Private repository" : "Public repository"]).map((fact) => <span key={fact}><Check size={13} />{fact}</span>)}</div></div></div>
+    <div className="dialog-head"><span>{story?.kicker ?? (repo.private ? t.privateBuild : t.publicProject)}</span><button type="button" onClick={onClose} aria-label={t.closeDetails}><X size={18} /></button></div>
+    <div className="dialog-grid"><div><p className="dialog-code">{t.studyLabel} / {repo.name}</p><h2 id="project-title">{story?.title ?? repo.name}</h2><p className="dialog-summary">{story?.summary ?? repo.description}</p></div><div className="dialog-detail"><p>{story?.detail ?? t.generatedFallback}</p><div className="fact-list">{(story?.facts ?? [repo.language ?? t.mixedStack, repo.private ? t.privateRepo : t.publicRepo]).map((fact) => <span key={fact}><Check size={13} />{fact}</span>)}</div></div></div>
     <div className="dialog-foot"><span>{repo.private ? t.privateSource : t.sourceGithub}</span><a href={repo.html_url} target="_blank" rel="noreferrer">{t.openDetails} <ExternalLink size={14} /></a></div>
   </motion.section></motion.div></AnimatePresence>;
 }
@@ -239,7 +272,9 @@ export default function Home() {
   const [activeSection, setActiveSection] = useState("home");
   const [language, setLanguage] = useState<Language>(() => {
     if (typeof window === "undefined") return "en";
-    return window.localStorage.getItem("aggellos-portfolio-language") === "el" ? "el" : "en";
+    const stored = window.localStorage.getItem("aggellos-portfolio-language");
+    if (stored === "el" || stored === "en") return stored;
+    return navigator.language?.toLowerCase().startsWith("el") ? "el" : "en";
   });
   const [showBackToTop, setShowBackToTop] = useState(false);
   const [scrollDirection, setScrollDirection] = useState<"up" | "down">("down");
@@ -337,13 +372,13 @@ export default function Home() {
   }
 
   async function copyHandle() {
-    try { await navigator.clipboard.writeText(`github.com/${profileHandle}`); setCopied(true); toast.success("GitHub handle copied"); window.setTimeout(() => setCopied(false), 1800); } catch { setCopied(false); toast.error("Could not copy the GitHub handle"); }
+    try { await navigator.clipboard.writeText(`github.com/${profileHandle}`); setCopied(true); toast.success(t.handleCopied); window.setTimeout(() => setCopied(false), 1800); } catch { setCopied(false); toast.error(t.handleCopyFailed); }
   }
 
   const handleDownloadCv = useCallback(() => {
     if (isDownloadingCv) return;
     setIsDownloadingCv(true);
-    toast("Preparing your CV…", { duration: reduced ? 500 : 900 });
+    toast(t.preparingCv, { duration: reduced ? 500 : 900 });
     window.setTimeout(async () => {
       try {
         const response = await fetch(cvUrl);
@@ -366,10 +401,10 @@ export default function Home() {
         link.remove();
       } finally {
         setIsDownloadingCv(false);
-        toast.success("CV ready to download", { duration: 1800 });
+        toast.success(t.cvReady, { duration: 1800 });
       }
     }, reduced ? 120 : 720);
-  }, [isDownloadingCv, reduced]);
+  }, [isDownloadingCv, reduced, t]);
 
   const activeSkillObj = skillGroups.find((group) => group.id === selectedSkill) ?? skillGroups[0];
 
