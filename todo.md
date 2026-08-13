@@ -44,8 +44,8 @@
 
 ## Pegasus Hover Effect & Reusable Skill
 
-- [ ] Implement responsive, smooth Pegasus hover/float effect with orbit tilt and reduced-motion fallback.
-- [ ] Initialize and write the `cinematic-portfolio` skill using the skill-creator workflow.
-- [ ] Validate the skill using quick_validate.py.
-- [ ] Verify portfolio build, TypeScript, and Git sync.
-- [ ] Save a checkpoint and report deliverables.
+- [x] Implement responsive, smooth Pegasus hover/float effect with orbit tilt and reduced-motion fallback.
+- [x] Initialize and write the `cinematic-portfolio` skill using the skill-creator workflow.
+- [x] Validate the skill using quick_validate.py.
+- [x] Verify portfolio build, TypeScript, and Git sync.
+- [x] Save a checkpoint and report deliverables.
