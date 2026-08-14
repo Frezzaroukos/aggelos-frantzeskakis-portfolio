@@ -52,34 +52,67 @@ const curatedRepos = curatedNames.map((name) => repositories.find((r) => r.name.
 const remainingRepos = repositories.filter((r) => !curatedNames.includes(r.name.toLowerCase()));
 const allGalleryRepos = [...curatedRepos, ...remainingRepos];
 
-const stories: Record<string, { kicker: string; title: string; summary: string; detail: string; facts: string[] }> = {
-  axon: {
-    kicker: "AI operating system",
-    title: "AXON OSS",
-    summary: "A local-first AI operating system: a multi-provider AI router with RAG, cost optimization, and a 25-panel control cockpit.",
-    detail: "AXON routes requests across local and hosted models with failover, keeps context on-device, and exposes everything through a single cockpit UI. Built in TypeScript.",
-    facts: ["TypeScript", "AI router", "RAG", "Local-first"],
+type Story = { kicker: string; title: string; summary: string; detail: string; facts: string[] };
+const storiesByLang: Record<Language, Record<string, Story>> = {
+  en: {
+    axon: {
+      kicker: "AI operating system",
+      title: "AXON OSS",
+      summary: "A local-first AI operating system: a multi-provider AI router with RAG, cost optimization, and a 25-panel control cockpit.",
+      detail: "AXON routes requests across local and hosted models with failover, keeps context on-device, and exposes everything through a single cockpit UI. Built in TypeScript.",
+      facts: ["TypeScript", "AI router", "RAG", "Local-first"],
+    },
+    anabasis: {
+      kicker: "Progressive web app",
+      title: "Anabasis",
+      summary: "A weighted-calisthenics and skill-progression tracker. Offline-first PWA, strict TypeScript, bilingual UI.",
+      detail: "Anabasis tracks strength progressions and skill paths entirely client-side, working offline with local persistence. Live at anabasis.axonos.dev.",
+      facts: ["TypeScript", "PWA", "Offline-first", "Bilingual"],
+    },
+    thermidor: {
+      kicker: "Progressive web app",
+      title: "Thermidor",
+      summary: "An AI-augmented calorie tracker: offline-first PWA with modular opt-in features and multi-provider AI chat.",
+      detail: "Thermidor logs nutrition offline and layers in optional AI features on top of a modular UI, talking to multiple AI providers through one interface.",
+      facts: ["TypeScript", "PWA", "Offline-first", "AI chat"],
+    },
+    anafora: {
+      kicker: "Local-AI writing tool",
+      title: "Anafora",
+      summary: "Turns rough notes into a polished document using local AI (Ollama / Krikri) — no server, so the text never leaves the device.",
+      detail: "Anafora runs a local language model over your draft to clean up structure and phrasing while keeping everything on-device. Greek-first, privacy by design.",
+      facts: ["TypeScript", "Local LLM", "Privacy-first", "Zero backend"],
+    },
   },
-  anabasis: {
-    kicker: "Progressive web app",
-    title: "Anabasis",
-    summary: "A weighted-calisthenics and skill-progression tracker. Offline-first PWA, strict TypeScript, bilingual UI.",
-    detail: "Anabasis tracks strength progressions and skill paths entirely client-side, working offline with local persistence. Live at anabasis.axonos.dev.",
-    facts: ["TypeScript", "PWA", "Offline-first", "Bilingual"],
-  },
-  thermidor: {
-    kicker: "Progressive web app",
-    title: "Thermidor",
-    summary: "An AI-augmented calorie tracker: offline-first PWA with modular opt-in features and multi-provider AI chat.",
-    detail: "Thermidor logs nutrition offline and layers in optional AI features on top of a modular UI, talking to multiple AI providers through one interface.",
-    facts: ["TypeScript", "PWA", "Offline-first", "AI chat"],
-  },
-  anafora: {
-    kicker: "Local-AI writing tool",
-    title: "Anafora",
-    summary: "Turns rough notes into a polished document using local AI (Ollama / Krikri) — no server, so the text never leaves the device.",
-    detail: "Anafora runs a local language model over your draft to clean up structure and phrasing while keeping everything on-device. Greek-first, privacy by design.",
-    facts: ["TypeScript", "Local LLM", "Privacy-first", "Zero backend"],
+  el: {
+    axon: {
+      kicker: "Λειτουργικό AI",
+      title: "AXON OSS",
+      summary: "Ένα local-first λειτουργικό σύστημα AI: multi-provider router με RAG, βελτιστοποίηση κόστους και cockpit 25 panel.",
+      detail: "Το AXON δρομολογεί αιτήματα σε local και hosted μοντέλα με failover, κρατά το context στη συσκευή, και τα εκθέτει όλα μέσα από ένα ενιαίο cockpit. Γραμμένο σε TypeScript.",
+      facts: ["TypeScript", "AI router", "RAG", "Local-first"],
+    },
+    anabasis: {
+      kicker: "Progressive web app",
+      title: "Anabasis",
+      summary: "Tracker για weighted calisthenics και skill progressions. Offline-first PWA, strict TypeScript, δίγλωσσο UI.",
+      detail: "Το Anabasis παρακολουθεί progressions δύναμης και μονοπάτια skills εξ ολοκλήρου client-side, δουλεύοντας offline με τοπική αποθήκευση. Live στο anabasis.axonos.dev.",
+      facts: ["TypeScript", "PWA", "Offline-first", "Δίγλωσσο"],
+    },
+    thermidor: {
+      kicker: "Progressive web app",
+      title: "Thermidor",
+      summary: "AI calorie tracker: offline-first PWA με modular opt-in λειτουργίες και multi-provider AI chat.",
+      detail: "Το Thermidor καταγράφει διατροφή offline και προσθέτει προαιρετικές AI λειτουργίες πάνω σε ένα modular UI, μιλώντας σε πολλούς AI providers μέσα από ένα interface.",
+      facts: ["TypeScript", "PWA", "Offline-first", "AI chat"],
+    },
+    anafora: {
+      kicker: "Εργαλείο γραφής με local AI",
+      title: "Anafora",
+      summary: "Μετατρέπει πρόχειρες σημειώσεις σε επίσημο έγγραφο με local AI (Ollama / Krikri) — χωρίς server, το κείμενο δεν φεύγει ποτέ από τη συσκευή.",
+      detail: "Το Anafora τρέχει ένα τοπικό γλωσσικό μοντέλο πάνω στο κείμενό σου για να καθαρίσει δομή και φράση, κρατώντας τα πάντα στη συσκευή. Greek-first, privacy by design.",
+      facts: ["TypeScript", "Local LLM", "Privacy-first", "Zero backend"],
+    },
   },
 };
 
@@ -164,7 +197,7 @@ function CustomCursor() {
 
 function ProjectCard({ repo, index, onOpen, language }: { repo: GitHubRepository; index: number; onOpen: (repo: GitHubRepository) => void; language: Language }) {
   const t = ui[language].project;
-  const story = stories[repo.name.toLowerCase()];
+  const story = storiesByLang[language][repo.name.toLowerCase()];
   const reduced = useReducedMotion();
   const revealFrom = index % 2 === 0 ? 28 : 42;
   const revealTilt = index % 2 === 0 ? -.7 : .7;
@@ -191,7 +224,7 @@ function ProjectDialog({ repo, onClose, language }: { repo: GitHubRepository | n
     return () => { document.body.style.overflow = previousOverflow; window.removeEventListener("keydown", handleKeyDown); };
   }, [repo, onClose]);
   if (!repo) return null;
-  const story = stories[repo.name.toLowerCase()];
+  const story = storiesByLang[language][repo.name.toLowerCase()];
   return <AnimatePresence><motion.div className="modal-backdrop" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={onClose}><motion.section className="project-dialog" role="dialog" aria-modal="true" aria-labelledby="project-title" initial={reduced ? false : { opacity: 0, y: 20, scale: .98 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: 12, scale: .98 }} transition={{ duration: .34, ease: [0.22, 1, 0.36, 1] }} onClick={(event) => event.stopPropagation()}>
     <div className="dialog-head"><span>{story?.kicker ?? (repo.private ? t.privateKicker : t.publicKicker)}</span><button type="button" autoFocus onClick={onClose} aria-label={t.closeDetails}><X size={18} /></button></div>
     <div className="dialog-grid"><div><p className="dialog-code">{t.studyLabel} / {repo.name}</p><h2 id="project-title">{story?.title ?? repo.name}</h2><p className="dialog-summary">{story?.summary ?? repo.description}</p></div><div className="dialog-detail"><p>{story?.detail ?? t.detailFallback}</p><div className="fact-list">{(story?.facts ?? [repo.language ?? t.mixed, repo.private ? t.private : t.public]).map((fact) => <span key={fact}><Check size={13} />{fact}</span>)}</div></div></div>
@@ -287,7 +320,7 @@ function CinematicLoader({ onComplete, language }: { onComplete: () => void; lan
   const reduced = useReducedMotion();
 
   useEffect(() => {
-    const duration = reduced ? 400 : 1800;
+    const duration = reduced ? 300 : 1100;
     const intervalTime = 25;
     const steps = duration / intervalTime;
     const increment = 100 / steps;
@@ -321,14 +354,17 @@ function CinematicLoader({ onComplete, language }: { onComplete: () => void; lan
         <div className="loading-monogram">AF</div>
       </div>
       <div className="loading-bar-wrap"><div className="loading-bar-fill" style={{ width: `${progress}%` }} /></div>
-      <div className="loading-meta"><span>{progress < 70 ? t.calibrating : t.opening}</span><strong>{Math.round(progress)}%</strong></div>
+      <div className="loading-meta"><span>{progress < 70 ? t.calibrating : t.opening}</span></div>
     </div>
     <div className="loading-screen__footer"><span>{t.bottomLeft}</span><span>{t.bottomRight}</span></div>
   </motion.div>;
 }
 
 export default function Home() {
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(() => {
+    if (typeof window === "undefined") return true;
+    return window.sessionStorage.getItem("aggellos-portfolio-loaded") !== "1";
+  });
   const [activeSection, setActiveSection] = useState("home");
   const [language, setLanguage] = useState<Language>(() => {
     if (typeof window === "undefined") return "en";
@@ -346,7 +382,10 @@ export default function Home() {
 
   const reduced = useReducedMotion();
   const { theme, toggleTheme } = useTheme();
-  const completeLoading = useCallback(() => setIsLoading(false), []);
+  const completeLoading = useCallback(() => {
+    if (typeof window !== "undefined") window.sessionStorage.setItem("aggellos-portfolio-loaded", "1");
+    setIsLoading(false);
+  }, []);
   const t = ui[language];
 
   useEffect(() => {
