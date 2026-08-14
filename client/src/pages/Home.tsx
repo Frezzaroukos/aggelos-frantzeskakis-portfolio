@@ -230,8 +230,21 @@ function ContactForm({ language }: { language: Language }) {
       return;
     }
     try {
-      const response = await fetch(FORMSPREE_ENDPOINT, { method: "POST", body: data, headers: { Accept: "application/json" } });
-      if (!response.ok) throw new Error("Formspree request failed");
+      // First route through our backend API validator/forwarder
+      const response = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Accept: "application/json" },
+        body: JSON.stringify({
+          name: name.trim(),
+          email: email, // collected from static context or form
+          subject: finalSubject,
+          message: finalMessage,
+        }),
+      });
+      if (!response.ok) {
+        const errJson = await response.json().catch(() => ({}));
+        throw new Error(errJson.error || "Server validation failed");
+      }
       form.reset();
       setName("");
       setSubject("");
@@ -239,9 +252,26 @@ function ContactForm({ language }: { language: Language }) {
       setTouched({ name: false, subject: false, message: false });
       setStatus("success");
       toast.success(t.successToastTitle, { description: t.successToastDescription, duration: 4600 });
-    } catch {
-      setStatus("error");
-      toast.error(t.error, { duration: 4200 });
+    } catch (err: any) {
+      console.warn("[Contact] Backend API submission failed, attempting direct Formspree or mailto fallback:", err);
+      if (FORMSPREE_ENDPOINT) {
+        try {
+          const directRes = await fetch(FORMSPREE_ENDPOINT, { method: "POST", body: data, headers: { Accept: "application/json" } });
+          if (directRes.ok) {
+            form.reset();
+            setName("");
+            setSubject("");
+            setMessage("");
+            setTouched({ name: false, subject: false, message: false });
+            setStatus("success");
+            toast.success(t.successToastTitle, { description: t.successToastDescription, duration: 4600 });
+            return;
+          }
+        } catch {}
+      }
+      window.location.href = `mailto:${email}?subject=${encodeURIComponent(finalSubject)}&body=${encodeURIComponent(finalMessage)}`;
+      setStatus("success");
+      toast(t.emailOpened, { duration: 3600 });
     }
   };
 

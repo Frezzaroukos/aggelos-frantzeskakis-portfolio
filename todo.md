@@ -73,3 +73,13 @@
 - [x] Add crossfade/stagger transitions when project technology filters change, including reduced-motion behavior and empty state.
 - [x] Extend and validate the reusable cinematic-portfolio skill with these patterns.
 - [ ] Save a checkpoint and push the completed changes.
+
+## Research-Informed UI/UX & Backend Upgrade
+
+- [x] Audit current repository structure, static vs full-stack boundaries, and Git status.
+- [x] Conduct targeted research on high-end developer portfolio UX, accessibility standards, conversion metrics, and secure serverless backend boundaries.
+- [x] Define robust product architecture, backend integration schema, and API boundaries.
+- [x] Implement advanced UI/UX refinements across navigation, projects, interactive previews, and contact flows.
+- [x] Implement secure backend/serverless service definitions and robust fallback mechanisms.
+- [x] Execute rigorous accessibility, performance, and cross-device QA.
+- [x] Document research findings, commit changes, and push to the private GitHub repository.
