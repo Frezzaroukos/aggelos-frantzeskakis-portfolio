@@ -44,7 +44,9 @@ const instagramUrl = "https://www.instagram.com/aggelosfrantzeskakiss?igsh=c2Zld
 const linkedinUrl = import.meta.env.VITE_LINKEDIN_URL || "https://www.linkedin.com/";
 const FORMSPREE_ENDPOINT = import.meta.env.VITE_FORMSPREE_ENDPOINT || "";
 
-const repositories = github.repositories;
+// Exclude learning-exercise, config, and meta repos so the gallery only shows real project work.
+const excludedNames = ["portfolio", "frezzaroukos", "github-chapter-2-contributions", "odin-recipes", "web-dev-projects", "dotfiles-snapshot"];
+const repositories = github.repositories.filter((r) => !excludedNames.includes(r.name.toLowerCase()));
 const curatedNames = ["axon", "anabasis", "thermidor", "anafora"];
 const curatedRepos = curatedNames.map((name) => repositories.find((r) => r.name.toLowerCase() === name)).filter(Boolean) as GitHubRepository[];
 const remainingRepos = repositories.filter((r) => !curatedNames.includes(r.name.toLowerCase()));
@@ -52,32 +54,32 @@ const allGalleryRepos = [...curatedRepos, ...remainingRepos];
 
 const stories: Record<string, { kicker: string; title: string; summary: string; detail: string; facts: string[] }> = {
   axon: {
-    kicker: "Private core system / OSS concept",
+    kicker: "AI operating system",
     title: "AXON OSS",
-    summary: "Local-first AI Operating System with multi-provider routing, RAG, cost optimization, and 4.25-second cold start.",
-    detail: "AXON coordinates asynchronous local models with failover routing. Built to keep context private while orchestrating heavy local intelligence tasks across heterogeneous hardware.",
-    facts: ["TypeScript", "Local AI / RAG", "Multi-provider", "Offline-first"],
+    summary: "A local-first AI operating system: a multi-provider AI router with RAG, cost optimization, and a 25-panel control cockpit.",
+    detail: "AXON routes requests across local and hosted models with failover, keeps context on-device, and exposes everything through a single cockpit UI. Built in TypeScript.",
+    facts: ["TypeScript", "AI router", "RAG", "Local-first"],
   },
   anabasis: {
-    kicker: "Public repository / PWA",
+    kicker: "Progressive web app",
     title: "Anabasis",
-    summary: "A weightless, distraction-free PWA progression headset built around micro-learning routines, bilingual UI, and client-side PWA persistence.",
-    detail: "Anabasis is designed as a focused study companion. It operates entirely client-side with zero latency, providing structured skill paths and responsive offline storage.",
+    summary: "A weighted-calisthenics and skill-progression tracker. Offline-first PWA, strict TypeScript, bilingual UI.",
+    detail: "Anabasis tracks strength progressions and skill paths entirely client-side, working offline with local persistence. Live at anabasis.axonos.dev.",
     facts: ["TypeScript", "PWA", "Offline-first", "Bilingual"],
   },
   thermidor: {
-    kicker: "Public repository / AI tracker",
+    kicker: "Progressive web app",
     title: "Thermidor",
-    summary: "AI-fuel alignment tracker with offline-first persistence, modular split-screen views, charting, and multi-provider AI proxy.",
-    detail: "Thermidor structures complex telemetry and habit data into calm, glanceable metrics without requiring heavy cloud round-trips.",
-    facts: ["TypeScript", "AI proxy", "PWA", "Modular UI"],
+    summary: "An AI-augmented calorie tracker: offline-first PWA with modular opt-in features and multi-provider AI chat.",
+    detail: "Thermidor logs nutrition offline and layers in optional AI features on top of a modular UI, talking to multiple AI providers through one interface.",
+    facts: ["TypeScript", "PWA", "Offline-first", "AI chat"],
   },
   anafora: {
-    kicker: "Public repository / prose tool",
+    kicker: "Local-AI writing tool",
     title: "Anafora",
-    summary: "A focused workspace structured for foreign authors/authors using local AI through Ollama/LM Studio with zero server dependency.",
-    detail: "Anafora bridges raw text workflows with local AI editing assistants. It runs completely offline while preserving precise typographic rhythm.",
-    facts: ["TypeScript", "Local LLM", "Markdown", "Zero backend"],
+    summary: "Turns rough notes into a polished document using local AI (Ollama / Krikri) — no server, so the text never leaves the device.",
+    detail: "Anafora runs a local language model over your draft to clean up structure and phrasing while keeping everything on-device. Greek-first, privacy by design.",
+    facts: ["TypeScript", "Local LLM", "Privacy-first", "Zero backend"],
   },
 };
 
@@ -97,7 +99,7 @@ const skillTools = [
 const stackGroups = [
   { category: "Languages", items: ["TypeScript", "Python", "JavaScript", "HTML"] },
   { category: "Product patterns", items: ["PWA", "Offline-first", "Local-first", "Bilingual UI", "Responsive"] },
-  { category: "AI direction", items: ["Ollama", "RAG", "RPID", "Multi-provider routing", "Local system syntax"] },
+  { category: "AI direction", items: ["Ollama", "RAG", "Local LLM", "Multi-provider routing", "Prompt engineering"] },
 ];
 
 const chapters = [
@@ -167,7 +169,7 @@ function ProjectCard({ repo, index, onOpen, language }: { repo: GitHubRepository
   const revealFrom = index % 2 === 0 ? 28 : 42;
   const revealTilt = index % 2 === 0 ? -.7 : .7;
   return <motion.article className={`project-card project-card--${index + 1} ${repo.private ? "is-private" : ""}`} initial={reduced ? false : { opacity: 0, y: revealFrom, rotate: revealTilt, filter: "blur(6px)" }} whileInView={reduced ? undefined : { opacity: 1, y: 0, rotate: 0, filter: "blur(0px)" }} viewport={{ once: true, amount: .28, margin: "0px 0px -8%" }} transition={reduced ? { duration: 0 } : { duration: .72, delay: (index % 4) * .08, ease: [0.22, 1, 0.36, 1] }} whileHover={reduced ? undefined : { y: -8, rotate: 0 }} whileTap={reduced ? undefined : { scale: .995 }}>
-    <div className="project-card__top"><span>0{String(index + 1).padStart(1, "0")}</span><span className="project-status"><b />{repo.private ? t.private : t.public}</span></div>
+    <div className="project-card__top"><span>{String(index + 1).padStart(2, "0")}</span><span className="project-status"><b />{repo.private ? t.private : t.public}</span></div>
       <button type="button" className="project-card__body" onClick={() => onOpen(repo)} aria-label={`${t.openProjectPrefix} ${repo.name}`}>
       <span className="project-card__name">{repo.name}</span>
       <span className="project-card__description">{story?.summary ?? repo.description ?? t.fallback}</span>
@@ -199,21 +201,24 @@ function ProjectDialog({ repo, onClose, language }: { repo: GitHubRepository | n
 
 function ContactForm({ language }: { language: Language }) {
   const [name, setName] = useState("");
+  const [senderEmail, setSenderEmail] = useState("");
   const [subject, setSubject] = useState("");
   const [message, setMessage] = useState("");
-  const [touched, setTouched] = useState({ name: false, subject: false, message: false });
+  const [touched, setTouched] = useState({ name: false, email: false, subject: false, message: false });
   const [status, setStatus] = useState<"idle" | "sending" | "success" | "error">("idle");
   const t = ui[language].form;
   const reduced = useReducedMotion();
 
+  const emailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(senderEmail.trim());
   const nameError = touched.name && name.trim().length < 2 ? t.nameError : "";
+  const emailError = touched.email && !emailValid ? t.emailError : "";
   const subjectError = touched.subject && subject.trim().length < 3 ? t.subjectError : "";
   const messageError = touched.message && message.trim().length < 10 ? t.messageError : "";
-  const hasErrors = Boolean(nameError || subjectError || messageError || !name.trim() || !subject.trim() || !message.trim());
+  const hasErrors = Boolean(nameError || emailError || subjectError || messageError || !name.trim() || !emailValid || !subject.trim() || !message.trim());
 
   const submit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    setTouched({ name: true, subject: true, message: true });
+    setTouched({ name: true, email: true, subject: true, message: true });
     if (hasErrors) {
       toast.error(language === "el" ? "Παρακαλώ συμπληρώστε σωστά τα πεδία της φόρμας." : "Please check the highlighted form errors.", { duration: 3200 });
       return;
@@ -234,9 +239,10 @@ function ContactForm({ language }: { language: Language }) {
       if (!response.ok) throw new Error("Formspree request failed");
       form.reset();
       setName("");
+      setSenderEmail("");
       setSubject("");
       setMessage("");
-      setTouched({ name: false, subject: false, message: false });
+      setTouched({ name: false, email: false, subject: false, message: false });
       setStatus("success");
       toast.success(t.successToastTitle, { description: t.successToastDescription, duration: 4600 });
     } catch {
@@ -251,6 +257,11 @@ function ContactForm({ language }: { language: Language }) {
       <span>{t.name}</span>
       <input name="name" value={name} onChange={(e) => setName(e.target.value)} onBlur={() => setTouched((s) => ({ ...s, name: true }))} placeholder={t.namePlaceholder} aria-invalid={Boolean(nameError)} />
       <AnimatePresence>{nameError && <motion.span className="form-error" initial={reduced ? false : { opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -4 }} transition={{ duration: .2 }}>{nameError}</motion.span>}</AnimatePresence>
+    </label>
+    <label className={emailError ? "has-error" : ""}>
+      <span>{t.emailLabel}</span>
+      <input name="email" type="email" value={senderEmail} onChange={(e) => setSenderEmail(e.target.value)} onBlur={() => setTouched((s) => ({ ...s, email: true }))} placeholder={t.emailPlaceholder} aria-invalid={Boolean(emailError)} />
+      <AnimatePresence>{emailError && <motion.span className="form-error" initial={reduced ? false : { opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -4 }} transition={{ duration: .2 }}>{emailError}</motion.span>}</AnimatePresence>
     </label>
     <label className={subjectError ? "has-error" : ""}>
       <span>{t.subject}</span>
@@ -489,7 +500,7 @@ export default function Home() {
             <Reveal delay={.16}><p>{t.heroDescription}</p></Reveal>
             <Reveal delay={.22} className="hero-actions">
               <button type="button" className="button button--dark" onClick={() => scrollToSection("work")}>{t.exploreWork} <ArrowDown size={16} /></button>
-              <button type="button" className="text-button" onClick={() => scrollToSection("skills")}>{t.seeSkills} <ChevronRight size={15} /></button>
+              <button type="button" className="text-button" onClick={() => scrollToSection("contact")}>{t.contactLabel} <ChevronRight size={15} /></button>
             </Reveal>
             <div className="hero-signature"><span>{t.nowExploring}</span><strong>{t.heroSignature}</strong></div>
           </div>
@@ -551,7 +562,7 @@ export default function Home() {
           <div id="skills-tools" className="skills-tools">
             <div className="skills-tools__head">
               <div><SectionLabel index="02 / tools">{t.skillsToolsNote}</SectionLabel><Reveal><h3>{t.skillsToolsTitle}<br /><em>{t.skillsToolsAccent}</em></h3></Reveal></div>
-              <Reveal delay={.1} className="skills-tools__aside"><p>{t.skillsToolsDescription}</p><span>Editable after git pull / local AI handoff</span></Reveal>
+              <Reveal delay={.1} className="skills-tools__aside"><p>{t.skillsToolsDescription}</p></Reveal>
             </div>
             <div className="skills-tools__grid">
               {skillTools.map((tool, index) => <Reveal key={t.skillsToolGroupLabels[index]} delay={index * .06} className="skills-tool-card"><span className="skills-tool-card__index">0{index + 1}</span><tool.icon size={19} strokeWidth={1.4} /><h4>{t.skillsToolGroupLabels[index]}</h4><div>{tool.items.map((item) => <span key={item}><i />{item}</span>)}</div></Reveal>)}

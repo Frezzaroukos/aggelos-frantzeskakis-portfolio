@@ -43,8 +43,6 @@ export default function CvPreviewModal({ open, onClose, onDownload, language }: 
           </div>
           <aside className="cv-modal__aside">
             <div className="cv-modal__status"><FileText size={19} /><span>{t.currentDraft}</span><strong>{t.grounded}</strong></div>
-            <p>{t.draftNote}</p>
-            <blockquote>{t.replacementNote}</blockquote>
             <a className="cv-modal__email" href="mailto:aggelosf2016@gmail.com"><Mail size={14} /> {t.confirmDetails}</a>
           </aside>
         </div>
