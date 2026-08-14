@@ -74,6 +74,14 @@
 - [x] Extend and validate the reusable cinematic-portfolio skill with these patterns.
 - [ ] Save a checkpoint and push the completed changes.
 
+## Loader & Contact Reliability Pass — 2026-08-14
+
+- [x] Diagnose and repair the initial cinematic loader lifecycle and visibility.
+- [x] Add an explicit visual processing state to the contact form while /api/contact is pending.
+- [x] Add a custom accessible success animation for completed contact submissions.
+- [x] Audit reduced-motion, mobile layout, error recovery, and duplicate-submit behavior.
+- [x] Run typecheck, production build, browser checks, and save a checkpoint.
+
 ## Research-Informed UI/UX & Backend Upgrade
 
 - [x] Audit current repository structure, static vs full-stack boundaries, and Git status.

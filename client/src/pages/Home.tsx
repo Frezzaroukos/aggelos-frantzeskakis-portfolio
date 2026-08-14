@@ -214,87 +214,102 @@ function ContactForm({ language }: { language: Language }) {
   const submit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setTouched({ name: true, subject: true, message: true });
-    if (hasErrors) {
-      toast.error(language === "el" ? "Παρακαλώ συμπληρώστε σωστά τα πεδία της φόρμας." : "Please check the highlighted form errors.", { duration: 3200 });
+    if (hasErrors || status === "sending") {
+      if (hasErrors) toast.error(language === "el" ? "Παρακαλώ συμπληρώστε σωστά τα πεδία της φόρμας." : "Please check the highlighted form errors.", { duration: 3200 });
       return;
     }
+
     const form = event.currentTarget;
     const data = new FormData(form);
-    const finalSubject = String(data.get("subject") || t.defaultSubject);
-    const finalMessage = String(data.get("message") || "");
+    const finalName = String(data.get("name") || name).trim();
+    const finalSubject = String(data.get("subject") || t.defaultSubject).trim();
+    const finalMessage = String(data.get("message") || message).trim();
+    data.set("email", email);
     setStatus("sending");
-    if (!FORMSPREE_ENDPOINT) {
-      window.location.href = `mailto:${email}?subject=${encodeURIComponent(finalSubject)}&body=${encodeURIComponent(finalMessage)}`;
-      setStatus("success");
-      toast(t.emailOpened, { duration: 3600 });
-      return;
-    }
-    try {
-      // First route through our backend API validator/forwarder
-      const response = await fetch("/api/contact", {
-        method: "POST",
-        headers: { "Content-Type": "application/json", Accept: "application/json" },
-        body: JSON.stringify({
-          name: name.trim(),
-          email: email, // collected from static context or form
-          subject: finalSubject,
-          message: finalMessage,
-        }),
-      });
-      if (!response.ok) {
-        const errJson = await response.json().catch(() => ({}));
-        throw new Error(errJson.error || "Server validation failed");
-      }
+
+    const resetFields = () => {
       form.reset();
       setName("");
       setSubject("");
       setMessage("");
       setTouched({ name: false, subject: false, message: false });
+    };
+
+    const markSuccess = (description: string) => {
+      resetFields();
       setStatus("success");
-      toast.success(t.successToastTitle, { description: t.successToastDescription, duration: 4600 });
-    } catch (err: any) {
-      console.warn("[Contact] Backend API submission failed, attempting direct Formspree or mailto fallback:", err);
+      toast.success(t.successToastTitle, { description, duration: 4600 });
+    };
+
+    try {
+      const controller = new AbortController();
+      const timeoutId = window.setTimeout(() => controller.abort(), 12000);
+      let response: Response;
+      try {
+        response = await fetch("/api/contact", {
+          method: "POST",
+          headers: { "Content-Type": "application/json", Accept: "application/json" },
+          body: JSON.stringify({ name: finalName, email, subject: finalSubject, message: finalMessage }),
+          signal: controller.signal,
+        });
+      } finally {
+        window.clearTimeout(timeoutId);
+      }
+      const result = await response.json().catch(() => ({}));
+      if (!response.ok || result.success === false) throw new Error(result.error || "Server validation failed");
+      markSuccess(t.successToastDescription);
+    } catch (error) {
+      console.warn("[Contact] Backend API submission failed; attempting configured delivery fallback.", error);
       if (FORMSPREE_ENDPOINT) {
         try {
           const directRes = await fetch(FORMSPREE_ENDPOINT, { method: "POST", body: data, headers: { Accept: "application/json" } });
           if (directRes.ok) {
-            form.reset();
-            setName("");
-            setSubject("");
-            setMessage("");
-            setTouched({ name: false, subject: false, message: false });
-            setStatus("success");
-            toast.success(t.successToastTitle, { description: t.successToastDescription, duration: 4600 });
+            markSuccess(t.successToastDescription);
             return;
           }
-        } catch {}
+        } catch (fallbackError) {
+          console.warn("[Contact] Direct Formspree fallback failed.", fallbackError);
+        }
       }
       window.location.href = `mailto:${email}?subject=${encodeURIComponent(finalSubject)}&body=${encodeURIComponent(finalMessage)}`;
+      resetFields();
       setStatus("success");
       toast(t.emailOpened, { duration: 3600 });
     }
   };
 
-  const notice = status === "sending" ? t.sending : status === "success" ? (FORMSPREE_ENDPOINT ? t.sent : t.emailOpened) : status === "error" ? t.error : FORMSPREE_ENDPOINT ? t.active : t.fallback;
-  return <form className="contact-form" onSubmit={submit} noValidate>
+  const notice = status === "sending" ? t.sending : status === "success" ? t.sent : status === "error" ? t.error : FORMSPREE_ENDPOINT ? t.active : t.fallback;
+  const clearStatusOnEdit = () => { if (status !== "sending") setStatus("idle"); };
+  return <form className={`contact-form contact-form--${status}`} onSubmit={submit} noValidate aria-busy={status === "sending"}>
     <label className={nameError ? "has-error" : ""}>
       <span>{t.name}</span>
-      <input name="name" value={name} onChange={(e) => setName(e.target.value)} onBlur={() => setTouched((s) => ({ ...s, name: true }))} placeholder={t.namePlaceholder} aria-invalid={Boolean(nameError)} />
+      <input name="name" value={name} disabled={status === "sending"} onChange={(e) => { clearStatusOnEdit(); setName(e.target.value); }} onBlur={() => setTouched((s) => ({ ...s, name: true }))} placeholder={t.namePlaceholder} aria-invalid={Boolean(nameError)} autoComplete="name" />
       <AnimatePresence>{nameError && <motion.span className="form-error" initial={reduced ? false : { opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -4 }} transition={{ duration: .2 }}>{nameError}</motion.span>}</AnimatePresence>
     </label>
     <label className={subjectError ? "has-error" : ""}>
       <span>{t.subject}</span>
-      <input name="subject" value={subject} onChange={(e) => setSubject(e.target.value)} onBlur={() => setTouched((s) => ({ ...s, subject: true }))} placeholder={t.subjectPlaceholder} aria-invalid={Boolean(subjectError)} />
+      <input name="subject" value={subject} disabled={status === "sending"} onChange={(e) => { clearStatusOnEdit(); setSubject(e.target.value); }} onBlur={() => setTouched((s) => ({ ...s, subject: true }))} placeholder={t.subjectPlaceholder} aria-invalid={Boolean(subjectError)} />
       <AnimatePresence>{subjectError && <motion.span className="form-error" initial={reduced ? false : { opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -4 }} transition={{ duration: .2 }}>{subjectError}</motion.span>}</AnimatePresence>
     </label>
     <label className={`contact-form__wide ${messageError ? "has-error" : ""}`}>
       <span>{t.message}</span>
-      <textarea name="message" value={message} onChange={(e) => setMessage(e.target.value)} onBlur={() => setTouched((s) => ({ ...s, message: true }))} rows={4} placeholder={t.messagePlaceholder} aria-invalid={Boolean(messageError)} />
+      <textarea name="message" value={message} disabled={status === "sending"} onChange={(e) => { clearStatusOnEdit(); setMessage(e.target.value); }} onBlur={() => setTouched((s) => ({ ...s, message: true }))} rows={4} placeholder={t.messagePlaceholder} aria-invalid={Boolean(messageError)} autoComplete="off" />
       <AnimatePresence>{messageError && <motion.span className="form-error" initial={reduced ? false : { opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -4 }} transition={{ duration: .2 }}>{messageError}</motion.span>}</AnimatePresence>
     </label>
     <div className="contact-form__submit">
-      <span className={status === "error" ? "is-error" : status === "success" ? "is-success" : ""} role="status" aria-live="polite">{notice}</span>
-      <button className="button button--dark" type="submit" disabled={status === "sending"}>{status === "sending" ? t.sending : t.compose} <Send size={15} /></button>
+      <AnimatePresence mode="wait" initial={false}>
+        <motion.span key={status} className={`contact-form__status ${status === "error" ? "is-error" : status === "success" ? "is-success" : ""}`} role="status" aria-live="polite" initial={reduced ? false : { opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} exit={reduced ? undefined : { opacity: 0, y: -5 }} transition={{ duration: reduced ? 0 : .24 }}>
+          {status === "sending" && <span className="contact-form__loader" aria-hidden="true"><i /></span>}
+          {status === "success" && <span className="contact-form__success-mark" aria-hidden="true"><Check size={15} strokeWidth={2.4} /></span>}
+          <span>{notice}</span>
+        </motion.span>
+      </AnimatePresence>
+      <motion.button className="button button--dark" type="submit" disabled={status === "sending"} aria-busy={status === "sending"} whileTap={reduced ? undefined : { scale: .98 }}>
+        <AnimatePresence mode="wait" initial={false}>
+          <motion.span key={status === "sending" ? "sending" : "compose"} initial={reduced ? false : { opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }} exit={reduced ? undefined : { opacity: 0, y: -4 }} transition={{ duration: reduced ? 0 : .18 }}>{status === "sending" ? t.sending : t.compose}</motion.span>
+        </AnimatePresence>
+        {status === "sending" ? <span className="button-spinner" aria-hidden="true" /> : <Send size={15} />}
+      </motion.button>
     </div>
   </form>;
 }
@@ -306,43 +321,55 @@ function CinematicLoader({ onComplete, language }: { onComplete: () => void; lan
   const reduced = useReducedMotion();
 
   useEffect(() => {
-    const duration = reduced ? 400 : 1800;
-    const intervalTime = 25;
-    const steps = duration / intervalTime;
-    const increment = 100 / steps;
+    let frameId = 0;
+    let exitTimer = 0;
+    let completeTimer = 0;
+    let completed = false;
+    const startedAt = window.performance.now();
+    const duration = reduced ? 260 : 1700;
 
-    const timer = window.setInterval(() => {
-      setProgress((prev) => {
-        const next = prev + increment;
-        if (next >= 100) {
-          window.clearInterval(timer);
-          window.setTimeout(() => {
-            setExiting(true);
-            window.setTimeout(onComplete, reduced ? 100 : 720);
-          }, 180);
-          return 100;
-        }
-        return next;
-      });
-    }, intervalTime);
+    const tick = (now: number) => {
+      const ratio = Math.min(1, (now - startedAt) / duration);
+      const eased = 1 - Math.pow(1 - ratio, 3);
+      setProgress(Math.round(eased * 100));
+      if (ratio >= 1) {
+        if (completed) return;
+        completed = true;
+        completeTimer = window.setTimeout(() => {
+          setExiting(true);
+          exitTimer = window.setTimeout(onComplete, reduced ? 90 : 620);
+        }, reduced ? 30 : 180);
+        return;
+      }
+      frameId = window.requestAnimationFrame(tick);
+    };
 
-    return () => window.clearInterval(timer);
+    frameId = window.requestAnimationFrame(tick);
+    return () => {
+      window.cancelAnimationFrame(frameId);
+      window.clearTimeout(completeTimer);
+      window.clearTimeout(exitTimer);
+    };
   }, [onComplete, reduced]);
 
-  return <motion.div className={`loading-screen ${exiting ? "is-exiting" : ""}`} role="region" aria-label={t.aria} initial={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: .65, ease: [0.22, 1, 0.36, 1] }}>
-    <div className="loading-screen__header"><span>{t.topLeft}</span><strong>{t.topRight}</strong></div>
-    <div className="loading-screen__center">
-      <div className="loading-pegasus-stage">
-        <div className="loading-orbit loading-orbit--outer" />
-        <div className="loading-orbit loading-orbit--inner" />
-        <div className="loading-trace" />
-        <img src="/assets/pegasus.webp" alt="Pegasus flight study" />
-        <div className="loading-monogram">AF</div>
-      </div>
-      <div className="loading-bar-wrap"><div className="loading-bar-fill" style={{ width: `${progress}%` }} /></div>
-      <div className="loading-meta"><span>{progress < 70 ? t.calibrating : t.opening}</span><strong>{Math.round(progress)}%</strong></div>
+  return <motion.div className={`loading-screen ${exiting ? "is-exiting" : ""}`} role="dialog" aria-modal="true" aria-label={t.aria} initial={{ opacity: 1 }} exit={{ opacity: 0, scale: 1.02, filter: "blur(8px)" }} transition={{ duration: reduced ? .12 : .65, ease: [0.22, 1, 0.36, 1] }}>
+    <div className="loading-screen__grid" aria-hidden="true" />
+    <div className="loading-screen__top"><span>{t.topLeft}</span><strong>{t.topRight}</strong></div>
+    <div className="loading-screen__signal" aria-hidden="true"><i /><span>{progress < 70 ? t.signalCalibrating : t.signalOpening}</span></div>
+    <div className="loading-screen__stage" aria-hidden="true">
+      <div className="loading-screen__orbit loading-screen__orbit--outer" />
+      <div className="loading-screen__orbit loading-screen__orbit--inner" />
+      <div className="loading-screen__orbit loading-screen__orbit--trace" />
+      <img className="loading-screen__pegasus" src="/assets/pegasus.webp" alt="" />
     </div>
-    <div className="loading-screen__footer"><span>{t.bottomLeft}</span><span>{t.bottomRight}</span></div>
+    <div className="loading-screen__center">
+      <div className="loading-screen__monogram" aria-hidden="true"><span>A</span><span>F</span></div>
+      <p className="loading-screen__name">Aggelos</p>
+      <p className="loading-screen__sub">Frantzeskakis / digital craft</p>
+      <div className="loading-screen__progress" role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(progress)} aria-label={t.aria}><span style={{ width: `${progress}%` }} /></div>
+      <div className="loading-screen__status"><span>{progress < 70 ? t.calibrating : t.opening}</span><strong>{Math.round(progress)}%</strong></div>
+    </div>
+    <div className="loading-screen__bottom"><span>{t.bottomLeft}</span><span>{t.bottomRight}</span></div>
   </motion.div>;
 }
 
@@ -377,7 +404,6 @@ export default function Home() {
     const handleScroll = () => {
       const st = window.scrollY;
       setShowBackToTop(st > 550);
-      setScrollDirection(st > window.scrollY ? "down" : "down");
       const sections = chapters.map((c) => document.getElementById(c.id)).filter(Boolean) as HTMLElement[];
       const current = sections.find((sec) => {
         const rect = sec.getBoundingClientRect();

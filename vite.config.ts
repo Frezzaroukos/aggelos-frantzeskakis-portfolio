@@ -5,6 +5,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { defineConfig, type Plugin, type ViteDevServer } from "vite";
 import { vitePluginManusRuntime } from "vite-plugin-manus-runtime";
+import { processContactSubmission } from "./server/api";
 
 // =============================================================================
 // Manus Debug Collector - Vite Plugin
@@ -74,6 +75,50 @@ function writeToLogFile(source: LogSource, entries: unknown[]) {
  * - Files: browserConsole.log, networkRequests.log, sessionReplay.log
  * - Auto-trimmed when exceeding 1MB (keeps newest entries)
  */
+function vitePluginPortfolioApi(): Plugin {
+  return {
+    name: "portfolio-api",
+    apply: "serve",
+    configureServer(server: ViteDevServer) {
+      server.middlewares.use("/api/contact", async (req, res, next) => {
+        if (req.method !== "POST") return next();
+        let raw = "";
+        let size = 0;
+        req.on("data", (chunk) => {
+          size += Buffer.byteLength(chunk);
+          if (size <= 128 * 1024) raw += chunk.toString();
+        });
+        req.on("end", async () => {
+          if (size > 128 * 1024) {
+            res.statusCode = 413;
+            res.setHeader("Content-Type", "application/json");
+            res.end(JSON.stringify({ error: "Request payload is too large." }));
+            return;
+          }
+          try {
+            const payload = raw ? JSON.parse(raw) : {};
+            const result = await processContactSubmission(payload, String(req.headers["user-agent"] || "unknown"));
+            res.statusCode = result.status;
+            res.setHeader("Content-Type", "application/json");
+            res.setHeader("Cache-Control", "no-store");
+            res.end(JSON.stringify(result.body));
+          } catch {
+            res.statusCode = 400;
+            res.setHeader("Content-Type", "application/json");
+            res.end(JSON.stringify({ error: "Invalid JSON request body." }));
+          }
+        });
+      });
+      server.middlewares.use("/api/health", (req, res, next) => {
+        if (req.method !== "GET") return next();
+        res.statusCode = 200;
+        res.setHeader("Content-Type", "application/json");
+        res.end(JSON.stringify({ status: "healthy", timestamp: new Date().toISOString(), service: "pegasus-portfolio-vite" }));
+      });
+    },
+  };
+}
+
 function vitePluginManusDebugCollector(): Plugin {
   return {
     name: "manus-debug-collector",
@@ -148,7 +193,7 @@ function vitePluginManusDebugCollector(): Plugin {
   };
 }
 
-const plugins = [react(), tailwindcss(), jsxLocPlugin(), vitePluginManusRuntime(), vitePluginManusDebugCollector()];
+const plugins = [react(), tailwindcss(), jsxLocPlugin(), vitePluginManusRuntime(), vitePluginPortfolioApi(), vitePluginManusDebugCollector()];
 
 export default defineConfig({
   plugins,
