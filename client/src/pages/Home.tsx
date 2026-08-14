@@ -104,6 +104,7 @@ const chapters = [
   { id: "home", label: "Arrival" },
   { id: "work", label: "Work" },
   { id: "skills", label: "Skills" },
+  { id: "ai-space", label: "Infinite AI Space" },
   { id: "stack", label: "Stack" },
   { id: "about", label: "Profile" },
   { id: "contact", label: "Contact" },
@@ -613,6 +614,25 @@ export default function Home() {
               {skillTools.map((tool, index) => <Reveal key={t.skillsToolGroupLabels[index]} delay={index * .06} className="skills-tool-card"><span className="skills-tool-card__index">0{index + 1}</span><tool.icon size={19} strokeWidth={1.4} /><h4>{t.skillsToolGroupLabels[index]}</h4><div>{tool.items.map((item) => <span key={item}><i />{item}</span>)}</div></Reveal>)}
             </div>
           </div>
+        </div>
+      </section>
+
+      <section id="ai-space" className="panel panel--ai-space">
+        <div className="panel-inner">
+          <div className="ai-space-hero">
+            <div className="ai-space-hero__copy">
+              <SectionLabel index="03">{t.aiSpaceLabel}</SectionLabel>
+              <Reveal><h2>{t.aiSpaceTitle}<br /><em>{t.aiSpaceAccent}</em></h2></Reveal>
+              <Reveal delay={.1}><p>{t.aiSpaceDescription}</p></Reveal>
+              <div className="ai-space-hero__meta"><span>01 / multi-model practice</span><span>human direction · infinite outcomes</span></div>
+            </div>
+            <div className="ai-space-hero__mark"><img src="/assets/infinite-creative-ai-space-logo.svg" alt="" /><span>IC / AI / ∞</span></div>
+          </div>
+          <div className="ai-space-banner"><img src="/assets/infinite-creative-ai-space-banner.svg" alt="" /></div>
+          <div className="ai-space-grid">
+            {t.aiSpaceCategories.map((category, index) => <Reveal key={category.name} delay={index * .05} className="ai-space-card"><span className="ai-space-card__index">0{index + 1}</span><h3>{category.name}</h3><p>{category.description}</p><div>{category.items.map((item) => <span key={item}><i />{item}</span>)}</div></Reveal>)}
+          </div>
+          <div className="ai-space-manifesto"><span className="ai-space-manifesto__quote">“{t.aiSpaceQuote}”</span><p>{t.aiSpaceManifesto}</p><a href="/BRAND-INFINITE-CREATIVE-AI-SPACE.md" target="_blank" rel="noreferrer">{t.aiSpaceReadManifesto} <ArrowUpRight size={13} /></a></div>
         </div>
       </section>
 
