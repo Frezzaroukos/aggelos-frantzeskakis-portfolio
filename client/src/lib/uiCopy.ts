@@ -52,7 +52,6 @@ export const ui = {
     aiSpaceAccent: "more dimensions.",
     aiSpaceDescription: "A cross-model creative studio for restoration, visual transformation, cinematic worlds, and finished artefacts. Different tools, one deliberate point of view.",
     aiSpaceQuote: "We do not ask AI to replace imagination. We ask it to stretch the frame.",
-    aiSpaceManifesto: "Every image begins as a signal and becomes a deliverable through direction, curation, and deliberate craft.",
     aiSpaceReadManifesto: "Read the manifesto",
     aiSpaceCategories: [
       { name: "Signal Room", description: "The starting point: briefs, references, and visual direction before the first generation.", items: ["Prompts", "References", "Art direction"] },
@@ -146,7 +145,6 @@ export const ui = {
     aiSpaceAccent: "περισσότερες διαστάσεις.",
     aiSpaceDescription: "Ένα cross-model creative studio για restoration, οπτικούς μετασχηματισμούς, κινηματογραφικούς κόσμους και ολοκληρωμένα artefacts. Διαφορετικά εργαλεία, μία συνειδητή οπτική.",
     aiSpaceQuote: "Δεν ζητάμε από το AI να αντικαταστήσει τη φαντασία. Του ζητάμε να ανοίξει το κάδρο.",
-    aiSpaceManifesto: "Κάθε εικόνα ξεκινά ως σήμα και γίνεται παραδοτέο μέσα από κατεύθυνση, επιμέλεια και συνειδητή δημιουργική εργασία.",
     aiSpaceReadManifesto: "Διάβασε το manifesto",
     aiSpaceCategories: [
       { name: "Signal Room", description: "Η αφετηρία: briefs, references και visual direction πριν από το πρώτο generation.", items: ["Prompts", "References", "Art direction"] },
