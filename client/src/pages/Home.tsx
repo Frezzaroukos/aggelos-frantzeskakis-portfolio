@@ -44,7 +44,9 @@ const instagramUrl = "https://www.instagram.com/aggelosfrantzeskakiss?igsh=c2Zld
 const linkedinUrl = import.meta.env.VITE_LINKEDIN_URL || "https://www.linkedin.com/";
 const FORMSPREE_ENDPOINT = import.meta.env.VITE_FORMSPREE_ENDPOINT || "";
 
-const repositories = github.repositories;
+// Exclude meta/config, learning-exercise, and removed repos so the gallery only shows real project work.
+const excludedNames = ["portfolio", "frezzaroukos", "github-chapter-2-contributions", "dotfiles-snapshot", "odin-recipes", "web-dev-projects", "strength-atlas", "warrior-tracker", "mybizbot-ai"];
+const repositories = github.repositories.filter((r) => !excludedNames.includes(r.name.toLowerCase()));
 const curatedNames = ["axon", "anabasis", "thermidor", "anafora"];
 const curatedRepos = curatedNames.map((name) => repositories.find((r) => r.name.toLowerCase() === name)).filter(Boolean) as GitHubRepository[];
 const remainingRepos = repositories.filter((r) => !curatedNames.includes(r.name.toLowerCase()));

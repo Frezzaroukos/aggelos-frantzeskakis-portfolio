@@ -155,7 +155,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visib
 .panel--hero { min-height: 100vh; }
 .hero-panel { display: grid; grid-template-columns: .9fr 1.1fr; align-items: center; gap: 4vw; width: 100%; }
 .eyebrow, .section-label { display: inline-flex; align-items: center; gap: 10px; color: var(--muted-foreground); font: 9px 'DM Mono', monospace; letter-spacing: .1em; text-transform: uppercase; }
-.hero-panel h1 { max-width: 720px; margin: 28px 0 0; font: 500 clamp(4.2rem, 7.8vw, 8.5rem)/.86 'Playfair Display', serif; letter-spacing: -.08em; }
+.hero-panel h1 { max-width: 720px; min-height: 1.72em; margin: 28px 0 0; font: 500 clamp(4.2rem, 7.8vw, 8.5rem)/.86 'Playfair Display', serif; letter-spacing: -.08em; }
 .hero-panel h1 em, .panel h2 em { color: var(--accent); font-style: italic; }
 .hero-panel__copy > p { max-width: 480px; margin: 32px 0 0; color: var(--muted-foreground); font-size: 13px; line-height: 1.85; }
 .hero-actions { display: flex; align-items: center; gap: 22px; margin-top: 32px; }
@@ -428,6 +428,8 @@ button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visib
   .menu-button { display: inline-flex !important; }
   .panel-inner { width: calc(100vw - 48px); }
   .hero-panel, .skills-layout, .about-layout, .contact-grid { grid-template-columns: 1fr; gap: 32px; }
+  /* Reserve height for the tallest headline (EL wraps to 4 lines, EN to 3) so switching language doesn't shift the layout. */
+  .hero-panel h1 { min-height: 3.44em; }
   .hero-visual__scene { width: 100%; height: min(450px, 92vw); min-height: 330px; }
   .hero-visual img { width: min(122%, 560px); max-width: none; }
   .hero-visual__orbit { width: 82vw; height: 82vw; max-width: 430px; max-height: 430px; }
