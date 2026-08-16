@@ -45,7 +45,7 @@ const linkedinUrl = import.meta.env.VITE_LINKEDIN_URL || "https://www.linkedin.c
 const FORMSPREE_ENDPOINT = import.meta.env.VITE_FORMSPREE_ENDPOINT || "";
 
 // Exclude learning-exercise, config, and meta repos so the gallery only shows real project work.
-const excludedNames = ["portfolio", "frezzaroukos", "github-chapter-2-contributions", "odin-recipes", "web-dev-projects", "dotfiles-snapshot"];
+const excludedNames = ["portfolio", "frezzaroukos", "github-chapter-2-contributions", "odin-recipes", "web-dev-projects", "dotfiles-snapshot", "strength-atlas", "warrior-tracker", "mybizbot-ai"];
 const repositories = github.repositories.filter((r) => !excludedNames.includes(r.name.toLowerCase()));
 const curatedNames = ["axon", "anabasis", "thermidor", "anafora"];
 const curatedRepos = curatedNames.map((name) => repositories.find((r) => r.name.toLowerCase() === name)).filter(Boolean) as GitHubRepository[];
