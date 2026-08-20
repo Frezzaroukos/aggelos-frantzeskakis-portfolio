@@ -44,42 +44,151 @@ const instagramUrl = "https://www.instagram.com/aggelosfrantzeskakiss?igsh=c2Zld
 const linkedinUrl = import.meta.env.VITE_LINKEDIN_URL || "https://www.linkedin.com/";
 const FORMSPREE_ENDPOINT = import.meta.env.VITE_FORMSPREE_ENDPOINT || "";
 
-// Exclude meta/config, learning-exercise, and removed repos so the gallery only shows real project work.
-const excludedNames = ["portfolio", "frezzaroukos", "github-chapter-2-contributions", "dotfiles-snapshot", "odin-recipes", "web-dev-projects", "strength-atlas", "warrior-tracker", "mybizbot-ai"];
-const repositories = github.repositories.filter((r) => !excludedNames.includes(r.name.toLowerCase()));
-const curatedNames = ["axon", "anabasis", "thermidor", "anafora"];
-const curatedRepos = curatedNames.map((name) => repositories.find((r) => r.name.toLowerCase() === name)).filter(Boolean) as GitHubRepository[];
-const remainingRepos = repositories.filter((r) => !curatedNames.includes(r.name.toLowerCase()));
-const allGalleryRepos = [...curatedRepos, ...remainingRepos];
+// The gallery shows only work that can be shown: a live demo, a public repository, or a system in daily use.
+// Everything else (learning exercises, config repos, unfinished or client-confidential work) stays off the page.
+const curatedNames = ["axon-booking", "axon", "anabasis", "anafora", "thermidor"];
 
-const stories: Record<string, { kicker: string; title: string; summary: string; detail: string; facts: string[] }> = {
-  axon: {
-    kicker: "Private core system / OSS concept",
-    title: "AXON OSS",
-    summary: "Local-first AI Operating System with multi-provider routing, RAG, cost optimization, and 4.25-second cold start.",
-    detail: "AXON coordinates asynchronous local models with failover routing. Built to keep context private while orchestrating heavy local intelligence tasks across heterogeneous hardware.",
-    facts: ["TypeScript", "Local AI / RAG", "Multi-provider", "Offline-first"],
+// Client platform: private source, public live demo. Not a GitHub repository, so it is declared here.
+const bookingProject: GitHubRepository = {
+  name: "axon-booking",
+  description: null,
+  html_url: "https://axonos.dev/book/block-barbers",
+  homepage: "https://axonos.dev/book/block-barbers",
+  language: "TypeScript",
+  stars: 0,
+  forks: 0,
+  private: true,
+};
+
+const repositories = [bookingProject, ...github.repositories];
+const allGalleryRepos = curatedNames
+  .map((name) => repositories.find((r) => r.name.toLowerCase() === name))
+  .filter(Boolean) as GitHubRepository[];
+
+// Filter buckets, keyed by project. Kept out of the copy layer so both languages share them.
+const projectTags: Record<string, readonly string[]> = {
+  "axon-booking": ["client"],
+  axon: ["ai"],
+  anabasis: ["offline"],
+  anafora: ["ai", "offline"],
+  thermidor: ["ai", "offline"],
+};
+
+type ProjectStory = {
+  kicker: string;
+  title: string;
+  summary: string;
+  detail: string;
+  facts: string[];
+  badge: string;
+  linkLabel: string;
+  sourceNote: string;
+};
+
+const stories: Record<Language, Record<string, ProjectStory>> = {
+  en: {
+    "axon-booking": {
+      kicker: "Client platform / live demo",
+      title: "Booking platform",
+      summary: "A complete booking system for appointment businesses: public booking page, admin panel with five views, multiple staff members, email confirmations and a waitlist.",
+      detail: "Built once as a real product, then configured per business — services, hours, staff, palette. The owner gets an admin panel that works from a phone; the customer books in under a minute without creating an account. The link opens a working demo you can click through.",
+      facts: ["Multiple staff", "Email confirmations", "Waitlist", "Phone-friendly admin"],
+      badge: "Live",
+      linkLabel: "Open the live demo",
+      sourceNote: "Client source stays private",
+    },
+    axon: {
+      kicker: "The system I build with",
+      title: "AXON",
+      summary: "A local-first AI system: multi-provider routing, RAG, cost control, and a cockpit for running long jobs across local and hosted models.",
+      detail: "AXON is the workshop, not the product. It sends each job to whichever model is cheapest or most private for that job, keeps context on my own machine, and is the reason one person can deliver work that normally needs a team.",
+      facts: ["TypeScript", "Local AI / RAG", "Multi-provider routing", "Runs on my own hardware"],
+      badge: "Private",
+      linkLabel: "Open on GitHub",
+      sourceNote: "Private source",
+    },
+    anabasis: {
+      kicker: "Public repository / live",
+      title: "Anabasis",
+      summary: "Weighted calisthenics and skill-progression tracker. Offline-first PWA, strict TypeScript, bilingual, running entirely on the device.",
+      detail: "Built for training that happens in a gym with no signal. Everything is stored locally in IndexedDB and works with the phone in airplane mode, then stays in sync when it reconnects.",
+      facts: ["TypeScript", "PWA", "Offline-first", "Bilingual"],
+      badge: "Live",
+      linkLabel: "Open anabasis.axonos.dev",
+      sourceNote: "Source on GitHub",
+    },
+    anafora: {
+      kicker: "Public repository / local AI",
+      title: "Anafora",
+      summary: "Rough notes into a finished document. Runs local AI through Ollama with no server, so the text never leaves the device.",
+      detail: "Written in Greek, for Greek paperwork. Useful exactly where cloud AI is not an option: lawyers, accountants, anyone handling documents that cannot be uploaded anywhere.",
+      facts: ["TypeScript", "Local LLM / Ollama", "Greek-first", "No backend"],
+      badge: "Public",
+      linkLabel: "Open on GitHub",
+      sourceNote: "Source on GitHub",
+    },
+    thermidor: {
+      kicker: "Public repository / AI tracker",
+      title: "Thermidor",
+      summary: "AI-assisted calorie tracker. Offline-first PWA with opt-in modules, charts, and a multi-provider AI chat proxy.",
+      detail: "Everything past the basics is opt-in, so the app stays small for people who only want to log meals. The AI layer talks to several providers behind one interface and can be switched off entirely.",
+      facts: ["TypeScript", "PWA", "IndexedDB", "Multi-provider AI"],
+      badge: "Public",
+      linkLabel: "Open on GitHub",
+      sourceNote: "Source on GitHub",
+    },
   },
-  anabasis: {
-    kicker: "Public repository / PWA",
-    title: "Anabasis",
-    summary: "A weightless, distraction-free PWA progression headset built around micro-learning routines, bilingual UI, and client-side PWA persistence.",
-    detail: "Anabasis is designed as a focused study companion. It operates entirely client-side with zero latency, providing structured skill paths and responsive offline storage.",
-    facts: ["TypeScript", "PWA", "Offline-first", "Bilingual"],
-  },
-  thermidor: {
-    kicker: "Public repository / AI tracker",
-    title: "Thermidor",
-    summary: "AI-fuel alignment tracker with offline-first persistence, modular split-screen views, charting, and multi-provider AI proxy.",
-    detail: "Thermidor structures complex telemetry and habit data into calm, glanceable metrics without requiring heavy cloud round-trips.",
-    facts: ["TypeScript", "AI proxy", "PWA", "Modular UI"],
-  },
-  anafora: {
-    kicker: "Public repository / prose tool",
-    title: "Anafora",
-    summary: "A focused workspace structured for foreign authors/authors using local AI through Ollama/LM Studio with zero server dependency.",
-    detail: "Anafora bridges raw text workflows with local AI editing assistants. It runs completely offline while preserving precise typographic rhythm.",
-    facts: ["TypeScript", "Local LLM", "Markdown", "Zero backend"],
+  el: {
+    "axon-booking": {
+      kicker: "Πλατφόρμα πελάτη / live demo",
+      title: "Πλατφόρμα κρατήσεων",
+      summary: "Ολοκληρωμένο σύστημα κρατήσεων για επιχειρήσεις με ραντεβού: δημόσια σελίδα κράτησης, admin panel με πέντε προβολές, πολλαπλοί συνεργάτες, email επιβεβαίωσης και λίστα αναμονής.",
+      detail: "Χτίστηκε μία φορά ως πραγματικό προϊόν και μετά ρυθμίζεται ανά επιχείρηση — υπηρεσίες, ωράριο, προσωπικό, χρώματα. Ο ιδιοκτήτης παίρνει admin panel που δουλεύει από κινητό· ο πελάτης κλείνει ραντεβού σε λιγότερο από ένα λεπτό, χωρίς λογαριασμό. Ο σύνδεσμος ανοίγει demo που μπορείς να δοκιμάσεις.",
+      facts: ["Πολλοί συνεργάτες", "Email επιβεβαίωσης", "Λίστα αναμονής", "Admin από κινητό"],
+      badge: "Live",
+      linkLabel: "Άνοιξε το live demo",
+      sourceNote: "Ο κώδικας του πελάτη μένει ιδιωτικός",
+    },
+    axon: {
+      kicker: "Το σύστημα με το οποίο χτίζω",
+      title: "AXON",
+      summary: "Local-first AI σύστημα: multi-provider routing, RAG, έλεγχος κόστους και cockpit για μεγάλες εργασίες σε τοπικά και cloud μοντέλα.",
+      detail: "Το AXON είναι το εργαστήριο, όχι το προϊόν. Στέλνει κάθε εργασία στο μοντέλο που είναι φθηνότερο ή πιο ιδιωτικό γι' αυτήν, κρατάει το context στο δικό μου μηχάνημα, και είναι ο λόγος που ένας άνθρωπος παραδίδει δουλειά που κανονικά θέλει ομάδα.",
+      facts: ["TypeScript", "Τοπικό AI / RAG", "Multi-provider routing", "Τρέχει στο δικό μου hardware"],
+      badge: "Ιδιωτικό",
+      linkLabel: "Άνοιγμα στο GitHub",
+      sourceNote: "Ιδιωτικός κώδικας",
+    },
+    anabasis: {
+      kicker: "Δημόσιο repository / live",
+      title: "Anabasis",
+      summary: "Tracker για weighted calisthenics και εξέλιξη σε skills. Offline-first PWA, strict TypeScript, δίγλωσσο, τρέχει εξ ολοκλήρου στη συσκευή.",
+      detail: "Φτιαγμένο για προπόνηση σε γυμναστήριο χωρίς σήμα. Όλα αποθηκεύονται τοπικά σε IndexedDB και δουλεύουν με το κινητό σε λειτουργία πτήσης, και συγχρονίζονται όταν επανέλθει το δίκτυο.",
+      facts: ["TypeScript", "PWA", "Offline-first", "Δίγλωσσο"],
+      badge: "Live",
+      linkLabel: "Άνοιξε το anabasis.axonos.dev",
+      sourceNote: "Ο κώδικας είναι στο GitHub",
+    },
+    anafora: {
+      kicker: "Δημόσιο repository / τοπικό AI",
+      title: "Anafora",
+      summary: "Πρόχειρες σημειώσεις σε επίσημο έγγραφο. Τρέχει τοπικό AI μέσω Ollama χωρίς server, οπότε το κείμενο δεν φεύγει ποτέ από τη συσκευή.",
+      detail: "Γραμμένο στα ελληνικά, για ελληνικά χαρτιά. Χρήσιμο ακριβώς εκεί που το cloud AI δεν είναι επιλογή: δικηγόροι, λογιστές, όποιος χειρίζεται έγγραφα που δεν ανεβαίνουν πουθενά.",
+      facts: ["TypeScript", "Τοπικό LLM / Ollama", "Ελληνικά πρώτα", "Χωρίς backend"],
+      badge: "Δημόσιο",
+      linkLabel: "Άνοιγμα στο GitHub",
+      sourceNote: "Ο κώδικας είναι στο GitHub",
+    },
+    thermidor: {
+      kicker: "Δημόσιο repository / AI tracker",
+      title: "Thermidor",
+      summary: "Καταγραφή θερμίδων με βοήθεια AI. Offline-first PWA με προαιρετικά modules, γραφήματα και multi-provider AI chat proxy.",
+      detail: "Ό,τι είναι πέρα από τα βασικά ενεργοποιείται προαιρετικά, ώστε η εφαρμογή να μένει μικρή για όποιον θέλει απλώς να καταγράφει γεύματα. Το AI επίπεδο μιλάει σε πολλούς providers πίσω από ένα interface και μπορεί να απενεργοποιηθεί εντελώς.",
+      facts: ["TypeScript", "PWA", "IndexedDB", "Multi-provider AI"],
+      badge: "Δημόσιο",
+      linkLabel: "Άνοιγμα στο GitHub",
+      sourceNote: "Ο κώδικας είναι στο GitHub",
+    },
   },
 };
 
@@ -164,18 +273,18 @@ function CustomCursor() {
 
 function ProjectCard({ repo, index, onOpen, language }: { repo: GitHubRepository; index: number; onOpen: (repo: GitHubRepository) => void; language: Language }) {
   const t = ui[language].project;
-  const story = stories[repo.name.toLowerCase()];
+  const story = stories[language][repo.name.toLowerCase()];
   const reduced = useReducedMotion();
   const revealFrom = index % 2 === 0 ? 28 : 42;
   const revealTilt = index % 2 === 0 ? -.7 : .7;
   return <motion.article className={`project-card project-card--${index + 1} ${repo.private ? "is-private" : ""}`} initial={reduced ? false : { opacity: 0, y: revealFrom, rotate: revealTilt, filter: "blur(6px)" }} whileInView={reduced ? undefined : { opacity: 1, y: 0, rotate: 0, filter: "blur(0px)" }} viewport={{ once: true, amount: .28, margin: "0px 0px -8%" }} transition={reduced ? { duration: 0 } : { duration: .72, delay: (index % 4) * .08, ease: [0.22, 1, 0.36, 1] }} whileHover={reduced ? undefined : { y: -8, rotate: 0 }} whileTap={reduced ? undefined : { scale: .995 }}>
-    <div className="project-card__top"><span>0{String(index + 1).padStart(1, "0")}</span><span className="project-status"><b />{repo.private ? t.private : t.public}</span></div>
+    <div className="project-card__top"><span>0{String(index + 1).padStart(1, "0")}</span><span className="project-status"><b />{story?.badge ?? (repo.private ? t.private : t.public)}</span></div>
       <button type="button" className="project-card__body" onClick={() => onOpen(repo)} aria-label={`${t.openProjectPrefix} ${repo.name}`}>
-      <span className="project-card__name">{repo.name}</span>
+      <span className="project-card__name">{story?.title ?? repo.name}</span>
       <span className="project-card__description">{story?.summary ?? repo.description ?? t.fallback}</span>
       <span className="project-card__open">{t.openDetails} <ArrowUpRight size={15} /></span>
     </button>
-    <div className="project-card__footer"><span>{repo.language ?? t.mixed}</span><span>{repo.stars} {t.stars}</span><span>{repo.forks} {t.forks}</span></div>
+    <div className="project-card__footer">{(story?.facts ?? [repo.language ?? t.mixed]).slice(0, 3).map((fact) => <span key={fact}>{fact}</span>)}</div>
   </motion.article>;
 }
 
@@ -191,11 +300,11 @@ function ProjectDialog({ repo, onClose, language }: { repo: GitHubRepository | n
     return () => { document.body.style.overflow = previousOverflow; window.removeEventListener("keydown", handleKeyDown); };
   }, [repo, onClose]);
   if (!repo) return null;
-  const story = stories[repo.name.toLowerCase()];
+  const story = stories[language][repo.name.toLowerCase()];
   return <AnimatePresence><motion.div className="modal-backdrop" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={onClose}><motion.section className="project-dialog" role="dialog" aria-modal="true" aria-labelledby="project-title" initial={reduced ? false : { opacity: 0, y: 20, scale: .98 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: 12, scale: .98 }} transition={{ duration: .34, ease: [0.22, 1, 0.36, 1] }} onClick={(event) => event.stopPropagation()}>
     <div className="dialog-head"><span>{story?.kicker ?? (repo.private ? t.privateKicker : t.publicKicker)}</span><button type="button" autoFocus onClick={onClose} aria-label={t.closeDetails}><X size={18} /></button></div>
     <div className="dialog-grid"><div><p className="dialog-code">{t.studyLabel} / {repo.name}</p><h2 id="project-title">{story?.title ?? repo.name}</h2><p className="dialog-summary">{story?.summary ?? repo.description}</p></div><div className="dialog-detail"><p>{story?.detail ?? t.detailFallback}</p><div className="fact-list">{(story?.facts ?? [repo.language ?? t.mixed, repo.private ? t.private : t.public]).map((fact) => <span key={fact}><Check size={13} />{fact}</span>)}</div></div></div>
-    <div className="dialog-foot"><span>{repo.private ? t.privateSource : t.sourceGithub}</span><a href={repo.html_url} target="_blank" rel="noreferrer">{t.openDetails} <ExternalLink size={14} /></a></div>
+    <div className="dialog-foot"><span>{story?.sourceNote ?? (repo.private ? t.privateSource : t.sourceGithub)}</span><a href={repo.homepage || repo.html_url} target="_blank" rel="noreferrer">{story?.linkLabel ?? t.openDetails} <ExternalLink size={14} /></a></div>
   </motion.section></motion.div></AnimatePresence>;
 }
 
@@ -390,7 +499,7 @@ export default function Home() {
   const [copied, setCopied] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [selectedSkill, setSelectedSkill] = useState<string>("systems");
-  const [projectFilter, setProjectFilter] = useState<"all" | "typescript" | "pwa" | "ai" | "private">("all");
+  const [projectFilter, setProjectFilter] = useState<"all" | "client" | "ai" | "offline">("all");
 
   const reduced = useReducedMotion();
   const { theme, toggleTheme } = useTheme();
@@ -503,14 +612,8 @@ export default function Home() {
   const activeSkillObj = skillGroups.find((group) => group.id === selectedSkill) ?? skillGroups[0];
 
   const filteredRepos = allGalleryRepos.filter((repo) => {
-    const lang = (repo.language ?? "").toLowerCase();
-    const name = repo.name.toLowerCase();
-    const isPriv = repo.private;
-    if (projectFilter === "typescript") return lang.includes("typescript") || lang.includes("ts");
-    if (projectFilter === "pwa") return name.includes("anabasis") || name.includes("thermidor") || lang.includes("pwa");
-    if (projectFilter === "ai") return name.includes("axon") || name.includes("anafora") || name.includes("thermidor");
-    if (projectFilter === "private") return isPriv;
-    return true;
+    if (projectFilter === "all") return true;
+    return (projectTags[repo.name.toLowerCase()] ?? []).includes(projectFilter);
   });
 
   return <main className={`app-shell motion-${scrollDirection}`} data-active-section={activeSection}>
@@ -560,7 +663,7 @@ export default function Home() {
               <img src={assetUrls.pegasus} alt={language === "el" ? "Καθαρός watercolor Πήγασος που κοιτάζει προς τα δεξιά" : "Clean watercolor Pegasus looking toward the right"} onError={(event) => { event.currentTarget.style.display = "none"; event.currentTarget.parentElement?.classList.add("is-image-missing"); }} />
             </div>
             <div className="hero-visual__label">{t.signatureStudy} <span>{t.flightPath}</span></div>
-            <div className="hero-visual__telemetry" aria-hidden="true"><span>AF / FLIGHT SYSTEM</span><i /><span>{activeSection.toUpperCase()} / {scrollDirection.toUpperCase()}</span></div>
+            <div className="hero-visual__telemetry" aria-hidden="true"><span>AXON / RETHYMNO</span><i /><span>{activeSection.toUpperCase()} / {scrollDirection.toUpperCase()}</span></div>
           </motion.div>
         </div>
       </section>
@@ -572,7 +675,7 @@ export default function Home() {
             <Reveal delay={.1} className="panel-heading__aside"><p>{t.workAside}</p><span>{t.workHint}</span></Reveal>
           </div>
           <div className="project-filters" role="tablist" aria-label="Project technology filters">
-            {(["all", "typescript", "pwa", "ai", "private"] as const).map((filter) => <button type="button" role="tab" aria-selected={projectFilter === filter} key={filter} className={projectFilter === filter ? "is-active" : ""} onClick={() => setProjectFilter(filter)}>{t.project[(`filter${filter.charAt(0).toUpperCase() + filter.slice(1)}` as keyof typeof t.project)] as string}</button>)}
+            {(["all", "client", "ai", "offline"] as const).map((filter) => <button type="button" role="tab" aria-selected={projectFilter === filter} key={filter} className={projectFilter === filter ? "is-active" : ""} onClick={() => setProjectFilter(filter)}>{t.project[(`filter${filter.charAt(0).toUpperCase() + filter.slice(1)}` as keyof typeof t.project)] as string}</button>)}
           </div>
           <AnimatePresence mode="wait" initial={false}>
             {filteredRepos.length > 0 ? (
@@ -609,7 +712,7 @@ export default function Home() {
           <div id="skills-tools" className="skills-tools">
             <div className="skills-tools__head">
               <div><SectionLabel index="02 / tools">{t.skillsToolsNote}</SectionLabel><Reveal><h3>{t.skillsToolsTitle}<br /><em>{t.skillsToolsAccent}</em></h3></Reveal></div>
-              <Reveal delay={.1} className="skills-tools__aside"><p>{t.skillsToolsDescription}</p><span>Editable after git pull / local AI handoff</span></Reveal>
+              <Reveal delay={.1} className="skills-tools__aside"><p>{t.skillsToolsDescription}</p></Reveal>
             </div>
             <div className="skills-tools__grid">
               {skillTools.map((tool, index) => <Reveal key={t.skillsToolGroupLabels[index]} delay={index * .06} className="skills-tool-card"><span className="skills-tool-card__index">0{index + 1}</span><tool.icon size={19} strokeWidth={1.4} /><h4>{t.skillsToolGroupLabels[index]}</h4><div>{tool.items.map((item) => <span key={item}><i />{item}</span>)}</div></Reveal>)}
