@@ -78,7 +78,7 @@ export function registerApiRoutes(app: Express) {
   });
 
   app.get("/api/health", (_req: Request, res: Response) => {
-    return res.json({ status: "healthy", timestamp: new Date().toISOString(), service: "pegasus-portfolio-backend" });
+    return res.json({ status: "healthy", timestamp: new Date().toISOString(), service: "portfolio-backend" });
   });
 }
 

@@ -113,7 +113,7 @@ function vitePluginPortfolioApi(): Plugin {
         if (req.method !== "GET") return next();
         res.statusCode = 200;
         res.setHeader("Content-Type", "application/json");
-        res.end(JSON.stringify({ status: "healthy", timestamp: new Date().toISOString(), service: "pegasus-portfolio-vite" }));
+        res.end(JSON.stringify({ status: "healthy", timestamp: new Date().toISOString(), service: "portfolio-vite" }));
       });
     },
   };
@@ -193,10 +193,14 @@ function vitePluginManusDebugCollector(): Plugin {
   };
 }
 
-const plugins = [react(), tailwindcss(), jsxLocPlugin(), vitePluginManusRuntime(), vitePluginPortfolioApi(), vitePluginManusDebugCollector()];
+// The Manus runtime and debug collector are authoring-time tools: they inline a second copy of React
+// plus an error reporter into index.html. Useful while editing, ~105 kB of render-blocking script for a
+// visitor. They stay in dev and never ship.
+const devOnlyPlugins = [vitePluginManusRuntime(), vitePluginManusDebugCollector()];
+const plugins = [react(), tailwindcss(), jsxLocPlugin(), vitePluginPortfolioApi()];
 
-export default defineConfig({
-  plugins,
+export default defineConfig(({ command }) => ({
+  plugins: command === "build" ? plugins : [...plugins, ...devOnlyPlugins],
   resolve: {
     alias: {
       "@": path.resolve(import.meta.dirname, "client", "src"),
@@ -209,6 +213,16 @@ export default defineConfig({
   build: {
     outDir: path.resolve(import.meta.dirname, "dist/public"),
     emptyOutDir: true,
+    // React and the animation library change far less often than the page itself, so they get their own
+    // long-lived chunks instead of being re-downloaded on every copy edit.
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          react: ["react", "react-dom"],
+          motion: ["framer-motion"],
+        },
+      },
+    },
   },
   server: {
     port: 3000,
@@ -228,4 +242,4 @@ export default defineConfig({
       deny: ["**/.*"],
     },
   },
-});
+}));

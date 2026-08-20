@@ -48,7 +48,7 @@ const FORMSPREE_ENDPOINT = import.meta.env.VITE_FORMSPREE_ENDPOINT || "";
 // Everything else (learning exercises, config repos, unfinished or client-confidential work) stays off the page.
 const curatedNames = ["axon-booking", "axon", "anabasis", "anafora", "thermidor"];
 
-// Client platform: private source, public live demo. Not a GitHub repository, so it is declared here.
+// The booking platform: private source, public live demo. Not a GitHub repository, so it is declared here.
 const bookingProject: GitHubRepository = {
   name: "axon-booking",
   description: null,
@@ -67,7 +67,7 @@ const allGalleryRepos = curatedNames
 
 // Filter buckets, keyed by project. Kept out of the copy layer so both languages share them.
 const projectTags: Record<string, readonly string[]> = {
-  "axon-booking": ["client"],
+  "axon-booking": ["business"],
   axon: ["ai"],
   anabasis: ["offline"],
   anafora: ["ai", "offline"],
@@ -83,19 +83,25 @@ type ProjectStory = {
   badge: string;
   linkLabel: string;
   sourceNote: string;
+  // Screenshots of the real thing, shown inside the dialog. Optional: most projects speak for themselves in words.
+  shots?: { src: string; alt: string; caption: string }[];
 };
 
 const stories: Record<Language, Record<string, ProjectStory>> = {
   en: {
     "axon-booking": {
-      kicker: "Client platform / live demo",
+      kicker: "Business platform / live demo",
       title: "Booking platform",
       summary: "A complete booking system for appointment businesses: public booking page, admin panel with five views, multiple staff members, email confirmations and a waitlist.",
       detail: "Built once as a real product, then configured per business — services, hours, staff, palette. The owner gets an admin panel that works from a phone; the customer books in under a minute without creating an account. The link opens a working demo you can click through.",
       facts: ["Multiple staff", "Email confirmations", "Waitlist", "Phone-friendly admin"],
       badge: "Live",
       linkLabel: "Open the live demo",
-      sourceNote: "Client source stays private",
+      sourceNote: "Source stays private",
+      shots: [
+        { src: "/assets/work-booking-desktop.webp", alt: "Booking page for a barbershop: the shop photo on the left, the appointment form on the right with barber, service and price.", caption: "Barbershop — dark, photographic" },
+        { src: "/assets/work-mbs-desktop.webp", alt: "The same booking engine configured for a different business, with its own palette, typography and service list.", caption: "Second business — its own palette and type" },
+      ],
     },
     axon: {
       kicker: "The system I build with",
@@ -140,14 +146,18 @@ const stories: Record<Language, Record<string, ProjectStory>> = {
   },
   el: {
     "axon-booking": {
-      kicker: "Πλατφόρμα πελάτη / live demo",
+      kicker: "Πλατφόρμα για επιχειρήσεις / live demo",
       title: "Πλατφόρμα κρατήσεων",
       summary: "Ολοκληρωμένο σύστημα κρατήσεων για επιχειρήσεις με ραντεβού: δημόσια σελίδα κράτησης, admin panel με πέντε προβολές, πολλαπλοί συνεργάτες, email επιβεβαίωσης και λίστα αναμονής.",
       detail: "Χτίστηκε μία φορά ως πραγματικό προϊόν και μετά ρυθμίζεται ανά επιχείρηση — υπηρεσίες, ωράριο, προσωπικό, χρώματα. Ο ιδιοκτήτης παίρνει admin panel που δουλεύει από κινητό· ο πελάτης κλείνει ραντεβού σε λιγότερο από ένα λεπτό, χωρίς λογαριασμό. Ο σύνδεσμος ανοίγει demo που μπορείς να δοκιμάσεις.",
       facts: ["Πολλοί συνεργάτες", "Email επιβεβαίωσης", "Λίστα αναμονής", "Admin από κινητό"],
       badge: "Live",
       linkLabel: "Άνοιξε το live demo",
-      sourceNote: "Ο κώδικας του πελάτη μένει ιδιωτικός",
+      sourceNote: "Ο κώδικας μένει ιδιωτικός",
+      shots: [
+        { src: "/assets/work-booking-desktop.webp", alt: "Σελίδα κράτησης για κουρείο: η φωτογραφία του μαγαζιού αριστερά, η φόρμα ραντεβού δεξιά με κουρέα, υπηρεσία και τιμή.", caption: "Κουρείο — σκούρο, φωτογραφικό" },
+        { src: "/assets/work-mbs-desktop.webp", alt: "Η ίδια μηχανή κρατήσεων ρυθμισμένη για άλλη επιχείρηση, με δική της παλέτα, τυπογραφία και λίστα υπηρεσιών.", caption: "Άλλη επιχείρηση — δική της παλέτα και γραμματοσειρά" },
+      ],
     },
     axon: {
       kicker: "Το σύστημα με το οποίο χτίζω",
@@ -241,36 +251,6 @@ function Reveal({ children, className = "", delay = 0 }: { children: ReactNode; 
   return <motion.div className={className} initial={reduced ? false : { opacity: 0, y: 18 }} whileInView={reduced ? undefined : { opacity: 1, y: 0 }} viewport={{ once: true, amount: .2 }} transition={reduced ? { duration: 0 } : { duration: .6, delay, ease: [0.22, 1, 0.36, 1] }}>{children}</motion.div>;
 }
 
-function CustomCursor() {
-  const [position, setPosition] = useState({ x: -100, y: -100 });
-  const [isPointer, setIsPointer] = useState(false);
-  const [isVisible, setIsVisible] = useState(false);
-  const reduced = useReducedMotion();
-
-  useEffect(() => {
-    if (reduced || window.matchMedia("(hover: none)").matches) return;
-    const handleMouseMove = (e: MouseEvent) => {
-      setPosition({ x: e.clientX, y: e.clientY });
-      setIsVisible(true);
-      const target = e.target as HTMLElement | null;
-      if (target) {
-        const clickable = target.closest("button, a, input, textarea, [role='button']");
-        setIsPointer(Boolean(clickable));
-      }
-    };
-    const handleMouseLeave = () => setIsVisible(false);
-    window.addEventListener("mousemove", handleMouseMove, { passive: true });
-    document.addEventListener("mouseleave", handleMouseLeave);
-    return () => {
-      window.removeEventListener("mousemove", handleMouseMove);
-      document.removeEventListener("mouseleave", handleMouseLeave);
-    };
-  }, [reduced]);
-
-  if (reduced || !isVisible) return null;
-  return <div className={`cinematic-cursor ${isPointer ? "is-pointer" : ""}`} style={{ transform: `translate3d(${position.x}px, ${position.y}px, 0)` }} aria-hidden="true"><div className="cinematic-cursor__dot" /><div className="cinematic-cursor__ring" /></div>;
-}
-
 function ProjectCard({ repo, index, onOpen, language }: { repo: GitHubRepository; index: number; onOpen: (repo: GitHubRepository) => void; language: Language }) {
   const t = ui[language].project;
   const story = stories[language][repo.name.toLowerCase()];
@@ -304,6 +284,7 @@ function ProjectDialog({ repo, onClose, language }: { repo: GitHubRepository | n
   return <AnimatePresence><motion.div className="modal-backdrop" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={onClose}><motion.section className="project-dialog" role="dialog" aria-modal="true" aria-labelledby="project-title" initial={reduced ? false : { opacity: 0, y: 20, scale: .98 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: 12, scale: .98 }} transition={{ duration: .34, ease: [0.22, 1, 0.36, 1] }} onClick={(event) => event.stopPropagation()}>
     <div className="dialog-head"><span>{story?.kicker ?? (repo.private ? t.privateKicker : t.publicKicker)}</span><button type="button" autoFocus onClick={onClose} aria-label={t.closeDetails}><X size={18} /></button></div>
     <div className="dialog-grid"><div><p className="dialog-code">{t.studyLabel} / {repo.name}</p><h2 id="project-title">{story?.title ?? repo.name}</h2><p className="dialog-summary">{story?.summary ?? repo.description}</p></div><div className="dialog-detail"><p>{story?.detail ?? t.detailFallback}</p><div className="fact-list">{(story?.facts ?? [repo.language ?? t.mixed, repo.private ? t.private : t.public]).map((fact) => <span key={fact}><Check size={13} />{fact}</span>)}</div></div></div>
+    {story?.shots && <div className="dialog-shots">{story.shots.map((shot) => <figure key={shot.src}><img src={shot.src} alt={shot.alt} loading="lazy" decoding="async" width={1280} height={860} /><figcaption>{shot.caption}</figcaption></figure>)}</div>}
     <div className="dialog-foot"><span>{story?.sourceNote ?? (repo.private ? t.privateSource : t.sourceGithub)}</span><a href={repo.homepage || repo.html_url} target="_blank" rel="noreferrer">{story?.linkLabel ?? t.openDetails} <ExternalLink size={14} /></a></div>
   </motion.section></motion.div></AnimatePresence>;
 }
@@ -425,67 +406,92 @@ function ContactForm({ language }: { language: Language }) {
   </form>;
 }
 
-function CinematicLoader({ onComplete, language }: { onComplete: () => void; language: Language }) {
+/**
+ * Intro curtain.
+ * Shown once per browser session, skippable at any moment, and gone in under a second.
+ * A visitor who opens the site twice — a client following up on a link — never waits again.
+ */
+function Intro({ onComplete, language }: { onComplete: () => void; language: Language }) {
   const [progress, setProgress] = useState(0);
   const [exiting, setExiting] = useState(false);
-  const t = ui[language].loader;
+  const t = ui[language].intro;
   const reduced = useReducedMotion();
+
+  const skip = useCallback(() => setExiting(true), []);
 
   useEffect(() => {
     let frameId = 0;
-    let exitTimer = 0;
-    let completeTimer = 0;
-    let completed = false;
+    const duration = reduced ? 200 : 950;
     const startedAt = window.performance.now();
-    const duration = reduced ? 260 : 1700;
 
     const tick = (now: number) => {
       const ratio = Math.min(1, (now - startedAt) / duration);
-      const eased = 1 - Math.pow(1 - ratio, 3);
-      setProgress(Math.round(eased * 100));
-      if (ratio >= 1) {
-        if (completed) return;
-        completed = true;
-        completeTimer = window.setTimeout(() => {
-          setExiting(true);
-          exitTimer = window.setTimeout(onComplete, reduced ? 90 : 620);
-        }, reduced ? 30 : 180);
-        return;
-      }
+      setProgress(Math.round((1 - Math.pow(1 - ratio, 3)) * 100));
+      if (ratio >= 1) { setExiting(true); return; }
       frameId = window.requestAnimationFrame(tick);
     };
-
     frameId = window.requestAnimationFrame(tick);
+
+    // The curtain owns the screen while it is up: no scrolling behind it, no stray scrollbar.
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    window.addEventListener("keydown", skip);
+    window.addEventListener("wheel", skip, { passive: true });
+    window.addEventListener("touchstart", skip, { passive: true });
     return () => {
       window.cancelAnimationFrame(frameId);
-      window.clearTimeout(completeTimer);
-      window.clearTimeout(exitTimer);
+      document.body.style.overflow = previousOverflow;
+      window.removeEventListener("keydown", skip);
+      window.removeEventListener("wheel", skip);
+      window.removeEventListener("touchstart", skip);
     };
-  }, [onComplete, reduced]);
+  }, [reduced, skip]);
 
-  return <motion.div className={`loading-screen ${exiting ? "is-exiting" : ""}`} role="dialog" aria-modal="true" aria-label={t.aria} initial={{ opacity: 1 }} exit={{ opacity: 0, scale: 1.02, filter: "blur(8px)" }} transition={{ duration: reduced ? .12 : .65, ease: [0.22, 1, 0.36, 1] }}>
-    <div className="loading-screen__grid" aria-hidden="true" />
-    <div className="loading-screen__top"><span>{t.topLeft}</span><strong>{t.topRight}</strong></div>
-    <div className="loading-screen__signal" aria-hidden="true"><i /><span>{progress < 70 ? t.signalCalibrating : t.signalOpening}</span></div>
-    <div className="loading-screen__stage" aria-hidden="true">
-      <div className="loading-screen__orbit loading-screen__orbit--outer" />
-      <div className="loading-screen__orbit loading-screen__orbit--inner" />
-      <div className="loading-screen__orbit loading-screen__orbit--trace" />
-      <img className="loading-screen__pegasus" src="/assets/pegasus.webp" alt="" />
+  useEffect(() => {
+    if (!exiting) return;
+    const timer = window.setTimeout(onComplete, reduced ? 60 : 420);
+    return () => window.clearTimeout(timer);
+  }, [exiting, onComplete, reduced]);
+
+  return <motion.div
+    className={`intro ${exiting ? "is-exiting" : ""}`}
+    role="dialog"
+    aria-modal="true"
+    aria-label={t.aria}
+    onClick={skip}
+    initial={{ opacity: 1 }}
+    exit={{ opacity: 0, y: reduced ? 0 : "-4%" }}
+    transition={{ duration: reduced ? .06 : .42, ease: [0.22, 1, 0.36, 1] }}
+  >
+    <div className="intro__rule" aria-hidden="true" style={{ transform: `scaleX(${progress / 100})` }} />
+    <div className="intro__corner intro__corner--top"><span>{t.name}</span><span>{t.place}</span></div>
+
+    <div className="intro__center">
+      <span className="intro__mark" aria-hidden="true">AF</span>
+      <p className="intro__line">{t.line}</p>
+      <p className="intro__accent">{t.lineAccent}</p>
     </div>
-    <div className="loading-screen__center">
-      <div className="loading-screen__monogram" aria-hidden="true"><span>A</span><span>F</span></div>
-      <p className="loading-screen__name">Aggelos</p>
-      <p className="loading-screen__sub">Frantzeskakis / digital craft</p>
-      <div className="loading-screen__progress" role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(progress)} aria-label={t.aria}><span style={{ width: `${progress}%` }} /></div>
-      <div className="loading-screen__status"><span>{progress < 70 ? t.calibrating : t.opening}</span><strong>{Math.round(progress)}%</strong></div>
+
+    <div className="intro__corner intro__corner--bottom">
+      <span
+        className="intro__progress"
+        role="progressbar"
+        aria-valuemin={0}
+        aria-valuemax={100}
+        aria-valuenow={progress}
+        aria-label={t.aria}
+      >{String(progress).padStart(3, "0")}</span>
+      <button type="button" className="intro__skip" onClick={skip}>{t.skip}</button>
     </div>
-    <div className="loading-screen__bottom"><span>{t.bottomLeft}</span><span>{t.bottomRight}</span></div>
   </motion.div>;
 }
 
 export default function Home() {
-  const [isLoading, setIsLoading] = useState(true);
+  // The intro plays once per session. A client who reopens the link goes straight to the content.
+  const [isLoading, setIsLoading] = useState(() => {
+    if (typeof window === "undefined") return false;
+    try { return window.sessionStorage.getItem("af-intro-seen") !== "1"; } catch { return true; }
+  });
   const [activeSection, setActiveSection] = useState("home");
   const [language, setLanguage] = useState<Language>(() => {
     if (typeof window === "undefined") return "en";
@@ -499,11 +505,14 @@ export default function Home() {
   const [copied, setCopied] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [selectedSkill, setSelectedSkill] = useState<string>("systems");
-  const [projectFilter, setProjectFilter] = useState<"all" | "client" | "ai" | "offline">("all");
+  const [projectFilter, setProjectFilter] = useState<"all" | "business" | "ai" | "offline">("all");
 
   const reduced = useReducedMotion();
   const { theme, toggleTheme } = useTheme();
-  const completeLoading = useCallback(() => setIsLoading(false), []);
+  const completeLoading = useCallback(() => {
+    try { window.sessionStorage.setItem("af-intro-seen", "1"); } catch { /* private mode: just move on */ }
+    setIsLoading(false);
+  }, []);
   const t = ui[language];
 
   useEffect(() => {
@@ -540,31 +549,12 @@ export default function Home() {
   }, []);
 
   const assetUrls = {
-    pegasus: "/assets/pegasus.webp",
+    bookingDesktop: "/assets/work-booking-desktop.webp",
+    bookingMobile: "/assets/work-booking-mobile.webp",
     brandMark: "/assets/af-brand-mark.webp",
   };
 
   const cvUrl = "/assets/Aggelos-Frantzeskakis-CV.pdf";
-
-  useEffect(() => {
-    if (reduced || window.matchMedia("(hover: none)").matches) return;
-    let frame = 0;
-    const handlePointerMove = (e: MouseEvent) => {
-      if (frame) return;
-      frame = window.requestAnimationFrame(() => {
-        const x = (e.clientX / window.innerWidth - 0.5) * 16;
-        const y = (e.clientY / window.innerHeight - 0.5) * 16;
-        document.documentElement.style.setProperty("--pointer-shift-x", `${x}px`);
-        document.documentElement.style.setProperty("--pointer-shift-y", `${y}px`);
-        frame = 0;
-      });
-    };
-    window.addEventListener("pointermove", handlePointerMove, { passive: true });
-    return () => {
-      window.removeEventListener("pointermove", handlePointerMove);
-      if (frame) window.cancelAnimationFrame(frame);
-    };
-  }, [reduced]);
 
   function scrollToSection(id: string) {
     const el = document.getElementById(id);
@@ -617,8 +607,7 @@ export default function Home() {
   });
 
   return <main className={`app-shell motion-${scrollDirection}`} data-active-section={activeSection}>
-    <CustomCursor />
-    <AnimatePresence>{isLoading && <CinematicLoader onComplete={completeLoading} language={language} />}</AnimatePresence>
+    <AnimatePresence>{isLoading && <Intro onComplete={completeLoading} language={language} />}</AnimatePresence>
     <div className="grain" aria-hidden="true" />
     <header className="topbar">
       <a className="brand" href="#home" onClick={(event) => { event.preventDefault(); scrollToSection("home"); }} aria-label={t.brandHome}>
@@ -652,19 +641,35 @@ export default function Home() {
               <button type="button" className="button button--dark" onClick={() => scrollToSection("work")}>{t.exploreWork} <ArrowDown size={16} /></button>
               <button type="button" className="text-button" onClick={() => scrollToSection("skills")}>{t.seeSkills} <ChevronRight size={15} /></button>
             </Reveal>
-            <div className="hero-signature"><span>{t.nowExploring}</span><strong>{t.heroSignature}</strong></div>
+            <div className="hero-signature"><span>{t.baseLabel}</span><strong>{t.heroSignature}</strong></div>
           </div>
-          <motion.div className={`hero-visual hero-visual--${scrollDirection}`} animate={reduced ? undefined : { y: [0, -7, 0] }} transition={reduced ? undefined : { duration: 6, repeat: Infinity, ease: "easeInOut" }}>
-            <div className="hero-visual__scene">
-              <div className="hero-visual__orbit" aria-hidden="true" />
-              <div className="hero-visual__orbit hero-visual__orbit--inner" aria-hidden="true" />
-              <div className="hero-visual__trace" aria-hidden="true" />
-              <div className="hero-visual__trace hero-visual__trace--fine" aria-hidden="true" />
-              <img src={assetUrls.pegasus} alt={language === "el" ? "Καθαρός watercolor Πήγασος που κοιτάζει προς τα δεξιά" : "Clean watercolor Pegasus looking toward the right"} onError={(event) => { event.currentTarget.style.display = "none"; event.currentTarget.parentElement?.classList.add("is-image-missing"); }} />
-            </div>
-            <div className="hero-visual__label">{t.signatureStudy} <span>{t.flightPath}</span></div>
-            <div className="hero-visual__telemetry" aria-hidden="true"><span>AXON / RETHYMNO</span><i /><span>{activeSection.toUpperCase()} / {scrollDirection.toUpperCase()}</span></div>
-          </motion.div>
+          <div className="hero-proof">
+            <figure className="hero-proof__desktop">
+              <img
+                src={assetUrls.bookingDesktop}
+                width={1280}
+                height={860}
+                alt={t.heroProofDesktopAlt}
+                loading="eager"
+                decoding="async"
+                fetchPriority="high"
+              />
+            </figure>
+            <figure className="hero-proof__phone">
+              <img
+                src={assetUrls.bookingMobile}
+                width={414}
+                height={880}
+                alt={t.heroProofPhoneAlt}
+                loading="eager"
+                decoding="async"
+              />
+            </figure>
+            <figcaption className="hero-proof__caption">
+              <span>{t.heroProofLabel}</span>
+              <a href="https://axonos.dev/book/block-barbers" target="_blank" rel="noreferrer">{t.heroProofLink} <ArrowUpRight size={12} /></a>
+            </figcaption>
+          </div>
         </div>
       </section>
 
@@ -675,7 +680,7 @@ export default function Home() {
             <Reveal delay={.1} className="panel-heading__aside"><p>{t.workAside}</p><span>{t.workHint}</span></Reveal>
           </div>
           <div className="project-filters" role="tablist" aria-label="Project technology filters">
-            {(["all", "client", "ai", "offline"] as const).map((filter) => <button type="button" role="tab" aria-selected={projectFilter === filter} key={filter} className={projectFilter === filter ? "is-active" : ""} onClick={() => setProjectFilter(filter)}>{t.project[(`filter${filter.charAt(0).toUpperCase() + filter.slice(1)}` as keyof typeof t.project)] as string}</button>)}
+            {(["all", "business", "ai", "offline"] as const).map((filter) => <button type="button" role="tab" aria-selected={projectFilter === filter} key={filter} className={projectFilter === filter ? "is-active" : ""} onClick={() => setProjectFilter(filter)}>{t.project[(`filter${filter.charAt(0).toUpperCase() + filter.slice(1)}` as keyof typeof t.project)] as string}</button>)}
           </div>
           <AnimatePresence mode="wait" initial={false}>
             {filteredRepos.length > 0 ? (
