@@ -476,25 +476,6 @@ a, button, [role="button"], summary { cursor: pointer; }
 }
 
 /* ─────────────────────────────────────────────────────────────
-   Intro curtain
-   One rule drawing left to right, the wordmark, one honest line.
-   No decoration that has to be explained.
-   ───────────────────────────────────────────────────────────── */
-.intro { position: fixed; inset: 0; z-index: 200; display: grid; place-items: center; overflow: hidden; padding: 24px; color: #f4f4ef; background: #121211; cursor: pointer; isolation: isolate; }
-.intro__rule { position: absolute; top: 0; right: 0; left: 0; height: 2px; background: var(--accent); transform-origin: left center; will-change: transform; }
-.intro__corner { position: absolute; right: 26px; left: 26px; display: flex; align-items: center; justify-content: space-between; gap: 16px; color: rgba(244,244,239,.5); font: 9px 'DM Mono', monospace; letter-spacing: .1em; text-transform: uppercase; }
-.intro__corner--top { top: 24px; }
-.intro__corner--bottom { bottom: 24px; }
-.intro__center { display: flex; flex-direction: column; align-items: center; gap: 0; text-align: center; }
-.intro__mark { display: block; margin-bottom: 26px; color: var(--accent); font: 500 clamp(3.4rem, 12vw, 6rem)/1 'Playfair Display', serif; letter-spacing: -.09em; }
-.intro__line { max-width: 18ch; margin: 0; font: 500 clamp(1.5rem, 5.2vw, 2.75rem)/1.16 'Playfair Display', serif; letter-spacing: -.03em; }
-.intro__accent { max-width: 18ch; margin: 2px 0 0; color: var(--accent); font: italic 500 clamp(1.5rem, 5.2vw, 2.75rem)/1.16 'Playfair Display', serif; letter-spacing: -.03em; }
-.intro__progress { color: var(--accent); font-variant-numeric: tabular-nums; }
-.intro__skip { padding: 8px 4px; color: rgba(244,244,239,.5); background: transparent; font: inherit; letter-spacing: inherit; text-transform: inherit; }
-.intro__skip:hover, .intro__skip:focus-visible { color: #f4f4ef; }
-.intro.is-exiting { pointer-events: none; }
-
-/* ─────────────────────────────────────────────────────────────
    Hero proof — the actual product, on the two screens it runs on.
    ───────────────────────────────────────────────────────────── */
 .hero-proof { position: relative; display: block; width: 100%; padding: 0 0 46px 0; }
@@ -523,8 +504,6 @@ a, button, [role="button"], summary { cursor: pointer; }
 html[lang="el"] .hero-panel h1,
 html[lang="el"] .panel h2,
 html[lang="el"] .skills-tools__head h3 { line-height: 1.04; letter-spacing: -.045em; }
-html[lang="el"] .intro__line,
-html[lang="el"] .intro__accent { line-height: 1.24; letter-spacing: -.02em; }
 html[lang="el"] .hero-panel h1 { font-size: clamp(3.1rem, 6.4vw, 6.6rem); }
 html[lang="el"] .panel h2 { font-size: clamp(2.8rem, 5.6vw, 5.4rem); }
 /* Italic accent lines sit on their own baseline so they never overlap the line above. */
@@ -556,8 +535,6 @@ html[lang="el"] .panel h2 { font-size: clamp(2.8rem, 5.6vw, 5.4rem); }
   .hero-proof__phone { width: 96px; bottom: 20px; }
   .hero-proof__caption { position: static; margin-top: 16px; }
   .hero-proof { padding-bottom: 0; }
-  .intro__corner { right: 16px; left: 16px; font-size: 8px; }
-  .intro__mark { margin-bottom: 18px; }
 }
 
 /* ─────────────────────────────────────────────────────────────

@@ -406,92 +406,7 @@ function ContactForm({ language }: { language: Language }) {
   </form>;
 }
 
-/**
- * Intro curtain.
- * Shown once per browser session, skippable at any moment, and gone in under a second.
- * A visitor who opens the site twice — a client following up on a link — never waits again.
- */
-function Intro({ onComplete, language }: { onComplete: () => void; language: Language }) {
-  const [progress, setProgress] = useState(0);
-  const [exiting, setExiting] = useState(false);
-  const t = ui[language].intro;
-  const reduced = useReducedMotion();
-
-  const skip = useCallback(() => setExiting(true), []);
-
-  useEffect(() => {
-    let frameId = 0;
-    const duration = reduced ? 200 : 950;
-    const startedAt = window.performance.now();
-
-    const tick = (now: number) => {
-      const ratio = Math.min(1, (now - startedAt) / duration);
-      setProgress(Math.round((1 - Math.pow(1 - ratio, 3)) * 100));
-      if (ratio >= 1) { setExiting(true); return; }
-      frameId = window.requestAnimationFrame(tick);
-    };
-    frameId = window.requestAnimationFrame(tick);
-
-    // The curtain owns the screen while it is up: no scrolling behind it, no stray scrollbar.
-    const previousOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    window.addEventListener("keydown", skip);
-    window.addEventListener("wheel", skip, { passive: true });
-    window.addEventListener("touchstart", skip, { passive: true });
-    return () => {
-      window.cancelAnimationFrame(frameId);
-      document.body.style.overflow = previousOverflow;
-      window.removeEventListener("keydown", skip);
-      window.removeEventListener("wheel", skip);
-      window.removeEventListener("touchstart", skip);
-    };
-  }, [reduced, skip]);
-
-  useEffect(() => {
-    if (!exiting) return;
-    const timer = window.setTimeout(onComplete, reduced ? 60 : 420);
-    return () => window.clearTimeout(timer);
-  }, [exiting, onComplete, reduced]);
-
-  return <motion.div
-    className={`intro ${exiting ? "is-exiting" : ""}`}
-    role="dialog"
-    aria-modal="true"
-    aria-label={t.aria}
-    onClick={skip}
-    initial={{ opacity: 1 }}
-    exit={{ opacity: 0, y: reduced ? 0 : "-4%" }}
-    transition={{ duration: reduced ? .06 : .42, ease: [0.22, 1, 0.36, 1] }}
-  >
-    <div className="intro__rule" aria-hidden="true" style={{ transform: `scaleX(${progress / 100})` }} />
-    <div className="intro__corner intro__corner--top"><span>{t.name}</span><span>{t.place}</span></div>
-
-    <div className="intro__center">
-      <span className="intro__mark" aria-hidden="true">AF</span>
-      <p className="intro__line">{t.line}</p>
-      <p className="intro__accent">{t.lineAccent}</p>
-    </div>
-
-    <div className="intro__corner intro__corner--bottom">
-      <span
-        className="intro__progress"
-        role="progressbar"
-        aria-valuemin={0}
-        aria-valuemax={100}
-        aria-valuenow={progress}
-        aria-label={t.aria}
-      >{String(progress).padStart(3, "0")}</span>
-      <button type="button" className="intro__skip" onClick={skip}>{t.skip}</button>
-    </div>
-  </motion.div>;
-}
-
 export default function Home() {
-  // The intro plays once per session. A client who reopens the link goes straight to the content.
-  const [isLoading, setIsLoading] = useState(() => {
-    if (typeof window === "undefined") return false;
-    try { return window.sessionStorage.getItem("af-intro-seen") !== "1"; } catch { return true; }
-  });
   const [activeSection, setActiveSection] = useState("home");
   const [language, setLanguage] = useState<Language>(() => {
     if (typeof window === "undefined") return "en";
@@ -509,10 +424,6 @@ export default function Home() {
 
   const reduced = useReducedMotion();
   const { theme, toggleTheme } = useTheme();
-  const completeLoading = useCallback(() => {
-    try { window.sessionStorage.setItem("af-intro-seen", "1"); } catch { /* private mode: just move on */ }
-    setIsLoading(false);
-  }, []);
   const t = ui[language];
 
   useEffect(() => {
@@ -607,7 +518,6 @@ export default function Home() {
   });
 
   return <main className={`app-shell motion-${scrollDirection}`} data-active-section={activeSection}>
-    <AnimatePresence>{isLoading && <Intro onComplete={completeLoading} language={language} />}</AnimatePresence>
     <div className="grain" aria-hidden="true" />
     <header className="topbar">
       <a className="brand" href="#home" onClick={(event) => { event.preventDefault(); scrollToSection("home"); }} aria-label={t.brandHome}>
