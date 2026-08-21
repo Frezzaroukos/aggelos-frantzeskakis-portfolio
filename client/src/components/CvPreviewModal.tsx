@@ -36,7 +36,7 @@ export default function CvPreviewModal({ open, onClose, onDownload, language }: 
             <div className="cv-paper__rule" />
             <p>{t.summary}</p>
             <div className="cv-paper__columns">
-              <div><small>{t.selectedWork}</small><strong>AXON OSS</strong><span>Local-first AI operating system · multi-provider routing · RAG</span><strong>Anabasis</strong><span>Offline-first PWA · TypeScript · bilingual skill progression</span></div>
+              <div><small>{t.selectedWork}</small><strong>Booking platform</strong><span>Built for a real barbershop, live as a demo · admin panel, staff, waitlist</span><strong>AXON OSS</strong><span>Local-first AI operating system · multi-provider routing · RAG</span><strong>Anabasis</strong><span>Offline-first PWA · TypeScript · bilingual skill progression</span></div>
               <div><small>{t.capabilities}</small><span>Product thinking</span><span>Local AI workflows</span><span>React / TypeScript</span><span>PWA architecture</span><span>Interface systems</span></div>
             </div>
             <div className="cv-paper__footer"><span>aggelosf2016@gmail.com</span><span>github.com/Frezzaroukos</span></div>
